@@ -1,5 +1,5 @@
 {
-  "name": "figma-mcp",
+  "name": "@yhy2001/figma-mcp-server",
   "version": "1.0.0",
   "description": "本地MCP服务器，用于Figma设计与AI编码工具集成",
   "type": "module",
@@ -16,6 +16,7 @@
     "build": "tsup",
     "test:figma": "tsx test-figma-data.ts",
     "prepublishOnly": "npm run build",
+    "start": "node dist/index.js",
     "inspect": "pnpx @modelcontextprotocol/inspector",
     "mcp-test": "pnpm start -- --stdio",
     "type-check": "tsc --noEmit",
@@ -24,7 +25,7 @@
     "dev:cli": "cross-env NODE_ENV=development tsup --watch -- --stdio",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "pub:release": "pnpm build && npm publish",
+    "pub:release": "pnpm build && npm publish --access public",
     "publish:local": "pnpm build && npm pack"
   },
   "engines": {
