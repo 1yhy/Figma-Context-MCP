@@ -1,6 +1,8 @@
 # Figma MCP 服务器
 
-> 本项目基于开源项目 [Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) 改进，修改Figma设计稿返回样式格式。
+> 本项目基于开源项目 [Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) 改进，提供了本地化支持和额外功能。
+
+[English Version](./README.en.md) | 中文版
 
 这是一个基于[模型上下文协议(MCP)](https://modelcontextprotocol.io/introduction)的服务器，允许您将Figma设计文件与[Cursor](https://cursor.sh/)、[Windsurf](https://codeium.com/windsurf)、[Cline](https://cline.bot/)等AI编码工具无缝集成。
 
@@ -82,11 +84,23 @@ npx figma-mcp --figma-api-key=<your-figma-api-key>
 您可以在配置文件中添加以下内容：
 
 ```json
+# MCP Client使用
 {
   "mcpServers": {
     "Figma MCP": {
       "command": "npx",
       "args": ["figma-mcp", "--figma-api-key=<your-figma-api-key>", "--stdio"]
+    }
+  }
+}
+# 本地使用
+{
+  "mcpServers": {
+    "Figma MCP": {
+      "url": "http://localhost:3333/sse",
+      "env": {
+        "API_KEY": "figd_fTp85KCUhQhKrUDoAgwp6724Brizwx9c8Lrieaef"
+      }
     }
   }
 }
