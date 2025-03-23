@@ -1,11 +1,11 @@
 {
-  "name": "figma-developer-mcp",
-  "version": "0.1.12",
-  "description": "Model Context Protocol server for Figma integration",
+  "name": "figma-mcp",
+  "version": "1.0.0",
+  "description": "本地MCP服务器，用于Figma设计与AI编码工具集成",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "figma-developer-mcp": "dist/index.js"
+    "figma-mcp": "dist/index.js"
   },
   "files": [
     "dist",
@@ -15,9 +15,7 @@
     "dev": "cross-env NODE_ENV=development tsup --watch",
     "build": "tsup",
     "test:figma": "tsx test-figma-data.ts",
-    "test:compare": "tsx test-figma-comparison.ts",
     "prepublishOnly": "npm run build",
-    "start": "node dist/index.js",
     "inspect": "pnpx @modelcontextprotocol/inspector",
     "mcp-test": "pnpm start -- --stdio",
     "type-check": "tsc --noEmit",
@@ -26,19 +24,22 @@
     "dev:cli": "cross-env NODE_ENV=development tsup --watch -- --stdio",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "pub:release": "pnpm build && npm publish"
+    "pub:release": "pnpm build && npm publish",
+    "publish:local": "pnpm build && npm pack"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GLips/Figma-Context-MCP.git"
+    "url": "git+https://github.com/1yhy/figma-mcp-server.git"
   },
   "keywords": [
     "figma",
     "mcp",
-    "typescript"
+    "typescript",
+    "ai",
+    "design"
   ],
   "author": "",
   "license": "MIT",

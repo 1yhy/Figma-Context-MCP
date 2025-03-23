@@ -1,167 +1,107 @@
-# Figma MCP Server
+# Figma MCP 服务器
 
-Give [Cursor](https://cursor.sh/), [Windsurf](https://codeium.com/windsurf), [Cline](https://cline.bot/), and other AI-powered coding tools access to your Figma files with this [Model Context Protocol](https://modelcontextprotocol.io/introduction) server.
+这是一个基于[模型上下文协议(MCP)](https://modelcontextprotocol.io/introduction)的服务器，允许您将Figma设计文件与[Cursor](https://cursor.sh/)、[Windsurf](https://codeium.com/windsurf)、[Cline](https://cline.bot/)等AI编码工具无缝集成。
 
-When Cursor has access to Figma design data, it's **way** better at one-shotting designs accurately than alternative approaches like pasting screenshots.
+当AI工具能够访问Figma设计数据时，它们能够更准确地一次性生成符合设计的代码，比截图等传统方式效果更好。
 
-Get started quickly, see [Configuration](#configuration) for more details:
+## 功能特点
 
-```bash
-npx figma-developer-mcp --figma-api-key=<your-figma-api-key>
-```
+- 将Figma设计数据转换为AI模型易于理解的格式
+- 支持获取Figma文件、画板或组件的布局和样式信息
+- 支持下载Figma中的图片和图标资源
+- 减少提供给模型的上下文量，提高AI响应的准确性和相关性
 
-## Demo Video
+## 安装与使用
 
-[Watch a demo of building a UI in Cursor with Figma design data](https://youtu.be/6G9yb-LrEqg)
-[![Watch the video](https://img.youtube.com/vi/6G9yb-LrEqg/maxresdefault.jpg)](https://youtu.be/6G9yb-LrEqg)
+### 本地开发和打包
 
-<a href="https://glama.ai/mcp/servers/kcftotr525"><img width="380" height="200" src="https://glama.ai/mcp/servers/kcftotr525/badge" alt="Figma Server MCP server" /></a>
+1. 克隆本仓库
+2. 安装依赖：`pnpm install`
+3. 复制`.env.example`为`.env`并填入您的[Figma API访问令牌](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens)
+4. 本地开发：`pnpm run dev`
+5. 构建项目：`pnpm run build`
+6. 本地打包：`pnpm run publish:local`
 
-## How it works
+打包后会在项目根目录生成一个`.tgz`文件，如`figma-mcp-server-1.0.0.tgz`
 
-1. Open Cursor's composer in agent mode.
-1. Paste a link to a Figma file, frame, or group.
-1. Ask Cursor to do something with the Figma file—e.g. implement a design.
-1. Cursor will fetch the relevant metadata from Figma and use it to write your code.
+### 本地安装使用
 
-This MCP server is specifically designed for use with Cursor. Before responding with context from the [Figma API](https://www.figma.com/developers/api), it simplifies and translates the response so only the most relevant layout and styling information is provided to the model.
+有两种方式可以在本地使用打包好的服务：
 
-Reducing the amount of context provided to the model helps make the AI more accurate and the responses more relevant.
-
-## Installation
-
-### Running the server quickly with NPM
-
-You can run the server quickly without installing or building the repo using NPM:
+#### 方式1：全局安装
 
 ```bash
-npx figma-developer-mcp --figma-api-key=<your-figma-api-key>
+# 全局安装本地包
+npm install -g ./figma-mcp-server-1.0.0.tgz
 
-# or
-pnpx figma-developer-mcp --figma-api-key=<your-figma-api-key>
-
-# or
-yarn dlx figma-developer-mcp --figma-api-key=<your-figma-api-key>
-
-# or
-bunx figma-developer-mcp --figma-api-key=<your-figma-api-key>
+# 启动服务
+figma-mcp --figma-api-key=<your-figma-api-key>
 ```
 
-Instructions on how to create a Figma API access token can be found [here](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens).
+#### 方式2：本地项目安装
 
-### JSON config for tools that use configuration files
+```bash
+# 在您的项目中安装
+npm install ./figma-mcp-server-1.0.0.tgz
 
-Many tools like Windsurf, Cline, and [Claude Desktop](https://claude.ai/download) use a configuration file to start the server.
+# 在package.json的scripts中添加
+# "start-figma-mcp": "figma-mcp --figma-api-key=<your-figma-api-key>"
 
-The `figma-developer-mcp` server can be configured by adding the following to your configuration file:
+# 或者直接运行
+npx figma-mcp --figma-api-key=<your-figma-api-key>
+```
+
+### 命令行参数
+
+- `--version`: 显示版本号
+- `--figma-api-key`: 您的Figma API访问令牌（必需）
+- `--port`: 服务器运行的端口（默认：3333）
+- `--stdio`: 以命令模式运行服务器，而不是默认的HTTP/SSE模式
+- `--help`: 显示帮助菜单
+
+## 与AI工具连接
+
+### 在配置文件中使用
+
+许多工具如Cursor、Windsurf和Claude Desktop使用配置文件来启动MCP服务器。
+您可以在配置文件中添加以下内容：
 
 ```json
 {
   "mcpServers": {
-    "Framelink Figma MCP": {
+    "Figma MCP": {
       "command": "npx",
-      "args": ["-y", "figma-developer-mcp", "--figma-api-key=<your-figma-api-key>", "--stdio"]
+      "args": ["figma-mcp", "--figma-api-key=<your-figma-api-key>", "--stdio"]
     }
   }
 }
 ```
 
-### Running the server from local source
+### 与Cursor连接
 
-1. Clone the [repository](https://github.com/GLips/Figma-Context-MCP)
-2. Install dependencies with `pnpm install`
-3. Copy `.env.example` to `.env` and fill in your [Figma API access token](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens). Only read access is required.
-4. Run the server with `pnpm run dev`, along with any of the flags from the [Command-line Arguments](#command-line-arguments) section.
+1. 启动服务器：`figma-mcp --figma-api-key=<your-figma-api-key>`
+2. 在Cursor的设置→功能选项卡中连接MCP服务器：`http://localhost:3333`
+3. 确认连接成功后，在Agent模式下使用Composer
+4. 粘贴Figma文件链接并要求Cursor实现设计
 
-## Configuration
+## 可用工具
 
-The server can be configured using either environment variables (via `.env` file) or command-line arguments. Command-line arguments take precedence over environment variables.
-
-### Environment Variables
-
-- `FIGMA_API_KEY`: Your [Figma API access token](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens) (required)
-- `PORT`: The port to run the server on (default: 3333)
-
-### Command-line Arguments
-
-- `--version`: Show version number
-- `--figma-api-key`: Your Figma API access token
-- `--port`: The port to run the server on
-- `--stdio`: Run the server in command mode, instead of default HTTP/SSE
-- `--help`: Show help menu
-
-## Connecting to Cursor
-
-### Start the server
-
-```bash
-> npx figma-developer-mcp --figma-api-key=<your-figma-api-key>
-# Initializing Figma MCP Server in HTTP mode on port 3333...
-# HTTP server listening on port 3333
-# SSE endpoint available at http://localhost:3333/sse
-# Message endpoint available at http://localhost:3333/messages
-```
-
-### Connect Cursor to the MCP server
-
-Once the server is running, [connect Cursor to the MCP server](https://docs.cursor.com/context/model-context-protocol) in Cursor's settings, under the features tab.
-
-![Connecting to MCP server in Cursor](./docs/cursor-MCP-settings.png)
-
-After the server has been connected, you can confirm Cursor's has a valid connection before getting started. If you get a green dot and the tools show up, you're good to go!
-
-![Confirming connection in Cursor](./docs/verify-connection.png)
-
-### Start using Composer with your Figma designs
-
-Once the MCP server is connected, **you can start using the tools in Cursor's composer, as long as the composer is in agent mode.**
-
-Dropping a link to a Figma file in the composer and asking Cursor to do something with it should automatically trigger the `get_file` tool.
-
-Most Figma files end up being huge, so you'll probably want to link to a specific frame or group within the file. With a single element selected, you can hit `CMD + L` to copy the link to the element. You can also find it in the context menu:
-
-![Copy link to Figma selection by right clicking](./docs/figma-copy-link.png)
-
-Once you have a link to a specific element, you can drop it in the composer and ask Cursor to do something with it.
-
-## Inspect Responses
-
-To inspect responses from the MCP server more easily, you can run the `inspect` command, which launches the `@modelcontextprotocol/inspector` web UI for triggering tool calls and reviewing responses:
-
-```bash
-pnpm inspect
-# > figma-mcp@0.1.12 inspect
-# > pnpx @modelcontextprotocol/inspector
-#
-# Starting MCP inspector...
-# Proxy server listening on port 3333
-#
-# 🔍 MCP Inspector is up and running at http://localhost:5173 🚀
-```
-
-## Available Tools
-
-The server provides the following MCP tools:
+服务器提供以下MCP工具：
 
 ### get_figma_data
 
-Fetches information about a Figma file or a specific node within a file.
+获取Figma文件或特定节点的信息。
 
-Parameters:
+参数：
+- `fileKey`：Figma文件的密钥
+- `nodeId`：节点ID（强烈推荐使用）
+- `depth`：遍历节点树的深度
 
-- `fileKey` (string, required): The key of the Figma file to fetch, often found in a provided URL like `figma.com/(file|design)/<fileKey>/...`
-- `nodeId` (string, optional, **highly recommended**): The ID of the node to fetch, often found as URL parameter node-id=<nodeId>
-- `depth` (number, optional): How many levels deep to traverse the node tree, only used if explicitly requested by you via chat
+### download_figma_images
 
-### download_figma_images (work in progress)
+下载Figma文件中的图片和图标资源。
 
-Download SVG and PNG images used in a Figma file based on the IDs of image or icon nodes.
-
-Parameters:
-
-- `fileKey` (string, required): The key of the Figma file containing the node
-- `nodes` (array, required): The nodes to fetch as images
-  - `nodeId` (string, required): The ID of the Figma image node to fetch, formatted as 1234:5678
-  - `imageRef` (string, optional): If a node has an imageRef fill, you must include this variable. Leave blank when downloading Vector SVG images.
-  - `fileName` (string, required): The local name for saving the fetched file
-- `localPath` (string, required): The absolute path to the directory where images are stored in the project. Automatically creates directories if needed.
+参数：
+- `fileKey`：包含节点的Figma文件密钥
+- `nodes`：要获取的图像节点数组
+- `localPath`：项目中存储图像的目录路径
