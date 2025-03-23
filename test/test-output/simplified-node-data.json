@@ -1,0 +1,331 @@
+{
+  "name": "test",
+  "lastModified": "2025-03-23T03:17:51Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/f4c215ac-9ba9-4b2b-b94f-f8e2405d4df2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCUXI2UGDG%2F20250320%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250320T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d101348a8267d5cb7f34233191241b8bf201ba2baef35c7aef0a9bd0649f1497",
+  "nodes": [
+    {
+      "id": "368:4446",
+      "name": "Group 1410104415",
+      "type": "GROUP",
+      "cssStyles": {
+        "width": "1380px",
+        "height": "1303px",
+        "position": "absolute",
+        "left": "37066px",
+        "top": "-4885px",
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "37px",
+        "justifyContent": "space-between",
+        "alignItems": "center"
+      },
+      "children": [
+        {
+          "id": "285:3370",
+          "name": "AI Text-to-Video Showcase",
+          "type": "TEXT",
+          "cssStyles": {
+            "width": "552px",
+            "height": "56px",
+            "position": "absolute",
+            "left": "414px",
+            "top": "0px",
+            "color": "#FFFFFF",
+            "fontFamily": "Roboto Flex",
+            "fontSize": "48px",
+            "fontWeight": 600,
+            "textAlign": "center",
+            "verticalAlign": "top",
+            "lineHeight": "56.25px"
+          },
+          "text": "AI Text-to-Video Showcase"
+        },
+        {
+          "id": "285:3853",
+          "name": "LitAI supports realistic, anime, clay, and 3D styles, bringing your prompts to life with rich details and dynamic motion. Whether crafting cinematic action, whimsical fantasy, or surreal concepts, our AI ensures high-quality, expressive visuals in seconds.",
+          "type": "TEXT",
+          "cssStyles": {
+            "width": "900px",
+            "height": "38px",
+            "position": "absolute",
+            "left": "240px",
+            "top": "71px",
+            "color": "#FFFFFF",
+            "fontFamily": "Roboto Flex",
+            "fontSize": "16px",
+            "fontWeight": 400,
+            "textAlign": "center",
+            "verticalAlign": "top",
+            "lineHeight": "18.75px"
+          },
+          "text": "LitAI supports realistic, anime, clay, and 3D styles, bringing your prompts to life with rich details and dynamic motion. Whether crafting cinematic action, whimsical fantasy, or surreal concepts, our AI ensures high-quality, expressive visuals in seconds."
+        },
+        {
+          "id": "285:3377",
+          "name": "Frame 1410104003",
+          "type": "FRAME",
+          "cssStyles": {
+            "width": "1380px",
+            "height": "1135px",
+            "position": "absolute",
+            "left": "0px",
+            "top": "168px"
+          },
+          "children": [
+            {
+              "id": "285:3378",
+              "name": "Rectangle 34625984",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "1380px",
+                "height": "80px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "1px",
+                "backgroundColor": "rgba(255, 255, 255, 0.1)",
+                "borderColor": "#6C6C6C",
+                "borderWidth": "1px",
+                "borderStyle": "solid"
+              }
+            },
+            {
+              "id": "285:3386",
+              "name": "Prompt",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "79px",
+                "height": "28px",
+                "position": "absolute",
+                "left": "30px",
+                "top": "27px",
+                "color": "#FFFFFF",
+                "fontFamily": "Roboto Flex",
+                "fontSize": "24px",
+                "fontWeight": 600,
+                "textAlign": "center",
+                "verticalAlign": "top",
+                "lineHeight": "28.125px"
+              },
+              "text": "Prompt"
+            },
+            {
+              "id": "285:3387",
+              "name": "Output Video",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "141px",
+                "height": "28px",
+                "position": "absolute",
+                "left": "934px",
+                "top": "27px",
+                "color": "#FFFFFF",
+                "fontFamily": "Roboto Flex",
+                "fontSize": "24px",
+                "fontWeight": 600,
+                "textAlign": "center",
+                "verticalAlign": "top",
+                "lineHeight": "28.125px"
+              },
+              "text": "Output Video"
+            },
+            {
+              "id": "285:3388",
+              "name": "image",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "436px",
+                "height": "223px",
+                "position": "absolute",
+                "left": "924px",
+                "top": "101px",
+                "backgroundImage": "url({{FIGMA_IMAGE:1f32d6d4406243e64ce8502fd29323f4010aede8}})"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "PNG",
+                "nodeId": "285:3388",
+                "fileName": "image.png"
+              }
+            },
+            {
+              "id": "285:3379",
+              "name": "Above the storm-lashed clouds, two ancient deities hover, their golden and silver armor glinting in the ethereal light. Lightning cracks between them as they collide with godlike force, sending shockwaves across the heavens. A camera tilt follows their movement as they battle in midair—each strike carving fissures into the sky itself. The clouds swirl into a divine tempest, fragments of shattered celestial weapons raining down upon a mortal world that watches in terror. The scale is immense—wide, sweeping shots emphasize the sheer power of their conflict.",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "771px",
+                "height": "126px",
+                "position": "absolute",
+                "left": "30px",
+                "top": "149px",
+                "color": "#FFFFFF",
+                "fontFamily": "Roboto Flex",
+                "fontSize": "18px",
+                "fontWeight": 400,
+                "textAlign": "left",
+                "verticalAlign": "middle",
+                "lineHeight": "21.09375px"
+              },
+              "text": "Above the storm-lashed clouds, two ancient deities hover, their golden and silver armor glinting in the ethereal light. Lightning cracks between them as they collide with godlike force, sending shockwaves across the heavens. A camera tilt follows their movement as they battle in midair—each strike carving fissures into the sky itself. The clouds swirl into a divine tempest, fragments of shattered celestial weapons raining down upon a mortal world that watches in terror. The scale is immense—wide, sweeping shots emphasize the sheer power of their conflict."
+            },
+            {
+              "id": "285:3380",
+              "name": "Rectangle 34625986",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "1380.000000043714px",
+                "height": "1.0000890511546459px",
+                "position": "absolute",
+                "left": "-4.371395334601402e-8px",
+                "top": "343.99993967828414px",
+                "backgroundColor": "#575757"
+              }
+            },
+            {
+              "id": "285:3389",
+              "name": "image",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "436px",
+                "height": "223px",
+                "position": "absolute",
+                "left": "924px",
+                "top": "365px",
+                "backgroundImage": "url({{FIGMA_IMAGE:3738acbe23ee3c3095c312ade00df9548cb3b28f}})"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "PNG",
+                "nodeId": "285:3389",
+                "fileName": "image.png"
+              }
+            },
+            {
+              "id": "285:3381",
+              "name": "A close-up of four cartoon kids dressed in Halloween costumes huddled together, whispering and making silly, spooky faces. They’re pretending to growl and laugh, with playful expressions. The background has ghostly shapes and Halloween decorations.",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "771px",
+                "height": "63px",
+                "position": "absolute",
+                "left": "30px",
+                "top": "445px",
+                "color": "#FFFFFF",
+                "fontFamily": "Roboto Flex",
+                "fontSize": "18px",
+                "fontWeight": 400,
+                "textAlign": "left",
+                "verticalAlign": "middle",
+                "lineHeight": "21.09375px"
+              },
+              "text": "A close-up of four cartoon  kids dressed in Halloween costumes huddled together, whispering and making silly, spooky faces. They’re pretending to growl and laugh, with playful expressions. The background has ghostly shapes and Halloween decorations."
+            },
+            {
+              "id": "285:3382",
+              "name": "Rectangle 34625987",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "1380.000000043714px",
+                "height": "1.0000890511546459px",
+                "position": "absolute",
+                "left": "-4.371395334601402e-8px",
+                "top": "607.9999396782841px",
+                "backgroundColor": "#575757"
+              }
+            },
+            {
+              "id": "285:3390",
+              "name": "image",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "436px",
+                "height": "223px",
+                "position": "absolute",
+                "left": "924px",
+                "top": "629px",
+                "backgroundImage": "url({{FIGMA_IMAGE:06035e67dcd52a73b44ece68bcbd9b2c1dc13a1d}})"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "PNG",
+                "nodeId": "285:3390",
+                "fileName": "image.png"
+              }
+            },
+            {
+              "id": "285:3383",
+              "name": "The spaceship, with its engines blazing, navigates the endless black of space towards a colossal black hole. Surrounding it, stars glitter brilliantly, and distant nebulae burst with vibrant colors, painting a grand cosmic landscape",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "771px",
+                "height": "63px",
+                "position": "absolute",
+                "left": "30px",
+                "top": "709.000244140625px",
+                "color": "#FFFFFF",
+                "fontFamily": "Roboto Flex",
+                "fontSize": "18px",
+                "fontWeight": 400,
+                "textAlign": "left",
+                "verticalAlign": "middle",
+                "lineHeight": "21.09375px"
+              },
+              "text": "The spaceship, with its engines blazing, navigates the endless black of space towards a colossal black hole. Surrounding it, stars glitter brilliantly, and distant nebulae burst with vibrant colors, painting a grand cosmic landscape"
+            },
+            {
+              "id": "285:3384",
+              "name": "Rectangle 34625988",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "1380.000000043714px",
+                "height": "1.0000890511546459px",
+                "position": "absolute",
+                "left": "-4.371395334601402e-8px",
+                "top": "872.0001838189091px",
+                "backgroundColor": "#575757"
+              }
+            },
+            {
+              "id": "285:3391",
+              "name": "image",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "436px",
+                "height": "223px",
+                "position": "absolute",
+                "left": "924px",
+                "top": "893px",
+                "backgroundImage": "url({{FIGMA_IMAGE:31c32dbf61bf8056053ebd6da742dc5a86703574}})"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "PNG",
+                "nodeId": "285:3391",
+                "fileName": "image.png"
+              }
+            },
+            {
+              "id": "285:3385",
+              "name": "create a top down high angle view video for a raven DJ wearing a witch Halloween costume on stage facing audience at a rave with Halloween themed light show animals in audience rsving",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "771px",
+                "height": "42px",
+                "position": "absolute",
+                "left": "30px",
+                "top": "983px",
+                "color": "#FFFFFF",
+                "fontFamily": "Roboto Flex",
+                "fontSize": "18px",
+                "fontWeight": 400,
+                "textAlign": "left",
+                "verticalAlign": "middle",
+                "lineHeight": "21.09375px"
+              },
+              "text": "create a top down high angle view video for a raven DJ wearing a witch Halloween costume on stage facing audience at a rave with Halloween themed light show animals in audience rsving"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

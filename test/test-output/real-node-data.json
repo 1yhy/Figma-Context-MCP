@@ -1,0 +1,960 @@
+{
+  "name": "test",
+  "lastModified": "2025-03-23T03:17:51Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/f4c215ac-9ba9-4b2b-b94f-f8e2405d4df2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCUXI2UGDG%2F20250320%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250320T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d101348a8267d5cb7f34233191241b8bf201ba2baef35c7aef0a9bd0649f1497",
+  "version": "2198531941390610182",
+  "role": "owner",
+  "editorType": "figma",
+  "linkAccess": "view",
+  "nodes": {
+    "368:4446": {
+      "document": {
+        "id": "368:4446",
+        "name": "Group 1410104415",
+        "type": "GROUP",
+        "scrollBehavior": "SCROLLS",
+        "children": [
+          {
+            "id": "285:3370",
+            "name": "AI Text-to-Video Showcase",
+            "type": "TEXT",
+            "scrollBehavior": "SCROLLS",
+            "blendMode": "PASS_THROUGH",
+            "fills": [
+              {
+                "blendMode": "NORMAL",
+                "type": "SOLID",
+                "color": {
+                  "r": 1,
+                  "g": 1,
+                  "b": 1,
+                  "a": 1
+                }
+              }
+            ],
+            "strokes": [],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "absoluteBoundingBox": {
+              "x": 37480,
+              "y": -4885,
+              "width": 552,
+              "height": 56
+            },
+            "absoluteRenderBounds": {
+              "x": 37480,
+              "y": -4875.828125,
+              "width": 550.4765625,
+              "height": 35.4140625
+            },
+            "constraints": {
+              "vertical": "TOP",
+              "horizontal": "LEFT"
+            },
+            "characters": "AI Text-to-Video Showcase",
+            "characterStyleOverrides": [],
+            "styleOverrideTable": {},
+            "lineTypes": [
+              "NONE"
+            ],
+            "lineIndentations": [
+              0
+            ],
+            "style": {
+              "fontFamily": "Roboto Flex",
+              "fontPostScriptName": "RobotoFlex-SemiBold",
+              "fontStyle": "SemiBold",
+              "fontWeight": 600,
+              "textAutoResize": "WIDTH_AND_HEIGHT",
+              "fontSize": 48,
+              "textAlignHorizontal": "CENTER",
+              "textAlignVertical": "TOP",
+              "letterSpacing": 0,
+              "lineHeightPx": 56.25,
+              "lineHeightPercent": 100,
+              "lineHeightUnit": "INTRINSIC_%"
+            },
+            "layoutVersion": 4,
+            "effects": [],
+            "interactions": []
+          },
+          {
+            "id": "285:3377",
+            "name": "Frame 1410104003",
+            "type": "FRAME",
+            "scrollBehavior": "SCROLLS",
+            "children": [
+              {
+                "id": "285:3378",
+                "name": "Rectangle 34625984",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "opacity": 0.10000000149011612,
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "fillOverrideTable": {
+                  "1": null
+                },
+                "strokes": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 0.42352941632270813,
+                      "g": 0.42352941632270813,
+                      "b": 0.42352941632270813,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "rectangleCornerRadii": [
+                  10,
+                  10,
+                  10,
+                  10
+                ],
+                "cornerSmoothing": 0,
+                "absoluteBoundingBox": {
+                  "x": 37066,
+                  "y": -4716,
+                  "width": 1380,
+                  "height": 80
+                },
+                "absoluteRenderBounds": {
+                  "x": 37066,
+                  "y": -4716,
+                  "width": 1380,
+                  "height": 80
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3379",
+                "name": "Above the storm-lashed clouds, two ancient deities hover, their golden and silver armor glinting in the ethereal light. Lightning cracks between them as they collide with godlike force, sending shockwaves across the heavens. A camera tilt follows their movement as they battle in midair—each strike carving fissures into the sky itself. The clouds swirl into a divine tempest, fragments of shattered celestial weapons raining down upon a mortal world that watches in terror. The scale is immense—wide, sweeping shots emphasize the sheer power of their conflict.",
+                "type": "TEXT",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "opacity": 0.6000000238418579,
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "OUTSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37096,
+                  "y": -4568,
+                  "width": 771,
+                  "height": 126
+                },
+                "absoluteRenderBounds": {
+                  "x": 37095.9921875,
+                  "y": -4564.4384765625,
+                  "width": 757.73046875,
+                  "height": 122.2705078125
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "characters": "Above the storm-lashed clouds, two ancient deities hover, their golden and silver armor glinting in the ethereal light. Lightning cracks between them as they collide with godlike force, sending shockwaves across the heavens. A camera tilt follows their movement as they battle in midair—each strike carving fissures into the sky itself. The clouds swirl into a divine tempest, fragments of shattered celestial weapons raining down upon a mortal world that watches in terror. The scale is immense—wide, sweeping shots emphasize the sheer power of their conflict.",
+                "characterStyleOverrides": [],
+                "styleOverrideTable": {},
+                "lineTypes": [
+                  "NONE"
+                ],
+                "lineIndentations": [
+                  0
+                ],
+                "style": {
+                  "fontFamily": "Roboto Flex",
+                  "fontPostScriptName": "RobotoFlex-Regular",
+                  "fontStyle": "Regular",
+                  "fontWeight": 400,
+                  "textAutoResize": "HEIGHT",
+                  "fontSize": 18,
+                  "textAlignHorizontal": "LEFT",
+                  "textAlignVertical": "CENTER",
+                  "letterSpacing": 0,
+                  "lineHeightPx": 21.09375,
+                  "lineHeightPercent": 100,
+                  "lineHeightUnit": "INTRINSIC_%"
+                },
+                "layoutVersion": 4,
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3380",
+                "name": "Rectangle 34625986",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "rotation": 1.5707963705062848,
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 0.34305545687675476,
+                      "g": 0.34305545687675476,
+                      "b": 0.34305545687675476,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37065.999999956286,
+                  "y": -4373.000060321716,
+                  "width": 1380.000000043714,
+                  "height": 1.0000890511546459
+                },
+                "absoluteRenderBounds": {
+                  "x": 37066,
+                  "y": -4373,
+                  "width": 1380,
+                  "height": 1
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3381",
+                "name": "A close-up of four cartoon kids dressed in Halloween costumes huddled together, whispering and making silly, spooky faces. They’re pretending to growl and laugh, with playful expressions. The background has ghostly shapes and Halloween decorations.",
+                "type": "TEXT",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "opacity": 0.6000000238418579,
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "OUTSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37096,
+                  "y": -4272,
+                  "width": 771,
+                  "height": 63
+                },
+                "absoluteRenderBounds": {
+                  "x": 37095.9921875,
+                  "y": -4268.6142578125,
+                  "width": 761.9140625,
+                  "height": 59.4462890625
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "characters": "A close-up of four cartoon  kids dressed in Halloween costumes huddled together, whispering and making silly, spooky faces. They’re pretending to growl and laugh, with playful expressions. The background has ghostly shapes and Halloween decorations.",
+                "characterStyleOverrides": [],
+                "styleOverrideTable": {},
+                "lineTypes": [
+                  "NONE"
+                ],
+                "lineIndentations": [
+                  0
+                ],
+                "style": {
+                  "fontFamily": "Roboto Flex",
+                  "fontPostScriptName": "RobotoFlex-Regular",
+                  "fontStyle": "Regular",
+                  "fontWeight": 400,
+                  "textAutoResize": "HEIGHT",
+                  "fontSize": 18,
+                  "textAlignHorizontal": "LEFT",
+                  "textAlignVertical": "CENTER",
+                  "letterSpacing": 0,
+                  "lineHeightPx": 21.09375,
+                  "lineHeightPercent": 100,
+                  "lineHeightUnit": "INTRINSIC_%"
+                },
+                "layoutVersion": 4,
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3382",
+                "name": "Rectangle 34625987",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "rotation": 1.5707963705062848,
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 0.34305545687675476,
+                      "g": 0.34305545687675476,
+                      "b": 0.34305545687675476,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37065.999999956286,
+                  "y": -4109.000060321716,
+                  "width": 1380.000000043714,
+                  "height": 1.0000890511546459
+                },
+                "absoluteRenderBounds": {
+                  "x": 37066,
+                  "y": -4109,
+                  "width": 1380,
+                  "height": 1
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3383",
+                "name": "The spaceship, with its engines blazing, navigates the endless black of space towards a colossal black hole. Surrounding it, stars glitter brilliantly, and distant nebulae burst with vibrant colors, painting a grand cosmic landscape",
+                "type": "TEXT",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "opacity": 0.6000000238418579,
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "OUTSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37096,
+                  "y": -4007.999755859375,
+                  "width": 771,
+                  "height": 63
+                },
+                "absoluteRenderBounds": {
+                  "x": 37096.203125,
+                  "y": -4004.614013671875,
+                  "width": 749.90625,
+                  "height": 59.4462890625
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "characters": "The spaceship, with its engines blazing, navigates the endless black of space towards a colossal black hole. Surrounding it, stars glitter brilliantly, and distant nebulae burst with vibrant colors, painting a grand cosmic landscape",
+                "characterStyleOverrides": [],
+                "styleOverrideTable": {},
+                "lineTypes": [
+                  "NONE"
+                ],
+                "lineIndentations": [
+                  0
+                ],
+                "style": {
+                  "fontFamily": "Roboto Flex",
+                  "fontPostScriptName": "RobotoFlex-Regular",
+                  "fontStyle": "Regular",
+                  "fontWeight": 400,
+                  "textAutoResize": "HEIGHT",
+                  "fontSize": 18,
+                  "textAlignHorizontal": "LEFT",
+                  "textAlignVertical": "CENTER",
+                  "letterSpacing": 0,
+                  "lineHeightPx": 21.09375,
+                  "lineHeightPercent": 100,
+                  "lineHeightUnit": "INTRINSIC_%"
+                },
+                "layoutVersion": 4,
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3384",
+                "name": "Rectangle 34625988",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "rotation": 1.5707963705062848,
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 0.34305545687675476,
+                      "g": 0.34305545687675476,
+                      "b": 0.34305545687675476,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37065.999999956286,
+                  "y": -3844.999816181091,
+                  "width": 1380.000000043714,
+                  "height": 1.0000890511546459
+                },
+                "absoluteRenderBounds": {
+                  "x": 37066,
+                  "y": -3844.999755859375,
+                  "width": 1380,
+                  "height": 1
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3385",
+                "name": "create a top down high angle view video for a raven DJ wearing a witch Halloween costume on stage facing audience at a rave with Halloween themed light show animals in audience rsving",
+                "type": "TEXT",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "opacity": 0.6000000238418579,
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "OUTSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37096,
+                  "y": -3734,
+                  "width": 771,
+                  "height": 42
+                },
+                "absoluteRenderBounds": {
+                  "x": 37096.7109375,
+                  "y": -3730.6142578125,
+                  "width": 732.4921875,
+                  "height": 38.4462890625
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "characters": "create a top down high angle view video for a raven DJ wearing a witch Halloween costume on stage facing audience at a rave with Halloween themed light show animals in audience rsving",
+                "characterStyleOverrides": [],
+                "styleOverrideTable": {},
+                "lineTypes": [
+                  "NONE"
+                ],
+                "lineIndentations": [
+                  0
+                ],
+                "style": {
+                  "fontFamily": "Roboto Flex",
+                  "fontPostScriptName": "RobotoFlex-Regular",
+                  "fontStyle": "Regular",
+                  "fontWeight": 400,
+                  "textAutoResize": "HEIGHT",
+                  "fontSize": 18,
+                  "textAlignHorizontal": "LEFT",
+                  "textAlignVertical": "CENTER",
+                  "letterSpacing": 0,
+                  "lineHeightPx": 21.09375,
+                  "lineHeightPercent": 100,
+                  "lineHeightUnit": "INTRINSIC_%"
+                },
+                "layoutVersion": 4,
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3386",
+                "name": "Prompt",
+                "type": "TEXT",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37096,
+                  "y": -4690,
+                  "width": 79,
+                  "height": 28
+                },
+                "absoluteRenderBounds": {
+                  "x": 37097.75390625,
+                  "y": -4685.0625,
+                  "width": 76.74609375,
+                  "height": 21.984375
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "characters": "Prompt",
+                "characterStyleOverrides": [],
+                "styleOverrideTable": {},
+                "lineTypes": [
+                  "NONE"
+                ],
+                "lineIndentations": [
+                  0
+                ],
+                "style": {
+                  "fontFamily": "Roboto Flex",
+                  "fontPostScriptName": "RobotoFlex-SemiBold",
+                  "fontStyle": "SemiBold",
+                  "fontWeight": 600,
+                  "textAutoResize": "WIDTH_AND_HEIGHT",
+                  "fontSize": 24,
+                  "textAlignHorizontal": "CENTER",
+                  "textAlignVertical": "TOP",
+                  "letterSpacing": 0,
+                  "lineHeightPx": 28.125,
+                  "lineHeightPercent": 100,
+                  "lineHeightUnit": "INTRINSIC_%"
+                },
+                "layoutVersion": 4,
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3387",
+                "name": "Output Video",
+                "type": "TEXT",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "SOLID",
+                    "color": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1,
+                      "a": 1
+                    }
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 38000,
+                  "y": -4690,
+                  "width": 141,
+                  "height": 28
+                },
+                "absoluteRenderBounds": {
+                  "x": 38001.125,
+                  "y": -4685.765625,
+                  "width": 139.0546875,
+                  "height": 22.6875
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "characters": "Output Video",
+                "characterStyleOverrides": [],
+                "styleOverrideTable": {},
+                "lineTypes": [
+                  "NONE"
+                ],
+                "lineIndentations": [
+                  0
+                ],
+                "style": {
+                  "fontFamily": "Roboto Flex",
+                  "fontPostScriptName": "RobotoFlex-SemiBold",
+                  "fontStyle": "SemiBold",
+                  "fontWeight": 600,
+                  "textAutoResize": "WIDTH_AND_HEIGHT",
+                  "fontSize": 24,
+                  "textAlignHorizontal": "CENTER",
+                  "textAlignVertical": "TOP",
+                  "letterSpacing": 0,
+                  "lineHeightPx": 28.125,
+                  "lineHeightPercent": 100,
+                  "lineHeightUnit": "INTRINSIC_%"
+                },
+                "layoutVersion": 4,
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3388",
+                "name": "image",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "IMAGE",
+                    "scaleMode": "FILL",
+                    "imageRef": "1f32d6d4406243e64ce8502fd29323f4010aede8"
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37990,
+                  "y": -4616,
+                  "width": 436,
+                  "height": 223
+                },
+                "absoluteRenderBounds": {
+                  "x": 37990,
+                  "y": -4616,
+                  "width": 436,
+                  "height": 223
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3389",
+                "name": "image",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "IMAGE",
+                    "scaleMode": "FILL",
+                    "imageRef": "3738acbe23ee3c3095c312ade00df9548cb3b28f"
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37990,
+                  "y": -4352,
+                  "width": 436,
+                  "height": 223
+                },
+                "absoluteRenderBounds": {
+                  "x": 37990,
+                  "y": -4352,
+                  "width": 436,
+                  "height": 223
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3390",
+                "name": "image",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "IMAGE",
+                    "scaleMode": "FILL",
+                    "imageRef": "06035e67dcd52a73b44ece68bcbd9b2c1dc13a1d"
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37990,
+                  "y": -4088,
+                  "width": 436,
+                  "height": 223
+                },
+                "absoluteRenderBounds": {
+                  "x": 37990,
+                  "y": -4088,
+                  "width": 436,
+                  "height": 223
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "effects": [],
+                "interactions": []
+              },
+              {
+                "id": "285:3391",
+                "name": "image",
+                "type": "VECTOR",
+                "scrollBehavior": "SCROLLS",
+                "blendMode": "PASS_THROUGH",
+                "fills": [
+                  {
+                    "blendMode": "NORMAL",
+                    "type": "IMAGE",
+                    "scaleMode": "FILL",
+                    "imageRef": "31c32dbf61bf8056053ebd6da742dc5a86703574"
+                  }
+                ],
+                "strokes": [],
+                "strokeWeight": 1,
+                "strokeAlign": "INSIDE",
+                "absoluteBoundingBox": {
+                  "x": 37990,
+                  "y": -3824,
+                  "width": 436,
+                  "height": 223
+                },
+                "absoluteRenderBounds": {
+                  "x": 37990,
+                  "y": -3824,
+                  "width": 436,
+                  "height": 223
+                },
+                "constraints": {
+                  "vertical": "TOP",
+                  "horizontal": "LEFT"
+                },
+                "exportSettings": [
+                  {
+                    "suffix": "",
+                    "format": "SVG",
+                    "constraint": {
+                      "type": "SCALE",
+                      "value": 1
+                    }
+                  }
+                ],
+                "effects": [],
+                "interactions": []
+              }
+            ],
+            "blendMode": "PASS_THROUGH",
+            "clipsContent": false,
+            "background": [],
+            "fills": [],
+            "strokes": [],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "backgroundColor": {
+              "r": 0,
+              "g": 0,
+              "b": 0,
+              "a": 0
+            },
+            "absoluteBoundingBox": {
+              "x": 37066,
+              "y": -4717,
+              "width": 1380,
+              "height": 1135
+            },
+            "absoluteRenderBounds": {
+              "x": 37066,
+              "y": -4717,
+              "width": 1380,
+              "height": 1135
+            },
+            "constraints": {
+              "vertical": "TOP",
+              "horizontal": "LEFT"
+            },
+            "effects": [],
+            "interactions": []
+          },
+          {
+            "id": "285:3853",
+            "name": "LitAI supports realistic, anime, clay, and 3D styles, bringing your prompts to life with rich details and dynamic motion. Whether crafting cinematic action, whimsical fantasy, or surreal concepts, our AI ensures high-quality, expressive visuals in seconds.",
+            "type": "TEXT",
+            "scrollBehavior": "SCROLLS",
+            "blendMode": "PASS_THROUGH",
+            "fills": [
+              {
+                "blendMode": "NORMAL",
+                "type": "SOLID",
+                "color": {
+                  "r": 1,
+                  "g": 1,
+                  "b": 1,
+                  "a": 1
+                }
+              }
+            ],
+            "strokes": [],
+            "strokeWeight": 1,
+            "strokeAlign": "INSIDE",
+            "absoluteBoundingBox": {
+              "x": 37306,
+              "y": -4814,
+              "width": 900,
+              "height": 38
+            },
+            "absoluteRenderBounds": {
+              "x": 37317.109375,
+              "y": -4811.1328125,
+              "width": 878.8671875,
+              "height": 34.5390625
+            },
+            "constraints": {
+              "vertical": "TOP",
+              "horizontal": "LEFT"
+            },
+            "characters": "LitAI supports realistic, anime, clay, and 3D styles, bringing your prompts to life with rich details and dynamic motion. Whether crafting cinematic action, whimsical fantasy, or surreal concepts, our AI ensures high-quality, expressive visuals in seconds.",
+            "characterStyleOverrides": [],
+            "styleOverrideTable": {},
+            "lineTypes": [
+              "NONE"
+            ],
+            "lineIndentations": [
+              0
+            ],
+            "style": {
+              "fontFamily": "Roboto Flex",
+              "fontPostScriptName": "RobotoFlex-Regular",
+              "fontStyle": "Regular",
+              "fontWeight": 400,
+              "textAutoResize": "HEIGHT",
+              "fontSize": 16,
+              "textAlignHorizontal": "CENTER",
+              "textAlignVertical": "TOP",
+              "letterSpacing": 0,
+              "lineHeightPx": 18.75,
+              "lineHeightPercent": 100,
+              "lineHeightUnit": "INTRINSIC_%"
+            },
+            "layoutVersion": 4,
+            "effects": [],
+            "interactions": []
+          }
+        ],
+        "blendMode": "PASS_THROUGH",
+        "clipsContent": false,
+        "background": [],
+        "fills": [],
+        "strokes": [],
+        "strokeWeight": 1,
+        "strokeAlign": "INSIDE",
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "absoluteBoundingBox": {
+          "x": 37066,
+          "y": -4885,
+          "width": 1380,
+          "height": 1303
+        },
+        "absoluteRenderBounds": {
+          "x": 37066,
+          "y": -4885,
+          "width": 1380,
+          "height": 1303
+        },
+        "constraints": {
+          "vertical": "TOP",
+          "horizontal": "LEFT"
+        },
+        "exportSettings": [
+          {
+            "suffix": "",
+            "format": "PNG",
+            "constraint": {
+              "type": "SCALE",
+              "value": 1
+            }
+          }
+        ],
+        "effects": [],
+        "interactions": []
+      },
+      "components": {},
+      "componentSets": {},
+      "schemaVersion": 0,
+      "styles": {}
+    }
+  }
+}

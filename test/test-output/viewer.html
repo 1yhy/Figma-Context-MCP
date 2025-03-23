@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figma 节点 CSS 样式查看器</title>
+    <style>
+        :root {
+            --primary-color: #1E88E5;
+            --secondary-color: #757575;
+            --background-color: #FAFAFA;
+            --card-background: #FFFFFF;
+            --border-color: #E0E0E0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background-color: #E3F2FD;
+            border-left: 4px solid var(--primary-color);
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .file-input-container {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        input[type="file"] {
+            flex: 1;
+            min-width: 300px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #1565C0;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .nodes {
+            font-family: monospace;
+            white-space: pre-wrap;
+            padding: 15px;
+            background-color: #F5F5F5;
+            border-radius: 4px;
+            overflow: auto;
+            max-height: 600px;
+        }
+
+        .css-styles {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .style-card {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .style-preview {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .style-info {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            background-color: #F5F5F5;
+        }
+
+        .style-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .style-properties {
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .property {
+            margin: 3px 0;
+        }
+
+        .color-box {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 6px;
+            vertical-align: middle;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            margin-bottom: 15px;
+        }
+
+        #nodeSearch {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .tree-view {
+            font-family: monospace;
+            line-height: 1.5;
+        }
+
+        .tree-item {
+            margin: 2px 0;
+            cursor: pointer;
+        }
+
+        .tree-toggle {
+            display: inline-block;
+            width: 16px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .tree-content {
+            padding-left: 20px;
+            display: none;
+        }
+
+        .tree-content.expanded {
+            display: block;
+        }
+
+        .selected {
+            background-color: #E3F2FD;
+            border-radius: 3px;
+        }
+
+        #nodeDetails {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #F5F5F5;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-section {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            background-color: white;
+        }
+
+        .detail-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .detail-content {
+            max-height: 300px;
+            overflow: auto;
+        }
+
+        .css-preview {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Figma 节点 CSS 样式查看器</h1>
+
+        <div class="info-box">
+            此工具用于查看Figma节点数据及其CSS样式转换结果。您可以上传JSON文件或加载示例数据。
+        </div>
+
+        <div class="file-input-container">
+            <input type="file" id="fileInput" accept=".json">
+            <button id="loadFile">加载文件</button>
+            <button id="loadSample">加载示例数据</button>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="nodeTree">节点树</div>
+            <div class="tab" data-tab="cssStyles">CSS 样式</div>
+        </div>
+
+        <div id="nodeTree" class="tab-content active">
+            <div class="search-container">
+                <input type="text" id="nodeSearch" placeholder="搜索节点名称...">
+            </div>
+            <div class="tree-view" id="nodeTreeView"></div>
+            <div id="nodeDetails">
+                <h3>节点详情</h3>
+                <div class="detail-grid">
+                    <div class="detail-section">
+                        <div class="detail-title">基本信息</div>
+                        <div class="detail-content" id="nodeBasicInfo"></div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">CSS 样式</div>
+                        <div class="detail-content" id="nodeCssStyles"></div>
+                        <div class="css-preview" id="cssPreview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cssStyles" class="tab-content">
+            <div id="cssStylesContent" class="css-styles"></div>
+        </div>
+    </div>
+
+    <script>
+        let figmaData = null
+
+        // DOM元素
+        const fileInput = document.getElementById('fileInput')
+        const loadFileBtn = document.getElementById('loadFile')
+        const loadSampleBtn = document.getElementById('loadSample')
+        const tabs = document.querySelectorAll('.tab')
+        const tabContents = document.querySelectorAll('.tab-content')
+        const nodeTreeView = document.getElementById('nodeTreeView')
+        const nodeSearch = document.getElementById('nodeSearch')
+        const nodeDetails = document.getElementById('nodeDetails')
+        const nodeBasicInfo = document.getElementById('nodeBasicInfo')
+        const nodeCssStyles = document.getElementById('nodeCssStyles')
+        const cssPreview = document.getElementById('cssPreview')
+        const cssStylesContent = document.getElementById('cssStylesContent')
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 加载示例数据（如果在同目录下存在）
+            try {
+                fetch('./simplified-with-css.json')
+                    .then(response => {
+                        if (!response.ok) throw new Error('示例数据未找到')
+                        return response.json()
+                    })
+                    .then(data => {
+                        figmaData = data
+                        renderData()
+                    })
+                    .catch(err => console.log('未找到示例数据，请上传文件'))
+            } catch (e) {
+                console.log('未找到示例数据，请上传文件')
+            }
+        })
+
+        // 事件监听器
+        loadFileBtn.addEventListener('click', () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0]
+                const reader = new FileReader()
+
+                reader.onload = (e) => {
+                    try {
+                        figmaData = JSON.parse(e.target.result)
+                        renderData()
+                    } catch (err) {
+                        alert('JSON解析错误: ' + err.message)
+                    }
+                }
+
+                reader.readAsText(file)
+            } else {
+                alert('请选择一个JSON文件')
+            }
+        })
+
+        loadSampleBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('./simplified-with-css.json')
+                if (!response.ok) throw new Error('示例数据未找到')
+                figmaData = await response.json()
+                renderData()
+            } catch (err) {
+                alert('加载示例数据失败: ' + err.message)
+            }
+        })
+
+        // 标签切换
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab')
+
+                tabs.forEach(t => t.classList.remove('active'))
+                tabContents.forEach(tc => tc.classList.remove('active'))
+
+                tab.classList.add('active')
+                document.getElementById(tabId).classList.add('active')
+            })
+        })
+
+        // 搜索功能
+        nodeSearch.addEventListener('input', () => {
+            const searchTerm = nodeSearch.value.toLowerCase()
+            const treeItems = document.querySelectorAll('.tree-item')
+
+            treeItems.forEach(item => {
+                const text = item.textContent.toLowerCase()
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'block'
+
+                    // 展开父级
+                    let parent = item.parentElement
+                    while (parent && parent.classList.contains('tree-content')) {
+                        parent.classList.add('expanded')
+                        parent = parent.parentElement.parentElement
+                    }
+                } else {
+                    item.style.display = 'none'
+                }
+            })
+        })
+
+        // 渲染数据
+        function renderData() {
+            if (!figmaData) return
+
+            // 渲染节点树
+            renderNodeTree()
+
+            // 渲染CSS样式
+            renderCssStyles()
+        }
+
+        // 渲染节点树
+        function renderNodeTree() {
+            nodeTreeView.innerHTML = ''
+
+            if (figmaData.nodes && Array.isArray(figmaData.nodes)) {
+                figmaData.nodes.forEach(node => {
+                    nodeTreeView.appendChild(createTreeItem(node))
+                })
+            }
+        }
+
+        // 创建树项
+        function createTreeItem(node, level = 0) {
+            const item = document.createElement('div')
+            item.className = 'tree-item'
+            item.dataset.nodeId = node.id || ''
+
+            const hasChildren = node.children && node.children.length > 0
+
+            const toggle = document.createElement('span')
+            toggle.className = 'tree-toggle'
+            toggle.textContent = hasChildren ? '▶' : ' '
+
+            const label = document.createElement('span')
+            label.className = 'tree-label'
+            label.textContent = `${node.name || 'Unnamed'} (${node.type || 'Unknown'})`
+
+            item.appendChild(toggle)
+            item.appendChild(label)
+
+            if (hasChildren) {
+                const content = document.createElement('div')
+                content.className = 'tree-content'
+
+                node.children.forEach(child => {
+                    content.appendChild(createTreeItem(child, level + 1))
+                })
+
+                toggle.addEventListener('click', () => {
+                    toggle.textContent = content.classList.toggle('expanded') ? '▼' : '▶'
+                })
+
+                item.appendChild(content)
+            }
+
+            // 点击查看节点详情
+            item.addEventListener('click', (e) => {
+                if (e.target !== toggle) {
+                    document.querySelectorAll('.tree-item').forEach(i => i.classList.remove('selected'))
+                    item.classList.add('selected')
+                    showNodeDetails(node)
+                }
+                e.stopPropagation()
+            })
+
+            return item
+        }
+
+        // 显示节点详情
+        function showNodeDetails(node) {
+            nodeDetails.style.display = 'block'
+
+            // 基本信息
+            nodeBasicInfo.innerHTML = `
+                <div><strong>ID:</strong> ${node.id || 'N/A'}</div>
+                <div><strong>名称:</strong> ${node.name || 'Unnamed'}</div>
+                <div><strong>类型:</strong> ${node.type || 'Unknown'}</div>
+                ${node.boundingBox ? `
+                <div><strong>位置:</strong> X: ${node.boundingBox.x.toFixed(2)}, Y: ${node.boundingBox.y.toFixed(2)}</div>
+                <div><strong>尺寸:</strong> W: ${node.boundingBox.width.toFixed(2)}, H: ${node.boundingBox.height.toFixed(2)}</div>
+                ` : ''}
+            `
+
+            // CSS样式
+            if (node.cssStyles && Object.keys(node.cssStyles).length > 0) {
+                let cssStylesHtml = '<div class="properties">'
+
+                for (const [property, value] of Object.entries(node.cssStyles)) {
+                    cssStylesHtml += `
+                        <div class="property">
+                            ${property.includes('color') || property.includes('background') ?
+                            `<span class="color-box" style="background-color: ${value}"></span>` : ''}
+                            <strong>${property}:</strong> ${value}
+                        </div>
+                    `
+                }
+
+                cssStylesHtml += '</div>'
+                nodeCssStyles.innerHTML = cssStylesHtml
+
+                // CSS预览
+                let styles = ''
+                for (const [property, value] of Object.entries(node.cssStyles)) {
+                    styles += `${property}: ${value};\n`
+                }
+
+                cssPreview.innerHTML = `
+                    <div class="detail-title">预览</div>
+                    <div style="${styles} border: 1px dashed #ccc; min-height: 50px; display: flex; align-items: center; justify-content: center;">
+                        ${node.type === 'TEXT' && node.characters ? node.characters : 'CSS样式预览'}
+                    </div>
+                    <pre style="margin-top: 10px;">${styles}</pre>
+                `
+                cssPreview.style.display = 'block'
+            } else {
+                nodeCssStyles.innerHTML = '<div>该节点没有CSS样式</div>'
+                cssPreview.style.display = 'none'
+            }
+        }
+
+        // 渲染CSS样式
+        function renderCssStyles() {
+            cssStylesContent.innerHTML = ''
+
+            if (!figmaData.nodes) return
+
+            // 收集所有样式
+            const stylesMap = new Map()
+
+            function collectStyles(nodes) {
+                if (!Array.isArray(nodes)) return
+
+                nodes.forEach(node => {
+                    if (node.cssStyles && Object.keys(node.cssStyles).length > 0) {
+                        const styleKey = JSON.stringify(node.cssStyles)
+
+                        if (!stylesMap.has(styleKey)) {
+                            stylesMap.set(styleKey, {
+                                styles: node.cssStyles,
+                                count: 1,
+                                nodeName: node.name,
+                                nodeType: node.type
+                            })
+                        } else {
+                            const info = stylesMap.get(styleKey)
+                            info.count++
+                        }
+                    }
+
+                    if (node.children) {
+                        collectStyles(node.children)
+                    }
+                })
+            }
+
+            collectStyles(figmaData.nodes)
+
+            // 按使用频率排序并仅显示前50个样式
+            const sortedStyles = Array.from(stylesMap.entries())
+                .sort((a, b) => b[1].count - a[1].count)
+                .slice(0, 50)
+
+            // 创建样式卡片
+            sortedStyles.forEach(([styleKey, info]) => {
+                const { styles, count, nodeName, nodeType } = info
+
+                const card = document.createElement('div')
+                card.className = 'style-card'
+
+                let preview = ''
+                if (styles.backgroundColor) {
+                    preview = `background-color: ${styles.backgroundColor};`
+                } else if (styles.color) {
+                    preview = `color: ${styles.color}; background-color: #f0f0f0;`
+                }
+
+                let stylesStr = ''
+                for (const [property, value] of Object.entries(styles)) {
+                    stylesStr += `${property}: ${value};\n`
+                }
+
+                card.innerHTML = `
+                    <div class="style-preview" style="${preview}">
+                        <div style="${Object.entries(styles).map(([p, v]) => `${p}: ${v}`).join('; ')}">
+                            ${nodeType === 'TEXT' ? '文本样式示例' : '样式预览'}
+                        </div>
+                    </div>
+                    <div class="style-info">
+                        <div class="style-name">${nodeName || 'Unnamed'} (${nodeType || 'Unknown'}) - 使用 ${count} 次</div>
+                        <div class="style-properties">
+                            ${Object.entries(styles).map(([property, value]) => `
+                                <div class="property">
+                                    ${property.includes('color') || property.includes('background') ?
+                        `<span class="color-box" style="background-color: ${value}"></span>` : ''}
+                                    <strong>${property}:</strong> ${value}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `
+
+                cssStylesContent.appendChild(card)
+            })
+        }
+    </script>
+</body>
+
+</html>
