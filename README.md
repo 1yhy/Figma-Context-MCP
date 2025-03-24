@@ -99,7 +99,7 @@ npx figma-mcp --figma-api-key=<your-figma-api-key>
     "Figma MCP": {
       "url": "http://localhost:3333/sse",
       "env": {
-        "API_KEY": "figd_fTp85KCUhQhKrUDoAgwp6724Brizwx9c8Lrieaef"
+        "API_KEY": "<your-figma-api-key>"
       }
     }
   }
