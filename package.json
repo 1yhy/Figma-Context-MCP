@@ -1,6 +1,6 @@
 {
   "name": "@yhy2001/figma-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "本地MCP服务器，用于Figma设计与AI编码工具集成",
   "type": "module",
   "main": "dist/index.js",

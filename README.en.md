@@ -1,119 +1,23 @@
 # Figma MCP Server
 
-> This project is an enhanced version of the open-source [Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP), providing localization support and additional features.
+> This project is an improved version of the open-source [Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP), with optimized data structures and conversion logic.
 
 English | [中文版](./README.md)
 
-A server based on the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) that enables seamless integration of Figma design files with AI coding tools like [Cursor](https://cursor.sh/), [Windsurf](https://codeium.com/windsurf), [Cline](https://cline.bot/), and more.
+This is a server based on the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) that enables seamless integration of Figma design files with AI coding tools like [Cursor](https://cursor.sh/), [Windsurf](https://codeium.com/windsurf), [Cline](https://cline.bot/), and more.
 
 When AI tools can access Figma design data, they can generate code that accurately matches designs in a single pass, performing much better than traditional methods like screenshots.
 
-## Key Enhancements Over the Original
-
-- Optimized data structures and conversion logic
-
 ## Features
 
-- Extract structured design information from Figma files
-- Convert Figma styles to CSS properties with high fidelity
-- Automatically handle image exports and provide optimized image references
-- Support both HTTP and command-line modes for flexible integration
-- Simplify design data to provide only the most relevant information to AI models
+- Convert Figma design data into AI model-friendly formats
+- Support retrieving layout and style information for Figma files, artboards, or components
+- Support downloading images and icon resources from Figma
+- Reduce the context provided to models, improving AI response accuracy and relevance
 
-## Installation
+## Key Differences from Original Version
 
-### Method 1: Install from NPM (Recommended)
-
-```bash
-# Global installation
-npm install -g @yhy2001/figma-mcp-server
-
-# Start the service
-figma-mcp --figma-api-key=<your-figma-api-key>
-```
-
-### Method 2: Install from Local Package
-
-```bash
-# Global installation of local package
-npm install -g ./figma-mcp-server-1.0.0.tgz
-
-# Start the service
-figma-mcp --figma-api-key=<your-figma-api-key>
-```
-
-### Method 3: Use in a Project
-
-```bash
-# Install in a project
-npm install @yhy2001/figma-mcp-server --save
-
-# Add to package.json scripts:
-# "figma-mcp": "figma-mcp --figma-api-key=<your-figma-api-key>"
-
-# Or run directly with npx
-npx figma-mcp --figma-api-key=<your-figma-api-key>
-```
-
-## Connecting with AI Tools
-
-### Configuration Example
-
-Most AI tools that support MCP require a configuration file. Below is a standard example:
-
-```json
-# Use in MCP Client
-{
-  "mcpServers": {
-    "Figma MCP": {
-      "command": "npx",
-      "args": ["@yhy2001/figma-mcp-server", "--figma-api-key=<your-figma-api-key>", "--stdio"]
-    }
-  }
-}
-
-# Use in Local
-{
-  "mcpServers": {
-    "Figma MCP": {
-      "url": "http://localhost:3333/sse",
-      "env": {
-        "API_KEY": "your_key"
-      }
-    }
-  }
-}
-```
-
-### Connecting with Cursor
-
-1. Install and start Cursor
-2. Go to Settings → Features
-3. In the "Model Context Protocol" section, enter the MCP server URL or update your config file at `~/.cursor/mcp.json`
-4. Restart Cursor
-5. In the Composer (Agent mode), you can now paste a Figma link and ask the AI to implement it
-
-## Switching Modes
-
-The MCP server can run in two modes:
-
-### HTTP Mode (Default)
-
-```bash
-figma-mcp --figma-api-key=<your-figma-api-key>
-```
-
-This starts an HTTP server on port 3333 that provides SSE endpoints.
-
-### Command Mode
-
-```bash
-figma-mcp --figma-api-key=<your-figma-api-key> --stdio
-```
-
-This mode is used when the service is launched by AI tools via command line.
-
-## Design Data Format
+### Design Data Return Format
 
 ```json
 {
@@ -187,12 +91,12 @@ This mode is used when the service is launched by AI tools via command line.
 }
 ```
 
-## Data Structure Reference
+### Data Structure Description
 
-### SimplifiedDesign
+#### SimplifiedDesign
 The top-level structure of the design file, containing basic information and all visible nodes.
 
-### SimplifiedNode
+#### SimplifiedNode
 Represents an element in the design, which can be an artboard, frame, text, or shape. Key fields include:
 - `id`: Unique node identifier
 - `name`: Node name in Figma
@@ -212,6 +116,124 @@ Export information for image and SVG nodes, including:
 - `format`: Recommended export format (PNG, JPG, SVG)
 - `nodeId`: Node ID for API calls
 - `fileName`: Suggested file name
+
+## Installation and Usage
+
+### Local Development and Packaging
+
+1. Clone this repository
+2. Install dependencies: `pnpm install`
+3. Copy `.env.example` to `.env` and fill in your [Figma API access token](https://help.figma.com/hc/en-us/articles/8085703771159-Manage-personal-access-tokens)
+4. Local development: `pnpm run dev`
+5. Build project: `pnpm run build`
+6. Local packaging: `pnpm run publish:local`
+
+After packaging, a `.tgz` file will be generated in the project root directory, like `figma-mcp-server-1.0.0.tgz`
+
+### Local Installation and Usage
+
+There are three ways to use this service:
+
+#### Method 1: Install from NPM (Recommended)
+
+```bash
+# Global installation
+npm install -g @yhy2001/figma-mcp-server
+
+# Start the service
+figma-mcp --figma-api-key=<your-figma-api-key>
+```
+
+#### Method 2: Install from Local Package
+
+```bash
+# Global installation of local package
+npm install -g ./figma-mcp-server-1.0.0.tgz
+
+# Start the service
+figma-mcp --figma-api-key=<your-figma-api-key>
+```
+
+#### Method 3: Use in a Project
+
+```bash
+# Install in project
+npm install @yhy2001/figma-mcp-server --save
+
+# Add to package.json scripts
+# "start-figma-mcp": "figma-mcp --figma-api-key=<your-figma-api-key>"
+
+# Or run directly
+npx figma-mcp --figma-api-key=<your-figma-api-key>
+```
+
+### Command Line Arguments
+
+- `--version`: Show version number
+- `--figma-api-key`: Your Figma API access token (required)
+- `--port`: Port for the server to run on (default: 3333)
+- `--stdio`: Run server in command mode instead of default HTTP/SSE mode
+- `--help`: Show help menu
+
+## Connecting with AI Tools
+
+### Using in Configuration Files
+
+Many tools like Cursor, Windsurf, and Claude Desktop use configuration files to start MCP servers.
+You can add the following to your configuration file:
+
+```json
+# Use in MCP Client
+{
+  "mcpServers": {
+    "Figma MCP": {
+      "command": "npx",
+      "args": ["figma-mcp", "--figma-api-key=<your-figma-api-key>", "--stdio"]
+    }
+  }
+}
+
+# Use in Local
+{
+  "mcpServers": {
+    "Figma MCP": {
+      "url": "http://localhost:3333/sse",
+      "env": {
+        "API_KEY": "<your-figma-api-key>"
+      }
+    }
+  }
+}
+```
+
+### Connecting with Cursor
+
+1. Start the server: `figma-mcp --figma-api-key=<your-figma-api-key>`
+2. Connect MCP server in Cursor's Settings → Features tab: `http://localhost:3333`
+3. After confirming successful connection, use Composer in Agent mode
+4. Paste Figma file link and ask Cursor to implement the design
+
+## Available Tools
+
+The server provides the following MCP tools:
+
+### get_figma_data
+
+Get information about a Figma file or specific node.
+
+Parameters:
+- `fileKey`: The key of the Figma file
+- `nodeId`: Node ID (strongly recommended)
+- `depth`: How deep to traverse the node tree
+
+### download_figma_images
+
+Download image and icon resources from a Figma file.
+
+Parameters:
+- `fileKey`: The key of the Figma file containing the node
+- `nodes`: Array of image nodes to fetch
+- `localPath`: Directory path in the project where images are stored
 
 ## License
 
