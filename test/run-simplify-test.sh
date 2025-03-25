@@ -12,7 +12,7 @@ echo
 
 # 运行简化测试
 echo "=== 运行 Figma 数据简化测试 ==="
-NODE_OPTIONS="--no-warnings" npx tsx script/origin/test-simplify.ts
+NODE_OPTIONS="--no-warnings" npx tsx test/test-simplify.ts
 
 echo
 echo "测试完成! 输出文件保存在 test-output 目录中"

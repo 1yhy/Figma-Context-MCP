@@ -1,327 +1,319 @@
 {
   "name": "test",
-  "lastModified": "2025-03-23T03:17:51Z",
-  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/f4c215ac-9ba9-4b2b-b94f-f8e2405d4df2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCUXI2UGDG%2F20250320%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250320T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d101348a8267d5cb7f34233191241b8bf201ba2baef35c7aef0a9bd0649f1497",
+  "lastModified": "2025-03-25T08:22:10Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/473a648c-4039-40c2-8046-1e1a2030aa81?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCT3MRUCDU%2F20250323%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250323T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=016073092878d75d2d8b7e2fc2425fd97579e7f97d0d33fd89cd770cd30cc65a",
   "nodes": [
     {
-      "id": "368:4446",
-      "name": "Group 1410104415",
-      "type": "GROUP",
+      "id": "409:3528",
+      "name": "Frame",
+      "type": "FRAME",
       "cssStyles": {
-        "width": "1380px",
-        "height": "1303px",
+        "width": "322px",
+        "height": "523px",
         "position": "absolute",
-        "left": "37066px",
-        "top": "-4885px",
-        "display": "flex",
-        "flexDirection": "column",
-        "gap": "37px",
-        "justifyContent": "space-between",
-        "alignItems": "center"
+        "left": "13338px",
+        "top": "12889px",
+        "borderColor": "rgba(217, 217, 217, 0.4)",
+        "borderWidth": "1px",
+        "borderStyle": "solid",
+        "borderRadius": "10px"
       },
       "children": [
         {
-          "id": "285:3370",
-          "name": "AI Text-to-Video Showcase",
-          "type": "TEXT",
+          "id": "409:3529",
+          "name": "Group",
+          "type": "GROUP",
           "cssStyles": {
-            "width": "552px",
-            "height": "56px",
+            "width": "275.9183044433594px",
+            "height": "275.53729248046875px",
             "position": "absolute",
-            "left": "414px",
-            "top": "0px",
-            "color": "#FFFFFF",
-            "fontFamily": "Roboto Flex",
-            "fontSize": "48px",
-            "fontWeight": 600,
-            "textAlign": "center",
-            "verticalAlign": "top",
-            "lineHeight": "56.25px"
-          },
-          "text": "AI Text-to-Video Showcase"
-        },
-        {
-          "id": "285:3853",
-          "name": "LitAI supports realistic, anime, clay, and 3D styles, bringing your prompts to life with rich details and dynamic motion. Whether crafting cinematic action, whimsical fantasy, or surreal concepts, our AI ensures high-quality, expressive visuals in seconds.",
-          "type": "TEXT",
-          "cssStyles": {
-            "width": "900px",
-            "height": "38px",
-            "position": "absolute",
-            "left": "240px",
-            "top": "71px",
-            "color": "#FFFFFF",
-            "fontFamily": "Roboto Flex",
-            "fontSize": "16px",
-            "fontWeight": 400,
-            "textAlign": "center",
-            "verticalAlign": "top",
-            "lineHeight": "18.75px"
-          },
-          "text": "LitAI supports realistic, anime, clay, and 3D styles, bringing your prompts to life with rich details and dynamic motion. Whether crafting cinematic action, whimsical fantasy, or surreal concepts, our AI ensures high-quality, expressive visuals in seconds."
-        },
-        {
-          "id": "285:3377",
-          "name": "Frame 1410104003",
-          "type": "FRAME",
-          "cssStyles": {
-            "width": "1380px",
-            "height": "1135px",
-            "position": "absolute",
-            "left": "0px",
-            "top": "168px"
+            "left": "26.6875px",
+            "top": "230.3779296875px"
           },
           "children": [
             {
-              "id": "285:3378",
-              "name": "Rectangle 34625984",
-              "type": "VECTOR",
+              "id": "409:3530",
+              "name": "Group",
+              "type": "GROUP",
               "cssStyles": {
-                "width": "1380px",
-                "height": "80px",
+                "width": "275.9183044433594px",
+                "height": "275.53729248046875px",
                 "position": "absolute",
                 "left": "0px",
-                "top": "1px",
-                "backgroundColor": "rgba(255, 255, 255, 0.1)",
-                "borderColor": "#6C6C6C",
-                "borderWidth": "1px",
-                "borderStyle": "solid"
-              }
-            },
-            {
-              "id": "285:3386",
-              "name": "Prompt",
-              "type": "TEXT",
-              "cssStyles": {
-                "width": "79px",
-                "height": "28px",
-                "position": "absolute",
-                "left": "30px",
-                "top": "27px",
-                "color": "#FFFFFF",
-                "fontFamily": "Roboto Flex",
-                "fontSize": "24px",
-                "fontWeight": 600,
-                "textAlign": "center",
-                "verticalAlign": "top",
-                "lineHeight": "28.125px"
+                "top": "0px",
+                "display": "flex",
+                "flexDirection": "column",
+                "gap": "9px",
+                "justifyContent": "space-between"
               },
-              "text": "Prompt"
-            },
-            {
-              "id": "285:3387",
-              "name": "Output Video",
-              "type": "TEXT",
-              "cssStyles": {
-                "width": "141px",
-                "height": "28px",
-                "position": "absolute",
-                "left": "934px",
-                "top": "27px",
-                "color": "#FFFFFF",
-                "fontFamily": "Roboto Flex",
-                "fontSize": "24px",
-                "fontWeight": 600,
-                "textAlign": "center",
-                "verticalAlign": "top",
-                "lineHeight": "28.125px"
-              },
-              "text": "Output Video"
-            },
-            {
-              "id": "285:3388",
-              "name": "image",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "436px",
-                "height": "223px",
-                "position": "absolute",
-                "left": "924px",
-                "top": "101px",
-                "backgroundImage": "url({{FIGMA_IMAGE:1f32d6d4406243e64ce8502fd29323f4010aede8}})"
-              },
-              "exportInfo": {
-                "type": "IMAGE",
-                "format": "PNG",
-                "nodeId": "285:3388",
-                "fileName": "image.png"
-              }
-            },
-            {
-              "id": "285:3379",
-              "name": "Above the storm-lashed clouds, two ancient deities hover, their golden and silver armor glinting in the ethereal light. Lightning cracks between them as they collide with godlike force, sending shockwaves across the heavens. A camera tilt follows their movement as they battle in midair—each strike carving fissures into the sky itself. The clouds swirl into a divine tempest, fragments of shattered celestial weapons raining down upon a mortal world that watches in terror. The scale is immense—wide, sweeping shots emphasize the sheer power of their conflict.",
-              "type": "TEXT",
-              "cssStyles": {
-                "width": "771px",
-                "height": "126px",
-                "position": "absolute",
-                "left": "30px",
-                "top": "149px",
-                "color": "#FFFFFF",
-                "fontFamily": "Roboto Flex",
-                "fontSize": "18px",
-                "fontWeight": 400,
-                "textAlign": "left",
-                "verticalAlign": "middle",
-                "lineHeight": "21.09375px"
-              },
-              "text": "Above the storm-lashed clouds, two ancient deities hover, their golden and silver armor glinting in the ethereal light. Lightning cracks between them as they collide with godlike force, sending shockwaves across the heavens. A camera tilt follows their movement as they battle in midair—each strike carving fissures into the sky itself. The clouds swirl into a divine tempest, fragments of shattered celestial weapons raining down upon a mortal world that watches in terror. The scale is immense—wide, sweeping shots emphasize the sheer power of their conflict."
-            },
-            {
-              "id": "285:3380",
-              "name": "Rectangle 34625986",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "1380.000000043714px",
-                "height": "1.0000890511546459px",
-                "position": "absolute",
-                "left": "-4.371395334601402e-8px",
-                "top": "343.99993967828414px",
-                "backgroundColor": "#575757"
-              }
-            },
-            {
-              "id": "285:3389",
-              "name": "image",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "436px",
-                "height": "223px",
-                "position": "absolute",
-                "left": "924px",
-                "top": "365px",
-                "backgroundImage": "url({{FIGMA_IMAGE:3738acbe23ee3c3095c312ade00df9548cb3b28f}})"
-              },
-              "exportInfo": {
-                "type": "IMAGE",
-                "format": "PNG",
-                "nodeId": "285:3389",
-                "fileName": "image.png"
-              }
-            },
-            {
-              "id": "285:3381",
-              "name": "A close-up of four cartoon kids dressed in Halloween costumes huddled together, whispering and making silly, spooky faces. They’re pretending to growl and laugh, with playful expressions. The background has ghostly shapes and Halloween decorations.",
-              "type": "TEXT",
-              "cssStyles": {
-                "width": "771px",
-                "height": "63px",
-                "position": "absolute",
-                "left": "30px",
-                "top": "445px",
-                "color": "#FFFFFF",
-                "fontFamily": "Roboto Flex",
-                "fontSize": "18px",
-                "fontWeight": 400,
-                "textAlign": "left",
-                "verticalAlign": "middle",
-                "lineHeight": "21.09375px"
-              },
-              "text": "A close-up of four cartoon  kids dressed in Halloween costumes huddled together, whispering and making silly, spooky faces. They’re pretending to growl and laugh, with playful expressions. The background has ghostly shapes and Halloween decorations."
-            },
-            {
-              "id": "285:3382",
-              "name": "Rectangle 34625987",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "1380.000000043714px",
-                "height": "1.0000890511546459px",
-                "position": "absolute",
-                "left": "-4.371395334601402e-8px",
-                "top": "607.9999396782841px",
-                "backgroundColor": "#575757"
-              }
-            },
-            {
-              "id": "285:3390",
-              "name": "image",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "436px",
-                "height": "223px",
-                "position": "absolute",
-                "left": "924px",
-                "top": "629px",
-                "backgroundImage": "url({{FIGMA_IMAGE:06035e67dcd52a73b44ece68bcbd9b2c1dc13a1d}})"
-              },
-              "exportInfo": {
-                "type": "IMAGE",
-                "format": "PNG",
-                "nodeId": "285:3390",
-                "fileName": "image.png"
-              }
-            },
-            {
-              "id": "285:3383",
-              "name": "The spaceship, with its engines blazing, navigates the endless black of space towards a colossal black hole. Surrounding it, stars glitter brilliantly, and distant nebulae burst with vibrant colors, painting a grand cosmic landscape",
-              "type": "TEXT",
-              "cssStyles": {
-                "width": "771px",
-                "height": "63px",
-                "position": "absolute",
-                "left": "30px",
-                "top": "709.000244140625px",
-                "color": "#FFFFFF",
-                "fontFamily": "Roboto Flex",
-                "fontSize": "18px",
-                "fontWeight": 400,
-                "textAlign": "left",
-                "verticalAlign": "middle",
-                "lineHeight": "21.09375px"
-              },
-              "text": "The spaceship, with its engines blazing, navigates the endless black of space towards a colossal black hole. Surrounding it, stars glitter brilliantly, and distant nebulae burst with vibrant colors, painting a grand cosmic landscape"
-            },
-            {
-              "id": "285:3384",
-              "name": "Rectangle 34625988",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "1380.000000043714px",
-                "height": "1.0000890511546459px",
-                "position": "absolute",
-                "left": "-4.371395334601402e-8px",
-                "top": "872.0001838189091px",
-                "backgroundColor": "#575757"
-              }
-            },
-            {
-              "id": "285:3391",
-              "name": "image",
-              "type": "VECTOR",
-              "cssStyles": {
-                "width": "436px",
-                "height": "223px",
-                "position": "absolute",
-                "left": "924px",
-                "top": "893px",
-                "backgroundImage": "url({{FIGMA_IMAGE:31c32dbf61bf8056053ebd6da742dc5a86703574}})"
-              },
-              "exportInfo": {
-                "type": "IMAGE",
-                "format": "PNG",
-                "nodeId": "285:3391",
-                "fileName": "image.png"
-              }
-            },
-            {
-              "id": "285:3385",
-              "name": "create a top down high angle view video for a raven DJ wearing a witch Halloween costume on stage facing audience at a rave with Halloween themed light show animals in audience rsving",
-              "type": "TEXT",
-              "cssStyles": {
-                "width": "771px",
-                "height": "42px",
-                "position": "absolute",
-                "left": "30px",
-                "top": "983px",
-                "color": "#FFFFFF",
-                "fontFamily": "Roboto Flex",
-                "fontSize": "18px",
-                "fontWeight": 400,
-                "textAlign": "left",
-                "verticalAlign": "middle",
-                "lineHeight": "21.09375px"
-              },
-              "text": "create a top down high angle view video for a raven DJ wearing a witch Halloween costume on stage facing audience at a rave with Halloween themed light show animals in audience rsving"
+              "children": [
+                {
+                  "id": "409:3565",
+                  "name": "Group 1410104421",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "47.074562072753906px",
+                    "height": "47.074562072753906px",
+                    "position": "absolute",
+                    "left": "228.84375px",
+                    "top": "0px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3565",
+                    "fileName": "group_1410104421.svg"
+                  }
+                },
+                {
+                  "id": "409:3555",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "28.830785751342773px",
+                    "height": "24.948415756225586px",
+                    "position": "absolute",
+                    "left": "237.98828125px",
+                    "top": "66.38671875px",
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3555"
+                  }
+                },
+                {
+                  "id": "409:3539",
+                  "name": "500 K",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "27px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "239.251953125px",
+                    "top": "97.736328125px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.899900436401367px",
+                    "fontWeight": 600,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "10.848978042602539px"
+                  },
+                  "text": "500 K"
+                },
+                {
+                  "id": "409:3550",
+                  "name": "Group",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "28.695743560791016px",
+                    "height": "29.134611129760742px",
+                    "position": "absolute",
+                    "left": "238.0390625px",
+                    "top": "120.115234375px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3550",
+                    "fileName": "group.svg"
+                  }
+                },
+                {
+                  "id": "409:3537",
+                  "name": "400",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "19px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "243.90625px",
+                    "top": "155.279296875px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.899900436401367px",
+                    "fontWeight": 600,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "10.848978042602539px"
+                  },
+                  "text": "400"
+                },
+                {
+                  "id": "409:3549",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "25.04969024658203px",
+                    "height": "25.30290412902832px",
+                    "position": "absolute",
+                    "left": "239.87890625px",
+                    "top": "175.970703125px",
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3549"
+                  }
+                },
+                {
+                  "id": "409:3562",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "32.74707794189453px",
+                    "height": "14.19596004486084px",
+                    "position": "absolute",
+                    "left": "2.17578125px",
+                    "top": "204.7001953125px",
+                    "backgroundColor": "#F7214E"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3562"
+                  }
+                },
+                {
+                  "id": "409:3563",
+                  "name": "HOT",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "21px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "7.625px",
+                    "top": "205.7548828125px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.823772430419922px",
+                    "fontWeight": 800,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "10.756178855895996px"
+                  },
+                  "text": "HOT"
+                },
+                {
+                  "id": "409:3535",
+                  "name": "Share",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "27px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "239.251953125px",
+                    "top": "206.9052734375px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.899900436401367px",
+                    "fontWeight": 600,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "10.848978042602539px"
+                  },
+                  "text": "Share"
+                },
+                {
+                  "id": "409:3533",
+                  "name": "@LoremIpsum",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "86px",
+                    "height": "14px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "223.7900390625px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "11.237085342407227px",
+                    "fontWeight": 600,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "13.698006629943848px"
+                  },
+                  "text": "@LoremIpsum"
+                },
+                {
+                  "id": "409:3542",
+                  "name": "Group",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "34.25025939941406px",
+                    "height": "34.249176025390625px",
+                    "position": "absolute",
+                    "left": "235.26953125px",
+                    "top": "237.2109375px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3542",
+                    "fileName": "group.svg"
+                  }
+                },
+                {
+                  "id": "409:3541",
+                  "name": "#lorem#Ipsum#loremipsum",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "165px",
+                    "height": "14px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "238.474609375px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "11.237085342407227px",
+                    "fontWeight": 600,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "13.698006629943848px"
+                  },
+                  "text": "#lorem#Ipsum#loremipsum"
+                },
+                {
+                  "id": "409:3531",
+                  "name": "Song Title - Singer",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "106px",
+                    "height": "14px",
+                    "position": "absolute",
+                    "left": "27.716796875px",
+                    "top": "261.537109375px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "11.237085342407227px",
+                    "fontWeight": 600,
+                    "textAlign": "left",
+                    "verticalAlign": "top",
+                    "lineHeight": "13.698006629943848px"
+                  },
+                  "text": "Song Title - Singer"
+                },
+                {
+                  "id": "409:3558",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "12.102851867675781px",
+                    "height": "12.069082260131836px",
+                    "position": "absolute",
+                    "left": "4.490234375px",
+                    "top": "262.564453125px",
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "nodeId": "409:3558"
+                  }
+                }
+              ]
             }
           ]
         }

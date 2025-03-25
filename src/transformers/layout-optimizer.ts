@@ -160,7 +160,6 @@ export class LayoutOptimizer {
   } {
     // 打印容器名称，帮助调试
     const containerName = nodes[0]?.name || "未知容器";
-    console.log(`分析容器: ${containerName}, 子节点数量: ${nodes.length}`);
 
     const rects = nodes
       .map(node => {
@@ -198,7 +197,6 @@ export class LayoutOptimizer {
     const rowScore = this.calculateRowScore(rects, horizontalAlignment, verticalAlignment);
     const columnScore = this.calculateColumnScore(rects, horizontalAlignment, verticalAlignment);
 
-    console.log(`容器: ${containerName}, 行分数: ${rowScore.toFixed(2)}, 列分数: ${columnScore.toFixed(2)}`);
 
     // 降低识别阈值，更容易识别布局
     const isRow = rowScore > columnScore && rowScore > 0.4;

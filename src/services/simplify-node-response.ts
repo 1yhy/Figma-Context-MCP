@@ -315,7 +315,7 @@ function extractNode(node: FigmaDocumentNode, parentNode?: SimplifiedNode): Simp
   processCornerRadius(node, result);
 
   // 递归处理子节点
-  if (hasValue('children', node) && Array.isArray(node.children) && node.children.length > 0) {
+  if (hasValue('children', node) && Array.isArray(node.children) && node.children.length) {
     result.children = extractNodes(node.children, result);
 
     // 处理图片组
@@ -384,6 +384,14 @@ function processImageResources(node: FigmaDocumentNode, result: SimplifiedNode):
       nodeId: result.id,
       fileName: generateFileName(result.name, format)
     };
+  }
+
+  if (isSVGNode(node)) {
+    result.exportInfo = {
+      type: 'IMAGE',
+      format: 'SVG',
+      nodeId: result.id,
+    }
   }
 }
 
