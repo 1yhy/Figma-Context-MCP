@@ -1,5 +1,7 @@
 # Figma MCP 服务器
 
+[![smithery badge](https://smithery.ai/badge/@1yhy/Figma-Context-MCP)](https://smithery.ai/server/@1yhy/Figma-Context-MCP)
+
 > 本项目基于开源项目 [Figma-Context-MCP](https://github.com/GLips/Figma-Context-MCP) 改进，优化了数据结构和转换逻辑。
 
 [English Version](./README.en.md) | 中文版
@@ -119,6 +121,16 @@
 
 
 ## 安装与使用
+
+### 安装及使用
+
+### Installing via Smithery
+
+To install Figma MCP 服务器 for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@1yhy/Figma-Context-MCP):
+
+```bash
+npx -y @smithery/cli install @1yhy/Figma-Context-MCP --client claude
+```
 
 ### 本地开发和打包
 
