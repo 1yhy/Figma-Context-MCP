@@ -1,0 +1,28 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - figmaApiKey
+    properties:
+      figmaApiKey:
+        type: string
+        description: Your Figma API access token
+      port:
+        type: number
+        default: 3333
+        description: Port for the server to run on (default 3333)
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'figma-mcp',
+      args: [`--figma-api-key=${config.figmaApiKey}`, '--stdio', `--port=${config.port}`],
+      env: {}
+    })
+  exampleConfig:
+    figmaApiKey: dummy-figma-api-key
+    port: 3333
