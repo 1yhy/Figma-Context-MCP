@@ -22,7 +22,7 @@ const fixturesPath = path.join(__dirname, "../../fixtures");
 
 // Load test fixture
 function loadTestData(): FigmaNode {
-  const dataPath = path.join(fixturesPath, "real-node-data.json");
+  const dataPath = path.join(fixturesPath, "figma-data/real-node-data.json");
   const rawData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
   const nodeKey = Object.keys(rawData.nodes)[0];
   return rawData.nodes[nodeKey].document;

@@ -16,7 +16,7 @@ const fixturesPath = path.join(__dirname, "../fixtures");
 
 // Load fixtures
 function loadRawData(): unknown {
-  const dataPath = path.join(fixturesPath, "real-node-data.json");
+  const dataPath = path.join(fixturesPath, "figma-data/real-node-data.json");
   return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 }
 

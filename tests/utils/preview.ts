@@ -13,7 +13,7 @@ import { parseFigmaResponse } from "../../src/services/simplify-node-response.js
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, "../fixtures");
 
-const originalPath = path.join(fixturesDir, "real-node-data.json");
+const originalPath = path.join(fixturesDir, "figma-data/real-node-data.json");
 const outputPath = path.join(__dirname, "simplified-with-css.json");
 const viewerPath = path.join(__dirname, "viewer.html");
 

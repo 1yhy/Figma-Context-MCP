@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const testOutputDir = path.join(__dirname, "test-output");
 
-const originalPath = path.join(testOutputDir, "real-node-data.json");
+const originalPath = path.join(testOutputDir, "../fixtures/figma-data/real-node-data.json");
 const outputPath = path.join(testOutputDir, "new-simplified-data.json");
 
 async function main() {
