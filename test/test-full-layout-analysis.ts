@@ -16,9 +16,9 @@ import {
   findOverlappingElements,
   analyzeGaps,
   calculateGaps,
-  ElementRect,
-  LayoutNode,
-} from '../src/utils/layout-detection.js';
+  type ElementRect,
+  type LayoutNode,
+} from '../src/algorithms/layout/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

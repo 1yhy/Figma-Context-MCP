@@ -1,17 +1,20 @@
 /**
- * 布局检测算法
- * 从绝对定位的设计稿元素中推断 Flex 布局
+ * Layout Detection Algorithm
  *
- * 核心算法流程：
- * 1. 提取元素边界框 (Bounding Box)
- * 2. Y轴重叠检测分组为"行"
- * 3. X轴重叠检测分组为"列"
- * 4. 分析间距一致性
- * 5. 检测对齐方式
- * 6. 递归构建布局树
+ * Infers Flex layout from absolutely positioned design elements.
+ *
+ * Core algorithm flow:
+ * 1. Extract element bounding boxes
+ * 2. Group by Y-axis overlap into "rows"
+ * 3. Group by X-axis overlap into "columns"
+ * 4. Analyze gap consistency
+ * 5. Detect alignment
+ * 6. Recursively build layout tree
+ *
+ * @module algorithms/layout/detector
  */
 
-// ==================== 类型定义 ====================
+// ==================== Type Definitions ====================
 
 export interface BoundingBox {
   x: number;
@@ -30,7 +33,7 @@ export interface ElementRect extends BoundingBox {
 
 export interface LayoutGroup {
   elements: ElementRect[];
-  direction: 'row' | 'column' | 'none';
+  direction: "row" | "column" | "none";
   gap: number;
   isGapConsistent: boolean;
   justifyContent: string;
@@ -39,7 +42,7 @@ export interface LayoutGroup {
 }
 
 export interface LayoutAnalysisResult {
-  direction: 'row' | 'column' | 'none';
+  direction: "row" | "column" | "none";
   confidence: number;
   gap: number;
   isGapConsistent: boolean;
@@ -50,18 +53,18 @@ export interface LayoutAnalysisResult {
   overlappingElements: ElementRect[];
 }
 
-// ==================== 边界框工具函数 ====================
+// ==================== Bounding Box Utilities ====================
 
 /**
- * 从样式对象提取边界框
+ * Extract bounding box from CSS styles object
  */
 export function extractBoundingBox(cssStyles: Record<string, unknown>): BoundingBox | null {
   if (!cssStyles) return null;
 
-  const x = parseFloat(String(cssStyles.left || '0').replace('px', ''));
-  const y = parseFloat(String(cssStyles.top || '0').replace('px', ''));
-  const width = parseFloat(String(cssStyles.width || '0').replace('px', ''));
-  const height = parseFloat(String(cssStyles.height || '0').replace('px', ''));
+  const x = parseFloat(String(cssStyles.left || "0").replace("px", ""));
+  const y = parseFloat(String(cssStyles.top || "0").replace("px", ""));
+  const width = parseFloat(String(cssStyles.width || "0").replace("px", ""));
+  const height = parseFloat(String(cssStyles.height || "0").replace("px", ""));
 
   if (isNaN(x) || isNaN(y) || isNaN(width) || isNaN(height)) {
     return null;
@@ -71,7 +74,7 @@ export function extractBoundingBox(cssStyles: Record<string, unknown>): Bounding
 }
 
 /**
- * 将边界框转换为元素矩形（包含计算属性）
+ * Convert bounding box to element rect (with computed properties)
  */
 export function toElementRect(box: BoundingBox, index: number): ElementRect {
   return {
@@ -85,17 +88,17 @@ export function toElementRect(box: BoundingBox, index: number): ElementRect {
 }
 
 /**
- * 计算一组元素的外接矩形
+ * Calculate bounding rect of a group of elements
  */
 export function calculateBounds(rects: ElementRect[]): BoundingBox {
   if (rects.length === 0) {
     return { x: 0, y: 0, width: 0, height: 0 };
   }
 
-  const minX = Math.min(...rects.map(r => r.x));
-  const minY = Math.min(...rects.map(r => r.y));
-  const maxX = Math.max(...rects.map(r => r.right));
-  const maxY = Math.max(...rects.map(r => r.bottom));
+  const minX = Math.min(...rects.map((r) => r.x));
+  const minY = Math.min(...rects.map((r) => r.y));
+  const maxX = Math.max(...rects.map((r) => r.right));
+  const maxY = Math.max(...rects.map((r) => r.bottom));
 
   return {
     x: minX,
@@ -105,28 +108,32 @@ export function calculateBounds(rects: ElementRect[]): BoundingBox {
   };
 }
 
-// ==================== 重叠检测 ====================
+// ==================== Overlap Detection ====================
 
 /**
- * 检查两个元素在 Y 轴上是否重叠（用于行检测）
- * 如果两个元素的垂直范围有交集，则认为它们在同一行
+ * Check if two elements overlap on Y-axis (for row detection)
+ * If two elements have overlapping vertical ranges, they are in the same row
  */
 export function isOverlappingY(a: ElementRect, b: ElementRect, tolerance: number = 0): boolean {
   return !(a.bottom + tolerance < b.y || b.bottom + tolerance < a.y);
 }
 
 /**
- * 检查两个元素在 X 轴上是否重叠（用于列检测）
- * 如果两个元素的水平范围有交集，则认为它们在同一列
+ * Check if two elements overlap on X-axis (for column detection)
+ * If two elements have overlapping horizontal ranges, they are in the same column
  */
 export function isOverlappingX(a: ElementRect, b: ElementRect, tolerance: number = 0): boolean {
   return !(a.right + tolerance < b.x || b.right + tolerance < a.x);
 }
 
 /**
- * 检查两个元素是否完全重叠（需要 absolute 定位）
+ * Check if two elements fully overlap (requires absolute positioning)
  */
-export function isFullyOverlapping(a: ElementRect, b: ElementRect, threshold: number = 0.5): boolean {
+export function isFullyOverlapping(
+  a: ElementRect,
+  b: ElementRect,
+  threshold: number = 0.5
+): boolean {
   const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.x, b.x));
   const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y));
   const overlapArea = overlapX * overlapY;
@@ -138,17 +145,17 @@ export function isFullyOverlapping(a: ElementRect, b: ElementRect, threshold: nu
   return minArea > 0 && overlapArea / minArea > threshold;
 }
 
-// ==================== 行列分组算法 ====================
+// ==================== Row/Column Grouping Algorithm ====================
 
 /**
- * 将元素按 Y 轴重叠分组为"行"
- * 核心算法：如果两个元素在 Y 轴上有重叠，它们属于同一行
+ * Group elements by Y-axis overlap into "rows"
+ * Core algorithm: if two elements overlap on Y-axis, they belong to the same row
  */
 export function groupIntoRows(rects: ElementRect[], tolerance: number = 2): ElementRect[][] {
   if (rects.length === 0) return [];
   if (rects.length === 1) return [[rects[0]]];
 
-  // 按 Y 坐标排序
+  // Sort by Y coordinate
   const sorted = [...rects].sort((a, b) => a.y - b.y);
 
   const rows: ElementRect[][] = [];
@@ -157,19 +164,19 @@ export function groupIntoRows(rects: ElementRect[], tolerance: number = 2): Elem
   for (let i = 1; i < sorted.length; i++) {
     const elem = sorted[i];
 
-    // 检查是否与当前行的任意元素在 Y 轴上重叠
-    const overlapsWithRow = currentRow.some(rowElem => isOverlappingY(rowElem, elem, tolerance));
+    // Check if overlaps with any element in current row on Y-axis
+    const overlapsWithRow = currentRow.some((rowElem) => isOverlappingY(rowElem, elem, tolerance));
 
     if (overlapsWithRow) {
       currentRow.push(elem);
     } else {
-      // 当前行完成，按 X 排序后保存
+      // Current row complete, sort by X and save
       rows.push(currentRow.sort((a, b) => a.x - b.x));
       currentRow = [elem];
     }
   }
 
-  // 保存最后一行
+  // Save last row
   if (currentRow.length > 0) {
     rows.push(currentRow.sort((a, b) => a.x - b.x));
   }
@@ -178,14 +185,14 @@ export function groupIntoRows(rects: ElementRect[], tolerance: number = 2): Elem
 }
 
 /**
- * 将元素按 X 轴重叠分组为"列"
- * 核心算法：如果两个元素在 X 轴上有重叠，它们属于同一列
+ * Group elements by X-axis overlap into "columns"
+ * Core algorithm: if two elements overlap on X-axis, they belong to the same column
  */
 export function groupIntoColumns(rects: ElementRect[], tolerance: number = 2): ElementRect[][] {
   if (rects.length === 0) return [];
   if (rects.length === 1) return [[rects[0]]];
 
-  // 按 X 坐标排序
+  // Sort by X coordinate
   const sorted = [...rects].sort((a, b) => a.x - b.x);
 
   const columns: ElementRect[][] = [];
@@ -194,19 +201,21 @@ export function groupIntoColumns(rects: ElementRect[], tolerance: number = 2): E
   for (let i = 1; i < sorted.length; i++) {
     const elem = sorted[i];
 
-    // 检查是否与当前列的任意元素在 X 轴上重叠
-    const overlapsWithColumn = currentColumn.some(colElem => isOverlappingX(colElem, elem, tolerance));
+    // Check if overlaps with any element in current column on X-axis
+    const overlapsWithColumn = currentColumn.some((colElem) =>
+      isOverlappingX(colElem, elem, tolerance)
+    );
 
     if (overlapsWithColumn) {
       currentColumn.push(elem);
     } else {
-      // 当前列完成，按 Y 排序后保存
+      // Current column complete, sort by Y and save
       columns.push(currentColumn.sort((a, b) => a.y - b.y));
       currentColumn = [elem];
     }
   }
 
-  // 保存最后一列
+  // Save last column
   if (currentColumn.length > 0) {
     columns.push(currentColumn.sort((a, b) => a.y - b.y));
   }
@@ -215,7 +224,7 @@ export function groupIntoColumns(rects: ElementRect[], tolerance: number = 2): E
 }
 
 /**
- * 检测完全重叠的元素（需要 absolute 定位）
+ * Find fully overlapping elements (requires absolute positioning)
  */
 export function findOverlappingElements(rects: ElementRect[]): ElementRect[] {
   const overlapping: Set<number> = new Set();
@@ -229,20 +238,24 @@ export function findOverlappingElements(rects: ElementRect[]): ElementRect[] {
     }
   }
 
-  return rects.filter(r => overlapping.has(r.index));
+  return rects.filter((r) => overlapping.has(r.index));
 }
 
-// ==================== 间距分析 ====================
+// ==================== Gap Analysis ====================
 
 /**
- * 计算一组元素之间的间距
+ * Calculate gaps between a group of elements
  */
-export function calculateGaps(rects: ElementRect[], direction: 'horizontal' | 'vertical'): number[] {
+export function calculateGaps(
+  rects: ElementRect[],
+  direction: "horizontal" | "vertical"
+): number[] {
   if (rects.length < 2) return [];
 
-  const sorted = direction === 'horizontal'
-    ? [...rects].sort((a, b) => a.x - b.x)
-    : [...rects].sort((a, b) => a.y - b.y);
+  const sorted =
+    direction === "horizontal"
+      ? [...rects].sort((a, b) => a.x - b.x)
+      : [...rects].sort((a, b) => a.y - b.y);
 
   const gaps: number[] = [];
 
@@ -250,11 +263,9 @@ export function calculateGaps(rects: ElementRect[], direction: 'horizontal' | 'v
     const current = sorted[i];
     const next = sorted[i + 1];
 
-    const gap = direction === 'horizontal'
-      ? next.x - current.right
-      : next.y - current.bottom;
+    const gap = direction === "horizontal" ? next.x - current.right : next.y - current.bottom;
 
-    // 只记录正的间距
+    // Only record positive gaps
     if (gap >= 0) {
       gaps.push(gap);
     }
@@ -264,9 +275,12 @@ export function calculateGaps(rects: ElementRect[], direction: 'horizontal' | 'v
 }
 
 /**
- * 分析间距一致性
+ * Analyze gap consistency
  */
-export function analyzeGaps(gaps: number[], tolerancePercent: number = 20): {
+export function analyzeGaps(
+  gaps: number[],
+  tolerancePercent: number = 20
+): {
   isConsistent: boolean;
   average: number;
   rounded: number;
@@ -287,7 +301,7 @@ export function analyzeGaps(gaps: number[], tolerancePercent: number = 20): {
   const variance = gaps.reduce((acc, gap) => acc + Math.pow(gap - average, 2), 0) / gaps.length;
   const stdDev = Math.sqrt(variance);
 
-  // 判断一致性：标准差小于平均值的指定百分比
+  // Consistency check: standard deviation less than specified percentage of average
   const tolerance = average * (tolerancePercent / 100);
   const isConsistent = average === 0 || stdDev <= tolerance;
 
@@ -297,12 +311,12 @@ export function analyzeGaps(gaps: number[], tolerancePercent: number = 20): {
 }
 
 /**
- * 将间距四舍五入到常用值
+ * Round gap to common design values
  */
 export function roundToCommonValue(value: number): number {
   const COMMON_VALUES = [0, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96, 128];
 
-  // 找最接近的常用值
+  // Find closest common value
   let closest = COMMON_VALUES[0];
   let minDiff = Math.abs(value - closest);
 
@@ -314,7 +328,7 @@ export function roundToCommonValue(value: number): number {
     }
   }
 
-  // 如果差距太大（超过 4px），使用四舍五入值
+  // If difference is too large (> 4px), use rounded value
   if (minDiff > 4) {
     return Math.round(value);
   }
@@ -322,296 +336,303 @@ export function roundToCommonValue(value: number): number {
   return closest;
 }
 
-// ==================== 对齐方式检测 ====================
+// ==================== Alignment Detection ====================
 
 /**
- * 检测一组值是否对齐
+ * Check if a group of values are aligned
  */
 export function areValuesAligned(values: number[], tolerance: number = 3): boolean {
   if (values.length < 2) return true;
 
   const first = values[0];
-  return values.every(v => Math.abs(v - first) <= tolerance);
+  return values.every((v) => Math.abs(v - first) <= tolerance);
 }
 
 /**
- * 分析对齐方式
+ * Analyze alignment
  */
-export function analyzeAlignment(rects: ElementRect[], bounds: BoundingBox): {
-  horizontal: 'left' | 'center' | 'right' | 'stretch' | 'none';
-  vertical: 'top' | 'center' | 'bottom' | 'stretch' | 'none';
+export function analyzeAlignment(
+  rects: ElementRect[],
+  bounds: BoundingBox
+): {
+  horizontal: "left" | "center" | "right" | "stretch" | "none";
+  vertical: "top" | "center" | "bottom" | "stretch" | "none";
 } {
   if (rects.length === 0) {
-    return { horizontal: 'none', vertical: 'none' };
+    return { horizontal: "none", vertical: "none" };
   }
 
   const tolerance = Math.max(3, Math.min(bounds.width, bounds.height) * 0.02);
 
-  // 水平对齐分析
-  const lefts = rects.map(r => r.x);
-  const rights = rects.map(r => r.right);
-  const centerXs = rects.map(r => r.centerX);
-  const widths = rects.map(r => r.width);
+  // Horizontal alignment analysis
+  const lefts = rects.map((r) => r.x);
+  const rights = rects.map((r) => r.right);
+  const centerXs = rects.map((r) => r.centerX);
+  const widths = rects.map((r) => r.width);
 
-  let horizontal: 'left' | 'center' | 'right' | 'stretch' | 'none' = 'none';
+  let horizontal: "left" | "center" | "right" | "stretch" | "none" = "none";
 
   if (areValuesAligned(lefts, tolerance)) {
-    horizontal = 'left';
+    horizontal = "left";
   } else if (areValuesAligned(rights, tolerance)) {
-    horizontal = 'right';
+    horizontal = "right";
   } else if (areValuesAligned(centerXs, tolerance)) {
-    horizontal = 'center';
+    horizontal = "center";
   } else if (areValuesAligned(widths, tolerance) && widths[0] >= bounds.width * 0.9) {
-    horizontal = 'stretch';
+    horizontal = "stretch";
   }
 
-  // 垂直对齐分析
-  const tops = rects.map(r => r.y);
-  const bottoms = rects.map(r => r.bottom);
-  const centerYs = rects.map(r => r.centerY);
-  const heights = rects.map(r => r.height);
+  // Vertical alignment analysis
+  const tops = rects.map((r) => r.y);
+  const bottoms = rects.map((r) => r.bottom);
+  const centerYs = rects.map((r) => r.centerY);
+  const heights = rects.map((r) => r.height);
 
-  let vertical: 'top' | 'center' | 'bottom' | 'stretch' | 'none' = 'none';
+  let vertical: "top" | "center" | "bottom" | "stretch" | "none" = "none";
 
   if (areValuesAligned(tops, tolerance)) {
-    vertical = 'top';
+    vertical = "top";
   } else if (areValuesAligned(bottoms, tolerance)) {
-    vertical = 'bottom';
+    vertical = "bottom";
   } else if (areValuesAligned(centerYs, tolerance)) {
-    vertical = 'center';
+    vertical = "center";
   } else if (areValuesAligned(heights, tolerance) && heights[0] >= bounds.height * 0.9) {
-    vertical = 'stretch';
+    vertical = "stretch";
   }
 
   return { horizontal, vertical };
 }
 
 /**
- * 转换对齐方式为 CSS justify-content 值
+ * Convert alignment to CSS justify-content value
  */
 export function toJustifyContent(alignment: string, hasGaps: boolean): string {
   switch (alignment) {
-    case 'left':
-    case 'top':
-      return 'flex-start';
-    case 'right':
-    case 'bottom':
-      return 'flex-end';
-    case 'center':
-      return 'center';
-    case 'stretch':
-      return hasGaps ? 'space-between' : 'flex-start';
+    case "left":
+    case "top":
+      return "flex-start";
+    case "right":
+    case "bottom":
+      return "flex-end";
+    case "center":
+      return "center";
+    case "stretch":
+      return hasGaps ? "space-between" : "flex-start";
     default:
-      return 'flex-start';
+      return "flex-start";
   }
 }
 
 /**
- * 转换对齐方式为 CSS align-items 值
+ * Convert alignment to CSS align-items value
  */
 export function toAlignItems(alignment: string): string {
   switch (alignment) {
-    case 'left':
-    case 'top':
-      return 'flex-start';
-    case 'right':
-    case 'bottom':
-      return 'flex-end';
-    case 'center':
-      return 'center';
-    case 'stretch':
-      return 'stretch';
+    case "left":
+    case "top":
+      return "flex-start";
+    case "right":
+    case "bottom":
+      return "flex-end";
+    case "center":
+      return "center";
+    case "stretch":
+      return "stretch";
     default:
-      return 'stretch';
+      return "stretch";
   }
 }
 
-// ==================== 布局方向检测 ====================
+// ==================== Layout Direction Detection ====================
 
 /**
- * 检测最佳布局方向
- * 核心逻辑：比较行分组和列分组的质量
+ * Detect optimal layout direction
+ * Core logic: compare quality of row grouping vs column grouping
  */
 export function detectLayoutDirection(rects: ElementRect[]): {
-  direction: 'row' | 'column' | 'none';
+  direction: "row" | "column" | "none";
   confidence: number;
   reason: string;
 } {
   if (rects.length < 2) {
-    return { direction: 'none', confidence: 0, reason: '元素数量不足' };
+    return { direction: "none", confidence: 0, reason: "Insufficient elements" };
   }
 
   const rows = groupIntoRows(rects);
   const columns = groupIntoColumns(rects);
 
-  // 计算行布局分数
-  const rowScore = calculateLayoutScore(rows, 'row', rects.length);
+  // Calculate row layout score
+  const rowScore = calculateLayoutScore(rows, "row", rects.length);
 
-  // 计算列布局分数
-  const columnScore = calculateLayoutScore(columns, 'column', rects.length);
+  // Calculate column layout score
+  const columnScore = calculateLayoutScore(columns, "column", rects.length);
 
-  // 选择分数更高的布局
+  // Select layout with higher score
   if (rowScore.score > columnScore.score && rowScore.score > 0.3) {
     return {
-      direction: 'row',
+      direction: "row",
       confidence: rowScore.score,
       reason: rowScore.reason,
     };
   } else if (columnScore.score > rowScore.score && columnScore.score > 0.3) {
     return {
-      direction: 'column',
+      direction: "column",
       confidence: columnScore.score,
       reason: columnScore.reason,
     };
   }
 
-  return { direction: 'none', confidence: 0, reason: '无明确布局模式' };
+  return { direction: "none", confidence: 0, reason: "No clear layout pattern" };
 }
 
 /**
- * 计算布局分数
+ * Calculate layout score
  */
 function calculateLayoutScore(
   groups: ElementRect[][],
-  direction: 'row' | 'column',
+  direction: "row" | "column",
   totalElements: number
 ): { score: number; reason: string } {
   if (groups.length === 0) {
-    return { score: 0, reason: '无分组' };
+    return { score: 0, reason: "No groups" };
   }
 
-  // 分数因素：
-  // 1. 分组数量合理性 (理想情况：每行/列只有一个或少数几个组)
-  // 2. 每组内元素的间距一致性
-  // 3. 元素覆盖率
+  // Score factors:
+  // 1. Group count rationality (ideal: one or few groups per row/column)
+  // 2. Gap consistency within each group
+  // 3. Element coverage
 
   let score = 0;
   const reasons: string[] = [];
 
-  // 1. 如果是行布局，理想情况是只有一行（所有元素水平排列）
-  //    如果是列布局，理想情况是只有一列（所有元素垂直排列）
+  // 1. For row layout, ideal is single row (all elements horizontal)
+  //    For column layout, ideal is single column (all elements vertical)
   if (groups.length === 1 && groups[0].length === totalElements) {
     score += 0.4;
-    reasons.push('完美分组');
+    reasons.push("Perfect grouping");
   } else if (groups.length <= 3) {
     score += 0.2;
-    reasons.push('分组合理');
+    reasons.push("Reasonable grouping");
   }
 
-  // 2. 分析间距一致性
+  // 2. Analyze gap consistency
   for (const group of groups) {
     if (group.length >= 2) {
-      const gapDirection = direction === 'row' ? 'horizontal' : 'vertical';
+      const gapDirection = direction === "row" ? "horizontal" : "vertical";
       const gaps = calculateGaps(group, gapDirection);
       const gapAnalysis = analyzeGaps(gaps);
 
       if (gapAnalysis.isConsistent && gaps.length > 0) {
         score += 0.3 / groups.length;
-        reasons.push(`间距一致(${Math.round(gapAnalysis.average)}px)`);
+        reasons.push(`Consistent gap (${Math.round(gapAnalysis.average)}px)`);
       }
     }
   }
 
-  // 3. 检查交叉轴对齐
+  // 3. Check cross-axis alignment
   for (const group of groups) {
     if (group.length >= 2) {
       const bounds = calculateBounds(group);
       const alignment = analyzeAlignment(group, bounds);
-      const crossAlignment = direction === 'row' ? alignment.vertical : alignment.horizontal;
+      const crossAlignment = direction === "row" ? alignment.vertical : alignment.horizontal;
 
-      if (crossAlignment !== 'none') {
+      if (crossAlignment !== "none") {
         score += 0.2 / groups.length;
-        reasons.push(`对齐良好(${crossAlignment})`);
+        reasons.push(`Good alignment (${crossAlignment})`);
       }
     }
   }
 
-  // 4. 检查主轴上的元素分布
-  const largestGroup = groups.reduce((a, b) => a.length > b.length ? a : b);
+  // 4. Check main axis element distribution
+  const largestGroup = groups.reduce((a, b) => (a.length > b.length ? a : b));
   if (largestGroup.length >= totalElements * 0.7) {
     score += 0.1;
-    reasons.push('主要分布集中');
+    reasons.push("Concentrated distribution");
   }
 
   return {
     score: Math.min(1, score),
-    reason: reasons.join(', ') || '无明显特征',
+    reason: reasons.join(", ") || "No obvious features",
   };
 }
 
-// ==================== 完整布局分析 ====================
+// ==================== Complete Layout Analysis ====================
 
 /**
- * 完整的布局分析
- * 返回布局方向、间距、对齐方式等所有信息
+ * Complete layout analysis
+ * Returns layout direction, gap, alignment, and all other information
  */
 export function analyzeLayout(rects: ElementRect[]): LayoutAnalysisResult {
   if (rects.length < 2) {
     return {
-      direction: 'none',
+      direction: "none",
       confidence: 0,
       gap: 0,
       isGapConsistent: true,
-      justifyContent: 'flex-start',
-      alignItems: 'stretch',
+      justifyContent: "flex-start",
+      alignItems: "stretch",
       rows: [rects],
       columns: [rects],
       overlappingElements: [],
     };
   }
 
-  // 检测重叠元素
+  // Detect overlapping elements
   const overlappingElements = findOverlappingElements(rects);
 
-  // 过滤掉重叠元素后分析布局
-  const nonOverlapping = rects.filter(r => !overlappingElements.some(o => o.index === r.index));
+  // Analyze layout after filtering out overlapping elements
+  const nonOverlapping = rects.filter(
+    (r) => !overlappingElements.some((o) => o.index === r.index)
+  );
 
   if (nonOverlapping.length < 2) {
     return {
-      direction: 'none',
+      direction: "none",
       confidence: 0,
       gap: 0,
       isGapConsistent: true,
-      justifyContent: 'flex-start',
-      alignItems: 'stretch',
+      justifyContent: "flex-start",
+      alignItems: "stretch",
       rows: [rects],
       columns: [rects],
       overlappingElements,
     };
   }
 
-  // 检测布局方向
+  // Detect layout direction
   const { direction, confidence } = detectLayoutDirection(nonOverlapping);
 
-  // 分组
+  // Grouping
   const rows = groupIntoRows(nonOverlapping);
   const columns = groupIntoColumns(nonOverlapping);
 
-  // 计算间距
-  const gapDirection = direction === 'row' ? 'horizontal' : 'vertical';
+  // Calculate gaps
+  const gapDirection = direction === "row" ? "horizontal" : "vertical";
   const gaps = calculateGaps(
-    direction === 'row' ? nonOverlapping.sort((a, b) => a.x - b.x) : nonOverlapping.sort((a, b) => a.y - b.y),
+    direction === "row"
+      ? nonOverlapping.sort((a, b) => a.x - b.x)
+      : nonOverlapping.sort((a, b) => a.y - b.y),
     gapDirection
   );
   const gapAnalysis = analyzeGaps(gaps);
 
-  // 分析对齐方式
+  // Analyze alignment
   const bounds = calculateBounds(nonOverlapping);
   const alignment = analyzeAlignment(nonOverlapping, bounds);
 
-  // 确定 CSS 属性
+  // Determine CSS properties
   let justifyContent: string;
   let alignItems: string;
 
-  if (direction === 'row') {
+  if (direction === "row") {
     justifyContent = toJustifyContent(alignment.horizontal, gaps.length > 0);
     alignItems = toAlignItems(alignment.vertical);
-  } else if (direction === 'column') {
+  } else if (direction === "column") {
     justifyContent = toJustifyContent(alignment.vertical, gaps.length > 0);
     alignItems = toAlignItems(alignment.horizontal);
   } else {
-    justifyContent = 'flex-start';
-    alignItems = 'stretch';
+    justifyContent = "flex-start";
+    alignItems = "stretch";
   }
 
   return {
@@ -627,11 +648,11 @@ export function analyzeLayout(rects: ElementRect[]): LayoutAnalysisResult {
   };
 }
 
-// ==================== 递归布局树构建 ====================
+// ==================== Recursive Layout Tree Building ====================
 
 export interface LayoutNode {
-  type: 'container' | 'element';
-  direction?: 'row' | 'column';
+  type: "container" | "element";
+  direction?: "row" | "column";
   gap?: number;
   justifyContent?: string;
   alignItems?: string;
@@ -642,28 +663,32 @@ export interface LayoutNode {
 }
 
 /**
- * 递归构建布局树
- * 将扁平的元素列表转换为嵌套的布局结构
+ * Recursively build layout tree
+ * Convert flat element list to nested layout structure
  */
-export function buildLayoutTree(rects: ElementRect[], depth: number = 0, maxDepth: number = 5): LayoutNode {
+export function buildLayoutTree(
+  rects: ElementRect[],
+  depth: number = 0,
+  maxDepth: number = 5
+): LayoutNode {
   const bounds = calculateBounds(rects);
 
-  // 单个元素直接返回
+  // Single element returns directly
   if (rects.length === 1) {
     return {
-      type: 'element',
+      type: "element",
       elementIndex: rects[0].index,
       bounds,
     };
   }
 
-  // 达到最大深度，返回简单容器
+  // Max depth reached, return simple container
   if (depth >= maxDepth) {
     return {
-      type: 'container',
-      direction: 'column',
-      children: rects.map(r => ({
-        type: 'element' as const,
+      type: "container",
+      direction: "column",
+      children: rects.map((r) => ({
+        type: "element" as const,
         elementIndex: r.index,
         bounds: { x: r.x, y: r.y, width: r.width, height: r.height },
       })),
@@ -671,39 +696,39 @@ export function buildLayoutTree(rects: ElementRect[], depth: number = 0, maxDept
     };
   }
 
-  // 分析布局
+  // Analyze layout
   const analysis = analyzeLayout(rects);
 
-  // 处理重叠元素
-  const overlappingNodes: LayoutNode[] = analysis.overlappingElements.map(r => ({
-    type: 'element' as const,
+  // Handle overlapping elements
+  const overlappingNodes: LayoutNode[] = analysis.overlappingElements.map((r) => ({
+    type: "element" as const,
     elementIndex: r.index,
     bounds: { x: r.x, y: r.y, width: r.width, height: r.height },
     needsAbsolute: true,
   }));
 
-  // 过滤掉重叠元素
+  // Filter out overlapping elements
   const nonOverlapping = rects.filter(
-    r => !analysis.overlappingElements.some(o => o.index === r.index)
+    (r) => !analysis.overlappingElements.some((o) => o.index === r.index)
   );
 
   if (nonOverlapping.length === 0) {
-    // 所有元素都重叠
+    // All elements overlap
     return {
-      type: 'container',
+      type: "container",
       children: overlappingNodes,
       bounds,
     };
   }
 
-  if (analysis.direction === 'none' || analysis.confidence < 0.3) {
-    // 无明确布局，使用默认垂直布局
+  if (analysis.direction === "none" || analysis.confidence < 0.3) {
+    // No clear layout, use default vertical layout
     return {
-      type: 'container',
-      direction: 'column',
+      type: "container",
+      direction: "column",
       children: [
-        ...nonOverlapping.map(r => ({
-          type: 'element' as const,
+        ...nonOverlapping.map((r) => ({
+          type: "element" as const,
           elementIndex: r.index,
           bounds: { x: r.x, y: r.y, width: r.width, height: r.height },
         })),
@@ -713,37 +738,35 @@ export function buildLayoutTree(rects: ElementRect[], depth: number = 0, maxDept
     };
   }
 
-  // 根据布局方向分组
-  const groups = analysis.direction === 'row' ? analysis.rows : analysis.columns;
+  // Group by layout direction
+  const groups = analysis.direction === "row" ? analysis.rows : analysis.columns;
 
-  // 递归处理每个分组
-  const children: LayoutNode[] = groups.map(group => {
+  // Recursively process each group
+  const children: LayoutNode[] = groups.map((group) => {
     if (group.length === 1) {
       return {
-        type: 'element' as const,
+        type: "element" as const,
         elementIndex: group[0].index,
         bounds: { x: group[0].x, y: group[0].y, width: group[0].width, height: group[0].height },
       };
     }
 
-    // 对于多元素分组，检查是否需要进一步分析（交叉方向）
-    const crossDirection = analysis.direction === 'row' ? 'column' : 'row';
-    const crossGroups = crossDirection === 'row'
-      ? groupIntoRows(group)
-      : groupIntoColumns(group);
+    // For multi-element groups, check if further analysis needed (cross direction)
+    const crossDirection = analysis.direction === "row" ? "column" : "row";
+    const crossGroups = crossDirection === "row" ? groupIntoRows(group) : groupIntoColumns(group);
 
     if (crossGroups.length > 1) {
-      // 需要嵌套布局
+      // Nested layout needed
       return buildLayoutTree(group, depth + 1, maxDepth);
     }
 
-    // 简单分组，不需要嵌套
+    // Simple group, no nesting needed
     const groupBounds = calculateBounds(group);
     return {
-      type: 'container' as const,
+      type: "container" as const,
       direction: crossDirection,
-      children: group.map(r => ({
-        type: 'element' as const,
+      children: group.map((r) => ({
+        type: "element" as const,
         elementIndex: r.index,
         bounds: { x: r.x, y: r.y, width: r.width, height: r.height },
       })),
@@ -752,45 +775,50 @@ export function buildLayoutTree(rects: ElementRect[], depth: number = 0, maxDept
   });
 
   return {
-    type: 'container',
+    type: "container",
     direction: analysis.direction,
     gap: analysis.isGapConsistent && analysis.gap > 0 ? analysis.gap : undefined,
-    justifyContent: analysis.justifyContent !== 'flex-start' ? analysis.justifyContent : undefined,
-    alignItems: analysis.alignItems !== 'stretch' ? analysis.alignItems : undefined,
+    justifyContent: analysis.justifyContent !== "flex-start" ? analysis.justifyContent : undefined,
+    alignItems: analysis.alignItems !== "stretch" ? analysis.alignItems : undefined,
     children: [...children, ...overlappingNodes],
     bounds,
   };
 }
 
-// ==================== 调试和可视化 ====================
+// ==================== Debug and Visualization ====================
 
 /**
- * 生成布局分析报告（用于调试）
+ * Generate layout analysis report (for debugging)
  */
 export function generateLayoutReport(rects: ElementRect[]): string {
   const analysis = analyzeLayout(rects);
   const tree = buildLayoutTree(rects);
 
   const lines: string[] = [
-    '=== 布局分析报告 ===',
-    '',
-    `元素数量: ${rects.length}`,
-    `检测方向: ${analysis.direction} (置信度: ${(analysis.confidence * 100).toFixed(1)}%)`,
-    `间距: ${analysis.gap}px (一致性: ${analysis.isGapConsistent ? '是' : '否'})`,
+    "=== Layout Analysis Report ===",
+    "",
+    `Element count: ${rects.length}`,
+    `Detected direction: ${analysis.direction} (confidence: ${(analysis.confidence * 100).toFixed(1)}%)`,
+    `Gap: ${analysis.gap}px (consistent: ${analysis.isGapConsistent ? "yes" : "no"})`,
     `justifyContent: ${analysis.justifyContent}`,
     `alignItems: ${analysis.alignItems}`,
-    '',
-    `行分组: ${analysis.rows.length} 行`,
-    ...analysis.rows.map((row, i) => `  行${i + 1}: ${row.length} 个元素 [${row.map(r => r.index).join(', ')}]`),
-    '',
-    `列分组: ${analysis.columns.length} 列`,
-    ...analysis.columns.map((col, i) => `  列${i + 1}: ${col.length} 个元素 [${col.map(r => r.index).join(', ')}]`),
-    '',
-    `重叠元素: ${analysis.overlappingElements.length} 个`,
-    '',
-    '=== 布局树 ===',
+    "",
+    `Row groups: ${analysis.rows.length} rows`,
+    ...analysis.rows.map(
+      (row, i) => `  Row ${i + 1}: ${row.length} elements [${row.map((r) => r.index).join(", ")}]`
+    ),
+    "",
+    `Column groups: ${analysis.columns.length} columns`,
+    ...analysis.columns.map(
+      (col, i) =>
+        `  Column ${i + 1}: ${col.length} elements [${col.map((r) => r.index).join(", ")}]`
+    ),
+    "",
+    `Overlapping elements: ${analysis.overlappingElements.length}`,
+    "",
+    "=== Layout Tree ===",
     JSON.stringify(tree, null, 2),
   ];
 
-  return lines.join('\n');
+  return lines.join("\n");
 }

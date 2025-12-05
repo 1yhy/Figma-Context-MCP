@@ -6,168 +6,52 @@ import type {
 } from "@figma/rest-api-spec";
 import {
   isVisible,
-  parsePaint,
   convertColor,
   formatRGBAColor,
   generateCSSShorthand,
   isVisibleInParent
 } from "~/utils/common.js";
-import {
-  isRectangleCornerRadii,
-  hasValue
-} from "~/utils/identity.js";
-import { buildSimplifiedEffects } from "~/transformers/effects.js";
-import { buildSimplifiedStrokes } from "~/transformers/style.js";
+import { isRectangleCornerRadii, hasValue } from "~/utils/identity.js";
+import { buildSimplifiedEffects } from "~/core/effects.js";
+import { buildSimplifiedStrokes } from "~/core/style.js";
 import { generateFileName } from "~/utils/file.js";
 import {
   hasImageFill,
   detectAndMarkImageGroup as markImageGroup,
   sortNodesByPosition,
   cleanupTemporaryProperties
-} from "~/transformers/node.js";
-import { LayoutOptimizer } from "~/transformers/layout-optimizer.js";
-import {
-  formatPxValue,
-  omitDefaultStyles,
-  optimizeExportInfo
-} from "~/utils/css-optimize.js";
+} from "~/core/node.js";
+import { LayoutOptimizer } from "~/core/layout-optimizer.js";
+import { formatPxValue } from "~/utils/css-optimize.js";
 import {
   analyzeNodeTree,
   type FigmaNode,
-  type IconDetectionResult,
-} from "~/utils/icon-detection.js";
+} from "~/algorithms/icon/index.js";
 
-// -------------------- SIMPLIFIED STRUCTURES --------------------
+// Import types from centralized types module
+import type {
+  CSSStyle,
+  TextStyle,
+  SimplifiedDesign,
+  SimplifiedNode,
+  SimplifiedFill,
+  ExportInfo,
+  ImageResource,
+  IconDetectionResult,
+  FigmaNodeType,
+} from "~/types/index.js";
 
-export type CSSHexColor = `#${string}`;
-export type CSSRGBAColor = `rgba(${number}, ${number}, ${number}, ${number})`;
-
-// 添加图片资源类型
-export type ImageResource = {
-  // 图片引用ID，下载图片的必要属性
-  imageRef: string;
+// Re-export types for backward compatibility
+export type {
+  CSSStyle,
+  TextStyle,
+  SimplifiedDesign,
+  SimplifiedNode,
+  SimplifiedFill,
+  ExportInfo,
+  ImageResource,
+  FigmaNodeType,
 };
-
-// 导出信息，包含需要的图片导出属性
-export type ExportInfo = {
-  // 导出类型 (单图片/图片组)
-  type: 'IMAGE' | 'IMAGE_GROUP';
-  // 推荐的导出格式
-  format: 'PNG' | 'JPG' | 'SVG';
-  // 图片节点ID，用于API调用
-  nodeId?: string;
-  // 建议的文件名
-  fileName?: string;
-};
-
-export type TextStyle = Partial<{
-  fontFamily: string;
-  fontWeight: number;
-  fontSize: number;
-  textAlignHorizontal: string;
-  textAlignVertical: string;
-  lineHeightPx: number;
-}>;
-
-// CSS样式对象，包含所有可能的CSS属性
-export type CSSStyle = {
-  // 文本样式
-  fontFamily?: string;
-  fontSize?: string;
-  fontWeight?: string | number;
-  textAlign?: string;
-  verticalAlign?: string;
-  lineHeight?: string;
-
-  // 颜色和背景
-  color?: string;
-  backgroundColor?: string;
-  background?: string;
-
-  // 布局
-  width?: string;
-  height?: string;
-  margin?: string;
-  padding?: string;
-  position?: string;
-  top?: string;
-  right?: string;
-  bottom?: string;
-  left?: string;
-  display?: string;
-  flexDirection?: string;
-  justifyContent?: string;
-  alignItems?: string;
-  gap?: string;
-
-  // 边框和圆角
-  border?: string;
-  borderRadius?: string;
-  borderWidth?: string;
-  borderStyle?: string;
-  borderColor?: string;
-
-  // 特效
-  boxShadow?: string;
-  filter?: string;
-  backdropFilter?: string;
-  opacity?: string;
-
-  // 添加任何其他需要的CSS属性
-  [key: string]: string | number | undefined;
-};
-
-export interface SimplifiedDesign {
-  name: string;
-  lastModified: string;
-  thumbnailUrl: string;
-  nodes: SimplifiedNode[];
-}
-
-export interface SimplifiedNode {
-  id: string;
-  name: string;
-  type: string; // e.g. FRAME, TEXT, INSTANCE, RECTANGLE, etc.
-  // text
-  text?: string;
-  // 旧的样式对象，保留向后兼容性
-  style?: TextStyle;
-  // 新的CSS样式对象
-  cssStyles?: CSSStyle;
-  // appearance
-  fills?: SimplifiedFill[];
-  // 导出信息
-  exportInfo?: ExportInfo;
-  // children
-  children?: SimplifiedNode[];
-  // 内部使用的绝对坐标，用于计算子节点相对位置
-  _absoluteX?: number;
-  _absoluteY?: number;
-}
-
-export type SimplifiedFill = {
-  type: 'SOLID' | 'GRADIENT_LINEAR' | 'GRADIENT_RADIAL' | 'GRADIENT_ANGULAR' | 'GRADIENT_DIAMOND' | 'IMAGE';
-  // 颜色可以是十六进制表示
-  color?: string;
-  // 或者是对象表示
-  rgba?: {
-    r: number;
-    g: number;
-    b: number;
-    a: number;
-  };
-  opacity?: number;
-  // 渐变属性
-  gradientHandlePositions?: Array<{x: number, y: number}>;
-  gradientStops?: Array<{
-    position: number;
-    color: string;
-  }>;
-  imageRef?: string;
-};
-
-// 在文件顶部添加导出类型
-export type FigmaNodeType = 'FRAME' | 'GROUP' | 'TEXT' | 'VECTOR' | 'RECTANGLE' | 'ELLIPSE' | 'INSTANCE' | 'COMPONENT' | 'DOCUMENT' | 'CANVAS' | string;
 
 // ---------------------- PARSING ----------------------
 export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse): SimplifiedDesign {

@@ -1,16 +1,21 @@
 /**
  * Icon Detection Algorithm
  *
- * 基于业界研究的图标/可合并图层检测算法
+ * Industry-based algorithm for detecting icons and mergeable layer groups.
  *
- * 核心策略：
- * 1. 优先使用 Figma exportSettings（设计师标记）
- * 2. 智能检测：基于尺寸、类型比例、结构深度
- * 3. 自下而上合并：子图标组先合并，再判断父节点
+ * Core strategies:
+ * 1. Prioritize Figma exportSettings (designer-marked exports)
+ * 2. Smart detection: based on size, type ratio, structure depth
+ * 3. Bottom-up merging: child icon groups merge first, then parent nodes
+ *
+ * @module algorithms/icon/detector
  */
 
-// ==================== 类型定义 ====================
+// ==================== Type Definitions ====================
 
+/**
+ * Figma node structure for icon detection
+ */
 export interface FigmaNode {
   id: string;
   name: string;
@@ -43,6 +48,9 @@ export interface FigmaNode {
   strokes?: Array<unknown>;
 }
 
+/**
+ * Result of icon detection for a single node
+ */
 export interface IconDetectionResult {
   nodeId: string;
   nodeName: string;
@@ -53,38 +61,40 @@ export interface IconDetectionResult {
   childCount?: number;
 }
 
+/**
+ * Configuration for icon detection algorithm
+ */
 export interface DetectionConfig {
-  // 尺寸阈值
-  maxIconSize: number; // 最大图标尺寸 (px)
-  minIconSize: number; // 最小图标尺寸 (px)
-
-  // 类型分析
-  mergeableRatio: number; // 可合并类型占比阈值
-
-  // 结构约束
-  maxDepth: number; // 最大嵌套深度
-  maxChildren: number; // 最大子元素数量
-
-  // exportSettings 策略
-  respectExportSettingsMaxSize: number; // 只尊重此尺寸以下的 exportSettings
+  /** Maximum icon size in pixels */
+  maxIconSize: number;
+  /** Minimum icon size in pixels */
+  minIconSize: number;
+  /** Minimum ratio of mergeable types (0-1) */
+  mergeableRatio: number;
+  /** Maximum nesting depth */
+  maxDepth: number;
+  /** Maximum number of child elements */
+  maxChildren: number;
+  /** Only respect exportSettings below this size */
+  respectExportSettingsMaxSize: number;
 }
 
-// ==================== 常量定义 ====================
+// ==================== Constants ====================
 
-/** 默认检测配置 */
+/** Default detection configuration */
 export const DEFAULT_CONFIG: DetectionConfig = {
   maxIconSize: 300,
   minIconSize: 8,
-  mergeableRatio: 0.6, // 60% 可合并类型即可
+  mergeableRatio: 0.6,
   maxDepth: 5,
   maxChildren: 100,
-  respectExportSettingsMaxSize: 400, // 只尊重 400px 以下的 exportSettings
+  respectExportSettingsMaxSize: 400,
 };
 
-/** 容器节点类型 */
+/** Container node types */
 const CONTAINER_TYPES = ["GROUP", "FRAME", "COMPONENT", "INSTANCE"] as const;
 
-/** 可合并的图形类型（可以被 SVG 表示） */
+/** Mergeable graphics types (can be represented as SVG) */
 const MERGEABLE_TYPES = [
   "VECTOR",
   "RECTANGLE",
@@ -96,13 +106,13 @@ const MERGEABLE_TYPES = [
   "REGULAR_POLYGON",
 ] as const;
 
-/** 单独不应导出的类型（通常是背景或UI元素） */
+/** Single element types that should not be auto-exported (typically backgrounds) */
 const SINGLE_ELEMENT_EXCLUDE_TYPES = ["RECTANGLE"] as const;
 
-/** 排除类型（有这些则不应合并为图标） */
+/** Types that exclude a group from being merged as icon */
 const EXCLUDE_TYPES = ["TEXT", "COMPONENT", "INSTANCE"] as const;
 
-/** 需要导出为 PNG 的情况 */
+/** Effects that require PNG export */
 const PNG_REQUIRED_EFFECTS = [
   "DROP_SHADOW",
   "INNER_SHADOW",
@@ -110,22 +120,31 @@ const PNG_REQUIRED_EFFECTS = [
   "BACKGROUND_BLUR",
 ] as const;
 
-// ==================== 辅助函数 ====================
+// ==================== Helper Functions ====================
 
+/**
+ * Check if type is a container type
+ */
 function isContainerType(type: string): boolean {
   return CONTAINER_TYPES.includes(type as (typeof CONTAINER_TYPES)[number]);
 }
 
+/**
+ * Check if type is mergeable (can be part of an icon)
+ */
 function isMergeableType(type: string): boolean {
   return MERGEABLE_TYPES.includes(type as (typeof MERGEABLE_TYPES)[number]);
 }
 
+/**
+ * Check if type should be excluded from icon merging
+ */
 function isExcludeType(type: string): boolean {
   return EXCLUDE_TYPES.includes(type as (typeof EXCLUDE_TYPES)[number]);
 }
 
 /**
- * 获取节点尺寸
+ * Get node dimensions
  */
 function getNodeSize(node: FigmaNode): { width: number; height: number } | null {
   if (!node.absoluteBoundingBox) return null;
@@ -136,29 +155,29 @@ function getNodeSize(node: FigmaNode): { width: number; height: number } | null 
 }
 
 /**
- * 检查节点是否有图片填充
+ * Check if node has image fill
  */
 function hasImageFill(node: FigmaNode): boolean {
   if (!node.fills) return false;
   return node.fills.some(
-    (fill) => fill.type === "IMAGE" && fill.visible !== false && fill.imageRef,
+    (fill) => fill.type === "IMAGE" && fill.visible !== false && fill.imageRef
   );
 }
 
 /**
- * 检查节点是否有复杂效果（需要 PNG）
+ * Check if node has complex effects (requires PNG)
  */
 function hasComplexEffects(node: FigmaNode): boolean {
   if (!node.effects) return false;
   return node.effects.some(
     (effect) =>
       effect.visible !== false &&
-      PNG_REQUIRED_EFFECTS.includes(effect.type as (typeof PNG_REQUIRED_EFFECTS)[number]),
+      PNG_REQUIRED_EFFECTS.includes(effect.type as (typeof PNG_REQUIRED_EFFECTS)[number])
   );
 }
 
 /**
- * 递归计算节点树深度
+ * Calculate maximum depth of node tree
  */
 function calculateDepth(node: FigmaNode, currentDepth: number = 0): number {
   if (!node.children || node.children.length === 0) {
@@ -168,7 +187,7 @@ function calculateDepth(node: FigmaNode, currentDepth: number = 0): number {
 }
 
 /**
- * 递归计算总子节点数量
+ * Count total number of descendants
  */
 function countTotalChildren(node: FigmaNode): number {
   if (!node.children || node.children.length === 0) {
@@ -178,7 +197,7 @@ function countTotalChildren(node: FigmaNode): number {
 }
 
 /**
- * 检查子树中是否包含排除类型
+ * Check if tree contains excluded types
  */
 function hasExcludeTypeInTree(node: FigmaNode): boolean {
   if (isExcludeType(node.type)) {
@@ -191,7 +210,7 @@ function hasExcludeTypeInTree(node: FigmaNode): boolean {
 }
 
 /**
- * 检查子树中是否有图片填充
+ * Check if tree contains image fills
  */
 function hasImageFillInTree(node: FigmaNode): boolean {
   if (hasImageFill(node)) {
@@ -204,7 +223,7 @@ function hasImageFillInTree(node: FigmaNode): boolean {
 }
 
 /**
- * 检查子树中是否有复杂效果
+ * Check if tree contains complex effects
  */
 function hasComplexEffectsInTree(node: FigmaNode): boolean {
   if (hasComplexEffects(node)) {
@@ -217,7 +236,7 @@ function hasComplexEffectsInTree(node: FigmaNode): boolean {
 }
 
 /**
- * 计算可合并类型在直接子元素中的占比
+ * Calculate ratio of mergeable types in direct children
  */
 function calculateMergeableRatio(node: FigmaNode): number {
   if (!node.children || node.children.length === 0) {
@@ -226,38 +245,42 @@ function calculateMergeableRatio(node: FigmaNode): number {
 
   const total = node.children.length;
   const mergeable = node.children.filter(
-    (child) => isMergeableType(child.type) || isContainerType(child.type),
+    (child) => isMergeableType(child.type) || isContainerType(child.type)
   ).length;
 
   return mergeable / total;
 }
 
 /**
- * 递归检查所有叶子节点是否都是可合并类型
+ * Check if all leaf nodes are mergeable types
  */
 function areAllLeavesMergeable(node: FigmaNode): boolean {
-  // 如果是叶子节点
+  // Leaf node
   if (!node.children || node.children.length === 0) {
     return isMergeableType(node.type);
   }
 
-  // 如果是容器，递归检查所有子节点
+  // Container: recursively check all children
   if (isContainerType(node.type)) {
     return node.children.every((child) => areAllLeavesMergeable(child));
   }
 
-  // 其他类型
+  // Other types
   return isMergeableType(node.type);
 }
 
-// ==================== 主检测函数 ====================
+// ==================== Main Detection Functions ====================
 
 /**
- * 检测单个节点是否应该作为图标整体导出
+ * Detect if a single node should be exported as an icon
+ *
+ * @param node - Figma node to analyze
+ * @param config - Detection configuration
+ * @returns Detection result with export recommendation
  */
 export function detectIcon(
   node: FigmaNode,
-  config: DetectionConfig = DEFAULT_CONFIG,
+  config: DetectionConfig = DEFAULT_CONFIG
 ): IconDetectionResult {
   const result: IconDetectionResult = {
     nodeId: node.id,
@@ -267,7 +290,7 @@ export function detectIcon(
     reason: "",
   };
 
-  // 1. 检查 Figma exportSettings（但有限制条件）
+  // 1. Check Figma exportSettings (with size restrictions)
   if (node.exportSettings && node.exportSettings.length > 0) {
     const size = getNodeSize(node);
     const isSmallEnough =
@@ -275,7 +298,7 @@ export function detectIcon(
       (size.width <= config.respectExportSettingsMaxSize &&
         size.height <= config.respectExportSettingsMaxSize);
 
-    // 包含 TEXT 的容器不应该整体导出为图片（即使有 exportSettings）
+    // Containers with TEXT should not be exported as images
     const containsText = hasExcludeTypeInTree(node);
 
     if (isSmallEnough && !containsText) {
@@ -286,24 +309,24 @@ export function detectIcon(
       result.size = size || undefined;
       return result;
     }
-    // 大尺寸节点或包含TEXT的节点的 exportSettings 被忽略，继续检测子节点
+    // Large nodes or nodes with TEXT: ignore exportSettings, continue detection
   }
 
-  // 2. 必须是容器类型或可合并的单元素
+  // 2. Must be container type or mergeable single element
   if (!isContainerType(node.type)) {
-    // 单个可合并类型节点
+    // Single mergeable type node
     if (isMergeableType(node.type)) {
-      // 单独的 RECTANGLE 通常是背景或按钮，不应自动导出
+      // Single RECTANGLE is typically a background, not exported
       if (
         SINGLE_ELEMENT_EXCLUDE_TYPES.includes(
-          node.type as (typeof SINGLE_ELEMENT_EXCLUDE_TYPES)[number],
+          node.type as (typeof SINGLE_ELEMENT_EXCLUDE_TYPES)[number]
         )
       ) {
         result.reason = `Single ${node.type} is typically a background, not exported`;
         return result;
       }
 
-      // 检查尺寸（单个元素也要检查）
+      // Check size for single elements
       const size = getNodeSize(node);
       if (size) {
         result.size = size;
@@ -321,38 +344,38 @@ export function detectIcon(
     return result;
   }
 
-  // 3. 检查尺寸
+  // 3. Check size
   const size = getNodeSize(node);
   if (size) {
     result.size = size;
 
-    // 尺寸过大，可能是布局容器
+    // Too large: likely a layout container
     if (size.width > config.maxIconSize || size.height > config.maxIconSize) {
       result.reason = `Size too large (${size.width}x${size.height} > ${config.maxIconSize})`;
       return result;
     }
 
-    // 尺寸过小
+    // Too small
     if (size.width < config.minIconSize && size.height < config.minIconSize) {
       result.reason = `Size too small (${size.width}x${size.height} < ${config.minIconSize})`;
       return result;
     }
   }
 
-  // 4. 检查是否包含 TEXT 等排除类型
+  // 4. Check for excluded types (TEXT, etc.)
   if (hasExcludeTypeInTree(node)) {
     result.reason = "Contains TEXT or other exclude types";
     return result;
   }
 
-  // 5. 检查结构深度
+  // 5. Check structure depth
   const depth = calculateDepth(node);
   if (depth > config.maxDepth) {
     result.reason = `Depth too deep (${depth} > ${config.maxDepth})`;
     return result;
   }
 
-  // 6. 检查子元素数量
+  // 6. Check child count
   const childCount = countTotalChildren(node);
   result.childCount = childCount;
   if (childCount > config.maxChildren) {
@@ -360,20 +383,20 @@ export function detectIcon(
     return result;
   }
 
-  // 7. 检查可合并类型占比
+  // 7. Check mergeable type ratio
   const mergeableRatio = calculateMergeableRatio(node);
   if (mergeableRatio < config.mergeableRatio) {
     result.reason = `Mergeable ratio too low (${(mergeableRatio * 100).toFixed(1)}% < ${config.mergeableRatio * 100}%)`;
     return result;
   }
 
-  // 8. 检查所有叶子节点是否可合并
+  // 8. Check if all leaf nodes are mergeable
   if (!areAllLeavesMergeable(node)) {
     result.reason = "Not all leaf nodes are mergeable types";
     return result;
   }
 
-  // 9. 确定导出格式
+  // 9. Determine export format
   if (hasImageFillInTree(node)) {
     result.exportFormat = "PNG";
     result.reason = "Contains image fills, export as PNG";
@@ -390,34 +413,34 @@ export function detectIcon(
 }
 
 /**
- * 递归处理节点树，自下而上检测并标记图标
+ * Process node tree bottom-up, detecting and marking icons
  *
- * @param node 根节点
- * @param config 检测配置
- * @returns 处理后的节点（带有 _iconDetection 标记）
+ * @param node - Root node
+ * @param config - Detection configuration
+ * @returns Processed node with _iconDetection markers
  */
 export function processNodeTree(
   node: FigmaNode,
-  config: DetectionConfig = DEFAULT_CONFIG,
+  config: DetectionConfig = DEFAULT_CONFIG
 ): FigmaNode & { _iconDetection?: IconDetectionResult } {
   const processedNode = { ...node } as FigmaNode & { _iconDetection?: IconDetectionResult };
 
-  // 先递归处理子节点
+  // Process children first (bottom-up)
   if (node.children && node.children.length > 0) {
     processedNode.children = node.children.map((child) => processNodeTree(child, config));
 
-    // 检查是否所有子节点都已被标记为图标（可以合并到父节点）
+    // Check if all children are marked as icons (can be merged to parent)
     const allChildrenAreIcons = processedNode.children.every((child) => {
       const childWithDetection = child as FigmaNode & { _iconDetection?: IconDetectionResult };
       return childWithDetection._iconDetection?.shouldMerge;
     });
 
-    // 如果所有子节点都是图标，尝试合并到当前节点
+    // If all children are icons, try to merge to current node
     if (allChildrenAreIcons) {
       const detection = detectIcon(processedNode, config);
       if (detection.shouldMerge) {
         processedNode._iconDetection = detection;
-        // 清理子节点的标记，因为会被父节点合并
+        // Clear child markers since they will be merged
         processedNode.children.forEach((child) => {
           delete (child as FigmaNode & { _iconDetection?: IconDetectionResult })._iconDetection;
         });
@@ -426,7 +449,7 @@ export function processNodeTree(
     }
   }
 
-  // 检测当前节点
+  // Detect current node
   const detection = detectIcon(processedNode, config);
   if (detection.shouldMerge) {
     processedNode._iconDetection = detection;
@@ -436,25 +459,28 @@ export function processNodeTree(
 }
 
 /**
- * 从节点树中收集所有需要导出的图标
+ * Collect all exportable icons from processed node tree
+ *
+ * @param node - Processed node with _iconDetection markers
+ * @returns Array of icon detection results
  */
 export function collectExportableIcons(
-  node: FigmaNode & { _iconDetection?: IconDetectionResult },
+  node: FigmaNode & { _iconDetection?: IconDetectionResult }
 ): IconDetectionResult[] {
   const results: IconDetectionResult[] = [];
 
-  // 如果当前节点是图标，添加到结果
+  // If current node is an icon, add to results
   if (node._iconDetection?.shouldMerge) {
     results.push(node._iconDetection);
-    // 不再递归处理子节点，因为它们会被合并
+    // Don't recurse into children (they will be merged)
     return results;
   }
 
-  // 递归处理子节点
+  // Recurse into children
   if (node.children) {
     for (const child of node.children) {
       results.push(
-        ...collectExportableIcons(child as FigmaNode & { _iconDetection?: IconDetectionResult }),
+        ...collectExportableIcons(child as FigmaNode & { _iconDetection?: IconDetectionResult })
       );
     }
   }
@@ -463,11 +489,15 @@ export function collectExportableIcons(
 }
 
 /**
- * 分析节点树并返回图标检测报告
+ * Analyze node tree and return icon detection report
+ *
+ * @param node - Root Figma node
+ * @param config - Detection configuration
+ * @returns Analysis result with processed tree, exportable icons, and summary
  */
 export function analyzeNodeTree(
   node: FigmaNode,
-  config: DetectionConfig = DEFAULT_CONFIG,
+  config: DetectionConfig = DEFAULT_CONFIG
 ): {
   processedTree: FigmaNode & { _iconDetection?: IconDetectionResult };
   exportableIcons: IconDetectionResult[];

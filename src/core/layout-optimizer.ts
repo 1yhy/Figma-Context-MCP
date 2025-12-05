@@ -1,5 +1,4 @@
 import { SimplifiedNode, SimplifiedDesign } from "~/services/simplify-node-response.js";
-import { SpatialProjectionAnalyzer, Rect } from "~/utils/spatial-projection.js";
 import { sanitizeNameForId } from "~/utils/file.js";
 import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css-optimize.js";
 

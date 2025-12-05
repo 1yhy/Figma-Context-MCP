@@ -18,9 +18,9 @@ import {
   analyzeGaps,
   analyzeAlignment,
   calculateBounds,
-  ElementRect,
-  BoundingBox,
-} from '../src/utils/layout-detection.js';
+  type ElementRect,
+  type BoundingBox,
+} from '../src/algorithms/layout/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
