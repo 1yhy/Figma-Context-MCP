@@ -1,0 +1,5 @@
+export {
+  DESIGN_TO_CODE_PROMPT,
+  COMPONENT_ANALYSIS_PROMPT,
+  STYLE_EXTRACTION_PROMPT,
+} from "./design-to-code.js";

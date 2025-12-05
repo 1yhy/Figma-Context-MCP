@@ -6,6 +6,11 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { type IncomingMessage, type ServerResponse } from "http";
 import { type Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { SimplifiedDesign } from "./types/index.js";
+import {
+  DESIGN_TO_CODE_PROMPT,
+  COMPONENT_ANALYSIS_PROMPT,
+  STYLE_EXTRACTION_PROMPT,
+} from "./prompts/index.js";
 
 // ==================== Logging Utilities ====================
 
@@ -72,11 +77,13 @@ export class FigmaMcpServer {
         capabilities: {
           logging: {},
           tools: {},
+          prompts: {},
         },
       },
     );
 
     this.registerTools();
+    this.registerPrompts();
   }
 
   private registerTools(): void {
@@ -237,6 +244,98 @@ export class FigmaMcpServer {
             content: [{ type: "text", text: errorMessage }],
           };
         }
+      },
+    );
+  }
+
+  private registerPrompts(): void {
+    // Prompt: Design to Code - Full workflow
+    this.server.prompt(
+      "design_to_code",
+      "Complete workflow for converting Figma designs to production-ready code with project analysis",
+      {
+        framework: z
+          .enum(["react", "vue", "html", "auto"])
+          .optional()
+          .describe("Target framework for code generation (default: auto-detect from project)"),
+        includeResponsive: z
+          .boolean()
+          .optional()
+          .describe("Include responsive/mobile adaptation guidelines (default: true)"),
+      },
+      async ({ framework, includeResponsive }) => {
+        let prompt = DESIGN_TO_CODE_PROMPT;
+
+        // Add framework-specific context
+        if (framework && framework !== "auto") {
+          prompt += `\n\n## Framework Context\nTarget framework: **${framework.toUpperCase()}**\n`;
+          if (framework === "vue") {
+            prompt += `- USE Vue 3 Composition API with <script setup>
+- USE defineProps/defineEmits for component interface
+- PREFER template syntax over JSX`;
+          } else if (framework === "react") {
+            prompt += `- USE functional components with hooks
+- USE TypeScript for props interface
+- PREFER named exports for components`;
+          }
+        }
+
+        // Add responsive guidelines toggle
+        if (includeResponsive === false) {
+          prompt += `\n\n## Note\nSkip Phase 6 (Responsive Adaptation) - desktop only implementation required.`;
+        }
+
+        return {
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: prompt,
+              },
+            },
+          ],
+        };
+      },
+    );
+
+    // Prompt: Component Analysis
+    this.server.prompt(
+      "analyze_components",
+      "Analyze Figma design to identify optimal component structure and reusability",
+      {},
+      async () => {
+        return {
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: COMPONENT_ANALYSIS_PROMPT,
+              },
+            },
+          ],
+        };
+      },
+    );
+
+    // Prompt: Style Extraction
+    this.server.prompt(
+      "extract_styles",
+      "Extract design tokens (colors, typography, spacing) from Figma design data",
+      {},
+      async () => {
+        return {
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: STYLE_EXTRACTION_PROMPT,
+              },
+            },
+          ],
+        };
       },
     );
   }
