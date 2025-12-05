@@ -27,6 +27,11 @@ import {
   cleanupTemporaryProperties
 } from "~/transformers/node.js";
 import { LayoutOptimizer } from "~/transformers/layout-optimizer.js";
+import {
+  formatPxValue,
+  omitDefaultStyles,
+  optimizeExportInfo
+} from "~/utils/css-optimize.js";
 
 // -------------------- SIMPLIFIED STRUCTURES --------------------
 
@@ -262,9 +267,9 @@ function extractNode(node: FigmaDocumentNode, parentNode?: SimplifiedNode): Simp
   // 添加尺寸和位置的CSS转换逻辑
   if (hasValue('absoluteBoundingBox', node) && node.absoluteBoundingBox) {
 
-    // 添加到CSS样式
-    result.cssStyles.width = `${node.absoluteBoundingBox.width}px`;
-    result.cssStyles.height = `${node.absoluteBoundingBox.height}px`;
+    // 添加到CSS样式（使用优化的精度）
+    result.cssStyles.width = formatPxValue(node.absoluteBoundingBox.width);
+    result.cssStyles.height = formatPxValue(node.absoluteBoundingBox.height);
 
     // 对非根节点添加定位信息
     if ((node.type as string) !== 'DOCUMENT' && (node.type as string) !== 'CANVAS') {
@@ -278,12 +283,12 @@ function extractNode(node: FigmaDocumentNode, parentNode?: SimplifiedNode): Simp
       if (parentNode &&
           parentNode._absoluteX !== undefined &&
           parentNode._absoluteY !== undefined) {
-        result.cssStyles.left = `${node.absoluteBoundingBox.x - parentNode._absoluteX}px`;
-        result.cssStyles.top = `${node.absoluteBoundingBox.y - parentNode._absoluteY}px`;
+        result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x - parentNode._absoluteX);
+        result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y - parentNode._absoluteY);
       } else {
         // 否则使用绝对位置（顶层元素）
-        result.cssStyles.left = `${node.absoluteBoundingBox.x}px`;
-        result.cssStyles.top = `${node.absoluteBoundingBox.y}px`;
+        result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x);
+        result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y);
       }
     }
   }
@@ -376,21 +381,22 @@ function processImageResources(node: FigmaDocumentNode, result: SimplifiedNode):
     const primaryImage = imageResources[0];
     result.cssStyles.backgroundImage = `url({{FIGMA_IMAGE:${primaryImage.imageRef}}})`;
 
-    // 添加导出信息
+    // 添加导出信息（省略与节点 id 相同的 nodeId）
     const format = suggestExportFormat(result);
     result.exportInfo = {
       type: 'IMAGE',
       format,
-      nodeId: result.id,
+      // nodeId 省略，因为与节点 id 相同，下载时可以从节点 id 获取
       fileName: generateFileName(result.name, format)
     };
   }
 
   if (isSVGNode(node)) {
+    // SVG 节点的导出信息（省略 nodeId）
     result.exportInfo = {
       type: 'IMAGE',
       format: 'SVG',
-      nodeId: result.id,
+      // nodeId 省略，与节点 id 相同
     }
   }
 }
@@ -415,7 +421,7 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
   // 处理行高
   if (style?.lineHeightPx) {
     const cssStyle = textStyleToCss(textStyle);
-    cssStyle.lineHeight = `${style.lineHeightPx}px`;
+    cssStyle.lineHeight = formatPxValue(style.lineHeightPx);
     Object.assign(result.cssStyles!, cssStyle);
   } else {
     Object.assign(result.cssStyles!, textStyleToCss(textStyle));
@@ -552,15 +558,15 @@ function processCornerRadius(node: FigmaDocumentNode, result: SimplifiedNode): v
   if (!hasValue('cornerRadius', node)) return;
 
   if (typeof node.cornerRadius === 'number' && node.cornerRadius > 0) {
-    // 处理均匀圆角
-    result.cssStyles!.borderRadius = `${node.cornerRadius}px`;
+    // 处理均匀圆角（四舍五入）
+    result.cssStyles!.borderRadius = formatPxValue(node.cornerRadius);
   } else if (node.cornerRadius === 'mixed' && hasValue('rectangleCornerRadii', node, isRectangleCornerRadii)) {
-    // 处理不均匀圆角 (左上、右上、右下、左下)
+    // 处理不均匀圆角 (左上、右上、右下、左下) - 四舍五入
     result.cssStyles!.borderRadius = generateCSSShorthand({
-      top: node.rectangleCornerRadii[0],
-      right: node.rectangleCornerRadii[1],
-      bottom: node.rectangleCornerRadii[2],
-      left: node.rectangleCornerRadii[3]
+      top: Math.round(node.rectangleCornerRadii[0]),
+      right: Math.round(node.rectangleCornerRadii[1]),
+      bottom: Math.round(node.rectangleCornerRadii[2]),
+      left: Math.round(node.rectangleCornerRadii[3])
     }) || '0';
   }
 }
@@ -568,20 +574,24 @@ function processCornerRadius(node: FigmaDocumentNode, result: SimplifiedNode): v
 /**
  * 将文本样式转换为CSS样式
  * @param textStyle Figma文本样式
- * @returns CSS样式对象
+ * @returns CSS样式对象（已省略默认值）
  */
 function textStyleToCss(textStyle: TextStyle): CSSStyle {
   const cssStyle: CSSStyle = {};
 
   if (textStyle.fontFamily) cssStyle.fontFamily = textStyle.fontFamily;
-  if (textStyle.fontSize) cssStyle.fontSize = `${textStyle.fontSize}px`;
-  if (textStyle.fontWeight) cssStyle.fontWeight = textStyle.fontWeight;
+  if (textStyle.fontSize) cssStyle.fontSize = formatPxValue(textStyle.fontSize);
 
-  // 处理文本对齐
+  // fontWeight: 省略默认值 400
+  if (textStyle.fontWeight && textStyle.fontWeight !== 400) {
+    cssStyle.fontWeight = textStyle.fontWeight;
+  }
+
+  // 处理文本对齐（省略默认值 'left'）
   if (textStyle.textAlignHorizontal) {
     switch(textStyle.textAlignHorizontal) {
       case 'LEFT':
-        cssStyle.textAlign = 'left';
+        // 省略默认值
         break;
       case 'CENTER':
         cssStyle.textAlign = 'center';
@@ -595,11 +605,11 @@ function textStyleToCss(textStyle: TextStyle): CSSStyle {
     }
   }
 
-  // 处理垂直对齐
+  // 处理垂直对齐（省略默认值 'top'）
   if (textStyle.textAlignVertical) {
     switch(textStyle.textAlignVertical) {
       case 'TOP':
-        cssStyle.verticalAlign = 'top';
+        // 省略默认值
         break;
       case 'CENTER':
         cssStyle.verticalAlign = 'middle';

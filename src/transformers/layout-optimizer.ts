@@ -1,6 +1,7 @@
 import { SimplifiedNode, SimplifiedDesign } from "~/services/simplify-node-response.js";
 import { SpatialProjectionAnalyzer, Rect } from "~/utils/spatial-projection.js";
 import { sanitizeNameForId } from "~/utils/file.js";
+import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css-optimize.js";
 
 /**
  * 布局优化器 - 优化UI设计的布局结构
@@ -81,7 +82,7 @@ export class LayoutOptimizer {
     const isContainer = node.type === 'FRAME' || node.type === 'GROUP';
 
     // 分析子节点的空间关系，确定是行布局还是列布局
-    const { isRow, isColumn, rowGap, columnGap,
+    const { isRow, isColumn, rowGap, columnGap, isGapConsistent,
             justifyContent, alignItems } = this.analyzeLayoutDirection(node.children);
 
     // 如果是有效的行或列布局
@@ -91,16 +92,26 @@ export class LayoutOptimizer {
         const direction = isRow ? 'row' : 'column';
         const gap = isRow ? rowGap : columnGap;
 
-        // 在原容器上添加flex样式
+        // 构建flex样式（省略默认值）
+        const flexStyles: Record<string, string> = {
+          display: 'flex',
+        };
+        // 只有 column 方向才需要显式设置（row 是默认值）
+        if (direction === 'column') {
+          flexStyles.flexDirection = direction;
+        }
+        // 只有间距一致且大于0时才添加gap
+        if (gap > 0 && isGapConsistent) {
+          flexStyles.gap = `${gap}px`;
+        }
+        if (justifyContent) flexStyles.justifyContent = justifyContent;
+        if (alignItems) flexStyles.alignItems = alignItems;
+
         return {
           ...node,
           cssStyles: {
             ...node.cssStyles,
-            display: 'flex',
-            flexDirection: direction,
-            ...(gap > 0 ? { gap: `${Math.round(gap)}px` } : {}),
-            ...(justifyContent ? { justifyContent } : {}),
-            ...(alignItems ? { alignItems } : {})
+            ...flexStyles
           },
           children: node.children
         };
@@ -115,15 +126,23 @@ export class LayoutOptimizer {
           const direction = isRow ? 'row' : 'column';
           const gap = isRow ? rowGap : columnGap;
 
+          const flexStyles: Record<string, string> = {
+            display: 'flex',
+          };
+          if (direction === 'column') {
+            flexStyles.flexDirection = direction;
+          }
+          if (gap > 0 && isGapConsistent) {
+            flexStyles.gap = `${gap}px`;
+          }
+          if (justifyContent) flexStyles.justifyContent = justifyContent;
+          if (alignItems) flexStyles.alignItems = alignItems;
+
           return {
             ...node,
             cssStyles: {
               ...node.cssStyles,
-              display: 'flex',
-              flexDirection: direction,
-              ...(gap > 0 ? { gap: `${Math.round(gap)}px` } : {}),
-              ...(justifyContent ? { justifyContent } : {}),
-              ...(alignItems ? { alignItems } : {})
+              ...flexStyles
             },
             children: node.children
           };
@@ -143,14 +162,20 @@ export class LayoutOptimizer {
 
         // 返回包含分组容器的父节点
         const direction = isRow ? 'row' : 'column';
+        const flexStyles: Record<string, string> = {
+          display: 'flex',
+        };
+        if (direction === 'column') {
+          flexStyles.flexDirection = direction;
+        }
+        if (justifyContent) flexStyles.justifyContent = justifyContent;
+        if (alignItems) flexStyles.alignItems = alignItems;
+
         return {
           ...node,
           cssStyles: {
             ...node.cssStyles,
-            display: 'flex',
-            flexDirection: direction,
-            ...(justifyContent ? { justifyContent } : {}),
-            ...(alignItems ? { alignItems } : {})
+            ...flexStyles
           },
           children: groupContainers
         };
@@ -169,12 +194,10 @@ export class LayoutOptimizer {
     isColumn: boolean;
     rowGap: number;
     columnGap: number;
+    isGapConsistent: boolean;
     justifyContent: string | null;
     alignItems: string | null;
   } {
-    // 打印容器名称，帮助调试
-    const containerName = nodes[0]?.name || "未知容器";
-
     const rects = nodes
       .map(node => {
         if (!node.cssStyles) return null;
@@ -194,6 +217,7 @@ export class LayoutOptimizer {
         isColumn: false,
         rowGap: 0,
         columnGap: 0,
+        isGapConsistent: true,
         justifyContent: null,
         alignItems: null
       };
@@ -211,28 +235,35 @@ export class LayoutOptimizer {
     const rowScore = this.calculateRowScore(rects, horizontalAlignment, verticalAlignment);
     const columnScore = this.calculateColumnScore(rects, horizontalAlignment, verticalAlignment);
 
-
     // 降低识别阈值，更容易识别布局
     const isRow = rowScore > columnScore && rowScore > 0.4;
     const isColumn = columnScore > rowScore && columnScore > 0.4;
 
-    // 确定对齐方式
+    // 确定对齐方式（省略默认值 flex-start 和 stretch）
     let justifyContent: string | null = null;
     let alignItems: string | null = null;
 
     if (isRow) {
-      justifyContent = this.getJustifyContent(horizontalAlignment);
-      alignItems = this.getAlignItems(verticalAlignment);
+      const jc = this.getJustifyContent(horizontalAlignment);
+      justifyContent = jc !== 'flex-start' ? jc : null;  // 省略默认值
+      const ai = this.getAlignItems(verticalAlignment);
+      alignItems = ai !== 'stretch' ? ai : null;  // 省略默认值
     } else if (isColumn) {
-      justifyContent = this.getJustifyContent(verticalAlignment);
-      alignItems = this.getAlignItems(horizontalAlignment);
+      const jc = this.getJustifyContent(verticalAlignment);
+      justifyContent = jc !== 'flex-start' ? jc : null;
+      const ai = this.getAlignItems(horizontalAlignment);
+      alignItems = ai !== 'stretch' ? ai : null;
     }
+
+    // 选择正确方向的 gap 和一致性
+    const selectedGap = isRow ? horizontalGap : verticalGap;
 
     return {
       isRow,
       isColumn,
-      rowGap: horizontalGap,
-      columnGap: verticalGap,
+      rowGap: horizontalGap.gap,
+      columnGap: verticalGap.gap,
+      isGapConsistent: selectedGap.isConsistent,
       justifyContent,
       alignItems
     };
@@ -244,22 +275,16 @@ export class LayoutOptimizer {
   static analyzeAlignment(rects: { left: number; top: number; width: number; height: number }[]): {
     horizontalAlignment: string;
     verticalAlignment: string;
-    horizontalGap: number;
-    verticalGap: number;
+    horizontalGap: { gap: number; isConsistent: boolean };
+    verticalGap: { gap: number; isConsistent: boolean };
   } {
     // 计算水平方向的位置和间距
     const lefts = rects.map(rect => rect.left);
     const rights = rects.map(rect => rect.left + rect.width);
 
-    const minLeft = Math.min(...lefts);
-    const maxRight = Math.max(...rights);
-
     // 计算垂直方向的位置和间距
     const tops = rects.map(rect => rect.top);
     const bottoms = rects.map(rect => rect.top + rect.height);
-
-    const minTop = Math.min(...tops);
-    const maxBottom = Math.max(...bottoms);
 
     // 判断水平对齐情况
     const leftAligned = this.areValuesAligned(lefts);
@@ -283,7 +308,7 @@ export class LayoutOptimizer {
     else if (bottomAligned) verticalAlignment = 'bottom';
     else if (centerVAligned) verticalAlignment = 'center';
 
-    // 计算平均间距
+    // 计算平均间距（带一致性检测）
     const horizontalGap = this.calculateAverageGap(rects, 'horizontal');
     const verticalGap = this.calculateAverageGap(rects, 'vertical');
 
@@ -306,13 +331,14 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 计算平均间距
+   * 计算平均间距（带一致性检测）
+   * @returns { gap: number, isConsistent: boolean }
    */
   static calculateAverageGap(
     rects: { left: number; top: number; width: number; height: number }[],
     direction: 'horizontal' | 'vertical'
-  ): number {
-    if (rects.length < 2) return 0;
+  ): { gap: number; isConsistent: boolean } {
+    if (rects.length < 2) return { gap: 0, isConsistent: true };
 
     // 排序节点
     const sortedRects = [...rects].sort((a, b) => {
@@ -338,9 +364,17 @@ export class LayoutOptimizer {
       }
     }
 
-    // 计算平均间距
-    if (gaps.length === 0) return 0;
-    return gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length;
+    // 使用间距一致性分析
+    if (gaps.length === 0) return { gap: 0, isConsistent: true };
+
+    const analysis = analyzeGapConsistency(gaps);
+    // 四舍五入到常用值
+    const roundedGap = roundToCommonGap(analysis.averageGap);
+
+    return {
+      gap: roundedGap,
+      isConsistent: analysis.isConsistent
+    };
   }
 
   /**

@@ -135,7 +135,7 @@ export function processSVGNodesBottomUp(
       node.exportInfo = {
         type: "IMAGE",
         format: "SVG",
-        nodeId: node.id,
+        // nodeId 省略，与节点 id 相同
         fileName: generateFileName(node.name, "SVG"),
       };
       return true;
