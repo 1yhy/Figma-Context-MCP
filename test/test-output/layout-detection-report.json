@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-12-05T08:25:03.390Z",
+  "summary": {
+    "passed": 8,
+    "total": 9,
+    "rate": "88.9%"
+  },
+  "results": [
+    {
+      "name": "边界框提取",
+      "passed": true,
+      "details": "提取了 1 个子元素",
+      "data": [
+        {
+          "x": 13364.6875,
+          "y": 13119.3779296875,
+          "width": 275.9183044433594,
+          "height": 275.53729248046875,
+          "index": 0,
+          "right": 13640.60580444336,
+          "bottom": 13394.915222167969,
+          "centerX": 13502.64665222168,
+          "centerY": 13257.146575927734
+        }
+      ]
+    },
+    {
+      "name": "行分组算法",
+      "passed": true,
+      "details": "分成 1 行，每行元素数: [1]"
+    },
+    {
+      "name": "列分组算法",
+      "passed": true,
+      "details": "分成 1 列，每列元素数: [1]"
+    },
+    {
+      "name": "布局检测成功率",
+      "passed": false,
+      "details": "1/4 (25.0%)"
+    },
+    {
+      "name": "一致间距检测",
+      "passed": true,
+      "details": "平均间距: 16.0px, 标准差: 0.63, 圆整值: 16px"
+    },
+    {
+      "name": "不一致间距检测",
+      "passed": true,
+      "details": "平均间距: 25.0px, 标准差: 14.14"
+    },
+    {
+      "name": "左对齐检测",
+      "passed": true,
+      "details": "检测到水平对齐: left, 垂直对齐: none"
+    },
+    {
+      "name": "居中对齐检测",
+      "passed": true,
+      "details": "检测到水平对齐: center, 垂直对齐: none"
+    },
+    {
+      "name": "布局树构建",
+      "passed": true,
+      "details": "类型: container, 方向: none, 子节点: 6"
+    }
+  ]
+}
