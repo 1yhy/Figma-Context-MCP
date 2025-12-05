@@ -25,22 +25,10 @@
             "height": "56px",
             "position": "absolute",
             "left": "0px",
-            "top": "0px"
+            "top": "0px",
+            "backgroundColor": "#FFFFFF"
           },
           "children": [
-            {
-              "id": "I240:32164;10:397",
-              "name": "Rectangle 9",
-              "type": "RECTANGLE",
-              "cssStyles": {
-                "width": "375px",
-                "height": "56px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "0px",
-                "backgroundColor": "#FFFFFF"
-              }
-            },
             {
               "id": "I240:32164;10:407",
               "name": "Mask group",
@@ -130,9 +118,6 @@
                   "cssStyles": {
                     "width": "19px",
                     "height": "17px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
                     "color": "#666666",
                     "fontFamily": "Inter",
                     "fontSize": "14px",
@@ -148,10 +133,7 @@
                   "type": "VECTOR",
                   "cssStyles": {
                     "width": "9px",
-                    "height": "4px",
-                    "position": "absolute",
-                    "left": "24px",
-                    "top": "7px"
+                    "height": "4px"
                   },
                   "exportInfo": {
                     "type": "IMAGE",
@@ -234,10 +216,7 @@
               "type": "FRAME",
               "cssStyles": {
                 "width": "34px",
-                "height": "34px",
-                "position": "absolute",
-                "left": "138px",
-                "top": "0px"
+                "height": "34px"
               },
               "exportInfo": {
                 "type": "IMAGE",
@@ -252,9 +231,6 @@
               "cssStyles": {
                 "width": "112px",
                 "height": "14px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "9px",
                 "color": "#666666",
                 "fontFamily": "Roboto",
                 "fontSize": "12px",
@@ -268,10 +244,7 @@
               "type": "FRAME",
               "cssStyles": {
                 "width": "14px",
-                "height": "14px",
-                "position": "absolute",
-                "left": "118px",
-                "top": "10px"
+                "height": "14px"
               },
               "exportInfo": {
                 "type": "IMAGE",
@@ -335,25 +308,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "0px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32171",
-                  "name": "Rectangle 24",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32175",
                   "name": "image",
@@ -490,23 +448,11 @@
                 "height": "62px",
                 "position": "absolute",
                 "left": "0px",
-                "top": "68px"
+                "top": "68px",
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32225",
-                  "name": "Rectangle 25",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32230",
                   "name": "image",
@@ -659,25 +605,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "136px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32183",
-                  "name": "Rectangle 26",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32188",
                   "name": "image",
@@ -812,25 +743,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "204px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32245",
-                  "name": "Rectangle 27",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32250",
                   "name": "image",
@@ -965,25 +881,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "272px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32205",
-                  "name": "Rectangle 28",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32209",
                   "name": "image",
@@ -1118,25 +1019,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "340px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32217",
-                  "name": "Rectangle 61",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32222",
                   "name": "image",
@@ -1254,25 +1140,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "408px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32237",
-                  "name": "Rectangle 25",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32238",
                   "name": "image",
@@ -1390,25 +1261,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "62px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "476px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32195",
-                  "name": "Rectangle 26",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "62px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32201",
                   "name": "image",
@@ -1526,25 +1382,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "55px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "544px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32257",
-                  "name": "Rectangle 27",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "55px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32261",
                   "name": "image",
@@ -1662,25 +1503,10 @@
               "cssStyles": {
                 "width": "317px",
                 "height": "55px",
-                "position": "absolute",
-                "left": "0px",
-                "top": "605px"
+                "backgroundColor": "#F4F3F6",
+                "borderRadius": "10px"
               },
               "children": [
-                {
-                  "id": "240:32265",
-                  "name": "Rectangle 27",
-                  "type": "RECTANGLE",
-                  "cssStyles": {
-                    "width": "317px",
-                    "height": "55px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "0px",
-                    "backgroundColor": "#F4F3F6",
-                    "borderRadius": "10px"
-                  }
-                },
                 {
                   "id": "240:32269",
                   "name": "image",
