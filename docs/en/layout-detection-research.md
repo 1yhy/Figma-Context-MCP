@@ -171,7 +171,63 @@ function convertLayout(node: FigmaNode): CSSLayout {
 
 ---
 
-### 3. Gridaco / Grida
+### 3. Locofy
+
+**Approach**: Auto Layout + Absolute positioning hybrid
+
+Locofy uses LocoAI to analyze designs and apply appropriate CSS properties:
+
+```typescript
+// Locofy's approach to layout detection
+function analyzeLayout(elements: Element[]): LayoutDecision {
+  // LocoAI groups elements for better structure
+  const groups = locoAI.groupElements(elements);
+
+  // Apply relevant CSS property (flex) for responsiveness
+  for (const group of groups) {
+    if (group.hasAutoLayout) {
+      // Auto layout corresponds to Flexbox in CSS
+      applyFlexLayout(group);
+    } else if (group.isFloating) {
+      // Floating elements use absolute positioning
+      applyAbsolutePosition(group);
+    }
+  }
+}
+```
+
+**Key Features**:
+
+- Change absolute position status and re-run algorithm for regrouping
+- Floating elements use absolute property in auto layout setting
+- Parent of absolutely positioned element determines positioning context
+
+---
+
+### 4. Anima Auto-Flexbox
+
+**Approach**: Computer Vision algorithms for automatic Flexbox
+
+```typescript
+// Anima's Auto-Flexbox algorithm
+// Reverse-engineered from developer thought process
+function applyAutoFlexbox(design: Design): Layout {
+  // Without Auto-Flexbox: generates absolute layout
+  // With Auto-Flexbox: generates relative positioning (Flexbox)
+
+  // Computer Vision algorithms from CV world
+  const flexboxLayout = cvAlgorithm.analyzeAndApply(design);
+
+  // Relative positioning allows layers to push each other
+  return flexboxLayout;
+}
+```
+
+**Key Insight**: "Absolute layout is great for design phase, but less so for end product. Flexbox layout means relative positioning."
+
+---
+
+### 5. Gridaco / Grida
 
 **Approach**: Rules + ML hybrid (similar to imgcook)
 
@@ -191,7 +247,7 @@ function detectLayout(elements: Element[]): LayoutType {
 
 ---
 
-### 4. Phoenix Codie Position Detection System
+### 6. Phoenix Codie Position Detection System
 
 **Key Innovation**: Explicit "position: absolute abuse" avoidance
 
@@ -690,25 +746,65 @@ function removeDefaultValues(cssStyles: CSSStyle): CSSStyle {
 
 ### Academic Papers
 
-1. "A Layout Inference Algorithm for GUIs" - ScienceDirect
-2. "UI Semantic Group Detection" - arXiv 2403.04984v1
-3. "GRIDS Layout Engine" - Aalto University
-4. "Screen Parsing" - CMU UIST 2021
-5. "UIHASH: Grid-Based UI Similarity" - Jun Zeng et al.
-6. "Multilevel Homogeneity Structure" - ScienceDirect
+1. **"A Layout Inference Algorithm for Graphical User Interfaces"** (2015)
+
+   - [ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0950584915001718)
+   - [ResearchGate PDF](https://www.researchgate.net/publication/283526120_A_layout_inference_algorithm_for_Graphical_User_Interfaces)
+   - Key: Allen's Interval Algebra, 97% layout faithfulness
+
+2. **"GRIDS: Interactive Layout Design with Integer Programming"** (CHI 2020)
+
+   - [Project Page](https://userinterfaces.aalto.fi/grids/)
+   - [GitHub](https://github.com/aalto-ui/GRIDS)
+   - [Paper PDF](https://acris.aalto.fi/ws/portalfiles/portal/40720569/CHI2020_Dayama_GRIDS.pdf)
+   - Authors: Niraj Dayama, Kashyap Todi, Taru Saarelainen, Antti Oulasvirta (Aalto University)
+
+3. **"Screen Parsing: Towards Reverse Engineering of UI Models from Screenshots"** (UIST 2021)
+
+   - [CMU ML Blog](https://blog.ml.cmu.edu/2021/12/10/understanding-user-interfaces-with-screen-parsing/)
+   - [Paper PDF](https://www.cs.cmu.edu/~jbigham/pubs/pdfs/2021/screen-parsing.pdf)
+   - [ACM Digital Library](https://dl.acm.org/doi/fullHtml/10.1145/3472749.3474763)
+   - Authors: Jason Wu, Xiaoyi Zhang, Jeff Nichols, Jeffrey P. Bigham
+
+4. **"UI Semantic Group Detection"** (arXiv 2024) - arXiv:2403.04984v1
+
+5. **"UIHASH: Grid-Based UI Similarity"** - Jun Zeng et al.
 
 ### Open Source Projects
 
-1. [FigmaToCode](https://github.com/bernaferrari/FigmaToCode) - Figma plugin
-2. [GRIDS](https://github.com/aalto-ui/GRIDS) - MILP-based grid solver
+1. [FigmaToCode](https://github.com/bernaferrari/FigmaToCode) - Generate responsive pages on HTML, Tailwind, Flutter, SwiftUI
+2. [GRIDS](https://github.com/aalto-ui/GRIDS) - MILP-based grid layout generation (Python + Gurobi)
 3. [Grida](https://github.com/gridaco/grida) - Design-to-code platform
+4. [Yoga](https://github.com/facebook/yoga) - Facebook's cross-platform Flexbox layout engine
 
 ### Industry Resources
 
-1. [imgcook 3.0 Layout Algorithm](https://www.alibabacloud.com/blog/imgcook-3-0-series-layout-algorithm-design-based-code-generation_597856) - Alibaba
-2. [Figma Grid Auto-Layout](https://help.figma.com/hc/en-us/articles/31289469907863) - Figma Help
-3. [CSS Grid Layout Module](https://www.w3.org/TR/css-grid-1/) - W3C
-4. [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) - Wikipedia
+1. **imgcook (Alibaba)**
+
+   - [Layout Algorithm Blog](https://www.alibabacloud.com/blog/imgcook-3-0-series-layout-algorithm-design-based-code-generation_597856)
+   - [How imgcook Works](https://medium.com/imgcook/imgcook-how-are-codes-generated-intelligently-from-design-files-in-alibaba-98ba8e55246d)
+   - [100% Accuracy Rate](https://www.alibabacloud.com/blog/imgcook-intelligent-code-generation-from-design-drafts-with-a-100%25-accuracy-rate_598093)
+
+2. **Locofy**
+
+   - [Design Optimiser Docs](https://www.locofy.ai/docs/lightning/design-optimiser/)
+   - [Auto Layout to Responsive Code](https://www.locofy.ai/docs/classic/design-structure/responsiveness/auto-layout/)
+
+3. **Anima**
+
+   - [Auto-Flexbox Introduction](https://www.animaapp.com/blog/design-to-code/introducing-auto-flexbox/)
+   - [Flexbox from Constraints](https://www.animaapp.com/blog/product-updates/producing-flexbox-responsive-code-based-on-figma-adobe-xd-and-sketch-constraints/)
+
+4. **CSS Standards**
+
+   - [CSS Grid Layout Module Level 1](https://www.w3.org/TR/css-grid-1/) - W3C
+   - [CSS Flexible Box Layout](https://www.w3.org/TR/css-flexbox-1/) - W3C
+   - [Understanding Layout Algorithms](https://www.joshwcomeau.com/css/understanding-layout-algorithms/) - Josh W. Comeau
+
+5. **Foundational**
+   - [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) - Wikipedia
+   - [Figma Grid Auto-Layout](https://help.figma.com/hc/en-us/articles/31289469907863) - Figma Help
+   - [IoU Explained](https://www.v7labs.com/blog/intersection-over-union-guide) - V7 Labs
 
 ---
 

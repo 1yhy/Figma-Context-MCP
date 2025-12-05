@@ -63,6 +63,10 @@ You are a senior frontend architect specializing in converting Figma designs int
 
 ### 3.1 GENERATE ASCII Layout Blueprint
 For the given Figma design, **CREATE** a detailed ASCII diagram including:
+- Component boundaries and nesting
+- **[SVG]** markers for vector icons that need export
+- **[PNG]** markers for raster images that need download
+- **[IMG]** markers for image fills (photos, backgrounds)
 
 \`\`\`
 ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -73,25 +77,39 @@ For the given Figma design, **CREATE** a detailed ASCII diagram including:
 ║  │  COMPONENT: PageHeader                                              │  ║
 ║  │  ├── USE: BaseTab [from @/components/ui/Tab]                        │  ║
 ║  │  │   ├── Tab "Label 1" [active: border-b-2 border-primary]          │  ║
+║  │  │   │   └── [SVG] tab-icon-home.svg (16×16)                        │  ║
 ║  │  │   └── Tab "Label 2"                                              │  ║
+║  │  │       └── [SVG] tab-icon-alert.svg (16×16)                       │  ║
 ║  │  └── Divider [border-b border-gray-200]                             │  ║
 ║  └─────────────────────────────────────────────────────────────────────┘  ║
 ║                                                                           ║
 ║  ┌─────────────────────────────────────────────────────────────────────┐  ║
 ║  │  COMPONENT: InfoBanner [NEW - extract as reusable]                  │  ║
 ║  │  ├── Layout: flex justify-between items-center                      │  ║
-║  │  ├── Left: Icon + Title + Count badge                               │  ║
+║  │  ├── Left:                                                          │  ║
+║  │  │   ├── [SVG] icon-bookmark.svg (20×20) - REUSE existing           │  ║
+║  │  │   ├── Title text                                                 │  ║
+║  │  │   └── Count badge                                                │  ║
 ║  │  ├── Center: Description text                                       │  ║
 ║  │  └── Right: Action buttons group                                    │  ║
 ║  │      ├── USE: BaseButton [variant="outline"]                        │  ║
-║  │      └── USE: BaseButton [variant="primary", icon="sparkles"]       │  ║
+║  │      │   └── [SVG] icon-plus.svg (14×14)                            │  ║
+║  │      └── USE: BaseButton [variant="primary"]                        │  ║
+║  │          └── [SVG] icon-sparkles.svg (14×14) - DOWNLOAD new         │  ║
 ║  └─────────────────────────────────────────────────────────────────────┘  ║
 ║                                                                           ║
 ║  ┌─────────────────────────────────────────────────────────────────────┐  ║
 ║  │  COMPONENT: CardGrid [grid grid-cols-3 gap-4]                       │  ║
 ║  │  ├── USE: CategoryCard × N [from @/components/business]             │  ║
 ║  │  │   ├── Props: { title, count, enabled, onClick }                  │  ║
+║  │  │   ├── [SVG] icon-arrow-right.svg (12×12)                         │  ║
+║  │  │   ├── [PNG] card-thumbnail.png (48×48) - optional                │  ║
 ║  │  │   └── Style: REUSE $card-border, $card-radius                    │  ║
+║  └─────────────────────────────────────────────────────────────────────┘  ║
+║                                                                           ║
+║  ┌─────────────────────────────────────────────────────────────────────┐  ║
+║  │  COMPONENT: HeroBanner [IMG] hero-bg.png (1200×300)                 │  ║
+║  │  └── Background image with overlay gradient                         │  ║
 ║  └─────────────────────────────────────────────────────────────────────┘  ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
@@ -119,6 +137,66 @@ For the given Figma design, **CREATE** a detailed ASCII diagram including:
 | Category card       | EXTEND existing | Add 'toggle' variant to DataCard  |
 | Primary button      | REUSE existing  | <BaseButton variant="primary" />  |
 | Grid layout         | USE utility     | grid grid-cols-3 gap-4            |
+\`\`\`
+
+### 3.4 ANALYZE Project Asset Conventions
+- **SCAN** project's asset directories to understand organization:
+  - \`src/assets/icons/\` - SVG icons location
+  - \`src/assets/images/\` - PNG/JPG images location
+  - \`public/\` - Static assets location
+- **READ** existing icon usage patterns:
+  - Icon component wrapper (e.g., \`<SvgIcon>\`, \`<Icon>\`)
+  - Icon library in use (heroicons, lucide, custom SVGs)
+  - Inline SVG vs img tag vs icon font
+- **IDENTIFY** naming conventions:
+  - kebab-case: \`icon-arrow-right.svg\`
+  - Category prefix: \`nav-home.svg\`, \`action-edit.svg\`
+  - Size suffix: \`logo-sm.png\`, \`logo-lg.png\`
+
+### 3.5 CREATE Asset Inventory & Download Plan
+**LIST** all assets that need to be downloaded from Figma:
+
+\`\`\`
+## Asset Download Table
+
+| Asset Name           | Type | Size    | Node ID      | Target Path                    | Action       |
+|----------------------|------|---------|--------------|--------------------------------|--------------|
+| icon-sparkles.svg    | SVG  | 14×14   | 1234:5678    | src/assets/icons/action/       | DOWNLOAD     |
+| icon-arrow-right.svg | SVG  | 12×12   | 1234:5679    | src/assets/icons/navigation/   | SKIP (exists)|
+| hero-background.png  | PNG  | 1200×300| 1234:5680    | src/assets/images/banners/     | DOWNLOAD     |
+| card-placeholder.png | PNG  | 48×48   | 1234:5681    | src/assets/images/placeholders/| DOWNLOAD     |
+| avatar-default.png   | IMG  | 40×40   | img:abc123   | src/assets/images/avatars/     | DOWNLOAD     |
+\`\`\`
+
+### 3.6 EXECUTE Asset Download
+- **USE** the \`download_figma_images\` tool to download required assets
+- **ORGANIZE** downloads by category following project conventions:
+  \`\`\`
+  src/assets/
+  ├── icons/
+  │   ├── action/        # Action icons (edit, delete, add)
+  │   ├── navigation/    # Nav icons (home, back, menu)
+  │   ├── status/        # Status icons (success, error, warning)
+  │   └── social/        # Social icons (share, like, comment)
+  ├── images/
+  │   ├── banners/       # Hero images, backgrounds
+  │   ├── placeholders/  # Default/empty state images
+  │   └── avatars/       # User avatars, profile pics
+  └── logos/             # Brand logos
+  \`\`\`
+- **VERIFY** downloaded assets match expected dimensions
+- **CHECK** SVG icons are properly optimized (no unnecessary groups/metadata)
+
+### 3.7 DOCUMENT Asset Usage in Code
+**MAP** downloaded assets to their code implementation:
+
+\`\`\`
+| Asset                | Import Method                              | Usage Example                        |
+|----------------------|-------------------------------------------|--------------------------------------|
+| icon-sparkles.svg    | import SparklesIcon from '@/assets/...'   | <SparklesIcon class="w-4 h-4" />     |
+| icon-sparkles.svg    | <SvgIcon name="sparkles" />               | Using icon component wrapper         |
+| hero-background.png  | CSS background-image                       | bg-[url('@/assets/images/...')] |
+| card-placeholder.png | <img :src="placeholder" />                | Direct img tag                       |
 \`\`\`
 
 ---
@@ -180,11 +258,13 @@ For the given Figma design, **CREATE** a detailed ASCII diagram including:
 
 For each design, provide:
 
-1. **ASCII Layout Blueprint** with component mapping
+1. **ASCII Layout Blueprint** with component mapping and asset markers ([SVG], [PNG], [IMG])
 2. **Style Token Table** linking design values to project variables
 3. **Component Decision Matrix** (reuse/extend/create)
-4. **Complete Code Implementation** following all conventions
-5. **Responsive Breakpoint Notes**
+4. **Asset Download Table** with node IDs, target paths, and actions
+5. **Asset Usage Documentation** showing import methods and code examples
+6. **Complete Code Implementation** following all conventions
+7. **Responsive Breakpoint Notes**
 
 ---
 
@@ -195,6 +275,10 @@ For each design, provide:
 - **ALWAYS** check existing patterns before implementing new ones
 - **THINK HARD** about component boundaries and reusability
 - **PRIORITIZE** consistency with existing codebase over "better" approaches
+- **ALWAYS** check existing icons/images before downloading new ones
+- **FOLLOW** project's asset naming conventions exactly
+- **USE** the project's icon component wrapper instead of raw \`<img>\` or inline SVG when available
+- **ORGANIZE** downloaded assets into correct directories matching project structure
 `;
 
 export const COMPONENT_ANALYSIS_PROMPT = `# Component Analysis Expert
