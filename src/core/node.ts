@@ -1,13 +1,13 @@
 import type { SimplifiedNode, ExportInfo } from "~/services/simplify-node-response.js";
 
-// ==================== 类型定义 ====================
+// ==================== Type Definitions ====================
 
-/** 带有填充属性的节点 */
+/** Node with fill properties */
 interface NodeWithFills {
   fills?: Array<{ type: string; imageRef?: string }>;
 }
 
-/** 带有样式和子节点的节点 */
+/** Node with styles and children */
 interface NodeWithChildren {
   id: string;
   name: string;
@@ -17,30 +17,30 @@ interface NodeWithChildren {
   exportInfo?: ExportInfo;
 }
 
-// ==================== 图片检测 ====================
+// ==================== Image Detection ====================
 
 /**
- * 检查节点是否有图片填充
+ * Check whether the node has an image fill
  */
 export function hasImageFill(node: NodeWithFills): boolean {
   return node.fills?.some((fill) => fill.type === 'IMAGE' && fill.imageRef) || false;
 }
 
 /**
- * 检测并标记图片组
+ * Detect and mark image groups
  */
 export function detectAndMarkImageGroup(
   node: NodeWithChildren,
   suggestExportFormat: (node: NodeWithChildren) => string,
   generateFileName: (name: string, format: string) => string
 ): void {
-  // 只处理组和框架
+  // Only handle groups and frames
   if (node.type !== 'GROUP' && node.type !== 'FRAME') return;
 
-  // 没有子元素则不是图片组
+  // Without children it cannot be an image group
   if (!node.children || node.children.length === 0) return;
 
-  // 检查是否所有子元素都是图片类型
+  // Check whether all children are image types
   const allChildrenAreImages = node.children.every((child) =>
     (child.type === 'IMAGE') ||
     (child.type === 'RECTANGLE' && hasImageFill(child as NodeWithFills)) ||
@@ -49,7 +49,7 @@ export function detectAndMarkImageGroup(
     (child.type === 'FRAME' && child.cssStyles?.backgroundImage)
   );
 
-  // 标记图片组
+  // Mark the node as an image group
   if (allChildrenAreImages) {
     const format = suggestExportFormat(node);
     node.exportInfo = {
@@ -59,21 +59,21 @@ export function detectAndMarkImageGroup(
       fileName: generateFileName(node.name, format),
     };
 
-    // 删除子元素信息，整体导出
+    // Remove child information and export as a whole
     delete node.children;
   }
 }
 
-// ==================== 节点排序 ====================
+// ==================== Node Sorting ====================
 
 /**
- * 对节点按照位置排序（从上到下，从左到右）
+ * Sort nodes by position (top to bottom, left to right)
  */
 export function sortNodesByPosition<T extends { cssStyles?: { top?: string; left?: string } }>(
   nodes: T[]
 ): T[] {
   return [...nodes].sort((a, b) => {
-    // 按top值排序（从上到下）
+    // Sort by the top value (top to bottom)
     const aTop = a.cssStyles?.top ? parseFloat(a.cssStyles.top) : 0;
     const bTop = b.cssStyles?.top ? parseFloat(b.cssStyles.top) : 0;
 
@@ -81,24 +81,24 @@ export function sortNodesByPosition<T extends { cssStyles?: { top?: string; left
       return aTop - bTop;
     }
 
-    // top值相同时按left值排序（从左到右）
+    // When top values are equal, sort by left (left to right)
     const aLeft = a.cssStyles?.left ? parseFloat(a.cssStyles.left) : 0;
     const bLeft = b.cssStyles?.left ? parseFloat(b.cssStyles.left) : 0;
     return aLeft - bLeft;
   });
 }
 
-// ==================== 临时属性清理 ====================
+// ==================== Temporary Property Cleanup ====================
 
 /**
- * 清理临时计算属性
+ * Clean up temporary computed properties
  */
 export function cleanupTemporaryProperties(node: SimplifiedNode): void {
-  // 删除绝对坐标
+  // Remove absolute coordinates
   delete node._absoluteX;
   delete node._absoluteY;
 
-  // 递归清理子节点
+  // Recursively clean child nodes
   if (node.children && node.children.length > 0) {
     node.children.forEach(cleanupTemporaryProperties);
   }

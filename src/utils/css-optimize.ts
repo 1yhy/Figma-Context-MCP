@@ -1,14 +1,14 @@
 /**
- * CSS 输出优化工具
- * 用于减少输出大小和提高可读性
+ * CSS output optimization utilities
+ * Used to reduce output size and improve readability
  */
 
-// ==================== 数值精度优化 ====================
+// ==================== Numeric Precision Optimization ====================
 
 /**
- * 四舍五入数值到指定精度
- * @param value 原始数值
- * @param precision 小数位数，默认 0（整数）
+ * Round a number to specified precision
+ * @param value Original number
+ * @param precision Number of decimal places, default 0 (integer)
  */
 export function roundValue(value: number, precision: number = 0): number {
   if (precision === 0) {
@@ -19,48 +19,48 @@ export function roundValue(value: number, precision: number = 0): number {
 }
 
 /**
- * 格式化 px 值，四舍五入到整数
- * @param value 像素值
+ * Format px value, rounded to integer
+ * @param value Pixel value
  */
 export function formatPxValue(value: number): string {
   return `${Math.round(value)}px`;
 }
 
 /**
- * 格式化数值，用于 gap 等属性，四舍五入到整数
- * @param value 数值
+ * Format numeric value, used for gap and other properties, rounded to integer
+ * @param value Numeric value
  */
 export function formatNumericValue(value: number): string {
   return `${Math.round(value)}px`;
 }
 
-// ==================== 浏览器默认值 ====================
+// ==================== Browser Defaults ====================
 
 /**
- * 浏览器/Tailwind 默认值
- * 这些值可以省略不输出
+ * Browser/Tailwind default values
+ * These values can be omitted from output
  */
 export const BROWSER_DEFAULTS: Record<string, string | number | undefined> = {
-  // 文本默认值
+  // Text defaults
   textAlign: 'left',
   verticalAlign: 'top',
   fontWeight: 400,
 
-  // Flex 默认值
+  // Flex defaults
   flexDirection: 'row',
   justifyContent: 'flex-start',
   alignItems: 'stretch',
 
-  // 定位默认值（如果所有元素都是 absolute，可以省略）
-  // position: 'static',  // 暂不省略，因为我们显式使用 absolute
+  // Position defaults (if all elements are absolute, can be omitted)
+  // position: 'static',  // Not omitting for now, as we explicitly use absolute
 
-  // 其他
+  // Other
   opacity: '1',
   borderStyle: 'none',
 };
 
 /**
- * 检查值是否为默认值
+ * Check if a value is the default value
  */
 export function isDefaultValue(key: string, value: string | number | undefined): boolean {
   if (value === undefined) return true;
@@ -68,7 +68,7 @@ export function isDefaultValue(key: string, value: string | number | undefined):
   const defaultValue = BROWSER_DEFAULTS[key];
   if (defaultValue === undefined) return false;
 
-  // 处理数字和字符串比较
+  // Handle number and string comparison
   if (typeof defaultValue === 'number' && typeof value === 'number') {
     return defaultValue === value;
   }
@@ -77,33 +77,33 @@ export function isDefaultValue(key: string, value: string | number | undefined):
 }
 
 /**
- * 省略默认样式值
- * @param styles CSS 样式对象
- * @returns 优化后的样式对象
+ * Omit default style values
+ * @param styles CSS style object
+ * @returns Optimized style object
  */
 export function omitDefaultStyles<T extends Record<string, unknown>>(styles: T): Partial<T> {
   const result: Partial<T> = {};
 
   for (const [key, value] of Object.entries(styles)) {
-    // 跳过 undefined
+    // Skip undefined
     if (value === undefined) continue;
 
-    // 跳过默认值
+    // Skip default values
     if (isDefaultValue(key, value as string | number)) continue;
 
-    // 保留非默认值
+    // Keep non-default values
     (result as Record<string, unknown>)[key] = value;
   }
 
   return result;
 }
 
-// ==================== 间距分析 ====================
+// ==================== Gap Analysis ====================
 
 /**
- * 分析间距一致性
- * @param gaps 间距数组
- * @param tolerancePercent 容差百分比，默认 20%
+ * Analyze gap consistency
+ * @param gaps Array of gaps
+ * @param tolerancePercent Tolerance percentage, default 20%
  */
 export function analyzeGapConsistency(gaps: number[], tolerancePercent: number = 20): {
   isConsistent: boolean;
@@ -120,31 +120,31 @@ export function analyzeGapConsistency(gaps: number[], tolerancePercent: number =
     return { isConsistent: true, averageGap: gaps[0], roundedGap: rounded, variance: 0 };
   }
 
-  // 计算平均值
+  // Calculate average
   const avg = gaps.reduce((a, b) => a + b, 0) / gaps.length;
 
-  // 计算方差
+  // Calculate variance
   const variance = gaps.reduce((sum, gap) => sum + Math.pow(gap - avg, 2), 0) / gaps.length;
   const stdDev = Math.sqrt(variance);
 
-  // 判断一致性：标准差小于平均值的指定百分比
+  // Determine consistency: standard deviation less than specified percentage of average
   const tolerance = avg * (tolerancePercent / 100);
   const isConsistent = stdDev <= tolerance;
 
-  // 四舍五入到整数
+  // Round to integer
   const roundedGap = roundValue(avg);
 
   return { isConsistent, averageGap: avg, roundedGap, variance };
 }
 
 /**
- * 将间距四舍五入到常用值
- * 常用值: 0, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64
+ * Round gap to common values
+ * Common values: 0, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64
  */
 export function roundToCommonGap(gap: number): number {
   const COMMON_GAPS = [0, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96, 128];
 
-  // 找最接近的常用值
+  // Find closest common value
   let closest = COMMON_GAPS[0];
   let minDiff = Math.abs(gap - closest);
 
@@ -156,7 +156,7 @@ export function roundToCommonGap(gap: number): number {
     }
   }
 
-  // 如果差距太大（超过 4px），使用四舍五入值
+  // If difference is too large (over 4px), use rounded value
   if (minDiff > 4) {
     return roundValue(gap);
   }
@@ -164,10 +164,10 @@ export function roundToCommonGap(gap: number): number {
   return closest;
 }
 
-// ==================== 导出信息优化 ====================
+// ==================== Export Info Optimization ====================
 
 /**
- * 优化 exportInfo，省略与节点 id 相同的 nodeId
+ * Optimize exportInfo, omit nodeId if it's the same as node id
  */
 export function optimizeExportInfo(
   nodeId: string,
@@ -175,7 +175,7 @@ export function optimizeExportInfo(
 ): { type: string; format: string; nodeId?: string; fileName?: string } {
   const result = { ...exportInfo };
 
-  // 如果 nodeId 与节点 id 相同，省略
+  // If nodeId is the same as node id, omit it
   if (result.nodeId === nodeId) {
     delete result.nodeId;
   }

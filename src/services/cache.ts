@@ -4,45 +4,45 @@ import crypto from "crypto";
 import os from "os";
 
 /**
- * 缓存配置
+ * Cache configuration
  */
 export interface CacheConfig {
-  /** 缓存目录 */
+  /** Cache directory */
   cacheDir: string;
-  /** 缓存过期时间（毫秒），默认 24 小时 */
+  /** Cache expiration time (milliseconds), default 24 hours */
   ttl: number;
-  /** 是否启用缓存 */
+  /** Whether cache is enabled */
   enabled: boolean;
 }
 
 /**
- * 缓存元数据
+ * Cache metadata
  */
 interface CacheMetadata {
-  /** 创建时间 */
+  /** Creation time */
   createdAt: number;
-  /** 过期时间 */
+  /** Expiration time */
   expiresAt: number;
-  /** 文件 key */
+  /** File key */
   fileKey: string;
-  /** 节点 ID */
+  /** Node ID */
   nodeId?: string;
-  /** 深度 */
+  /** Depth */
   depth?: number;
 }
 
 /**
- * 默认缓存配置
+ * Default cache configuration
  */
 const DEFAULT_CONFIG: CacheConfig = {
   cacheDir: path.join(os.homedir(), ".figma-mcp-cache"),
-  ttl: 24 * 60 * 60 * 1000, // 24 小时
+  ttl: 24 * 60 * 60 * 1000, // 24 hours
   enabled: true,
 };
 
 /**
- * 文件缓存管理器
- * 用于缓存 Figma API 响应数据和图片
+ * File cache manager
+ * Used for caching Figma API response data and images
  */
 export class CacheManager {
   private config: CacheConfig;
@@ -62,7 +62,7 @@ export class CacheManager {
   }
 
   /**
-   * 确保缓存目录存在
+   * Ensure cache directories exist
    */
   private ensureCacheDirectories(): void {
     try {
@@ -78,7 +78,7 @@ export class CacheManager {
   }
 
   /**
-   * 生成缓存 key
+   * Generate cache key
    */
   private generateCacheKey(fileKey: string, nodeId?: string, depth?: number): string {
     const keyParts = [fileKey];
@@ -90,7 +90,7 @@ export class CacheManager {
   }
 
   /**
-   * 生成图片缓存 key
+   * Generate image cache key
    */
   private generateImageCacheKey(fileKey: string, nodeId: string, format: string): string {
     const keyString = `${fileKey}_${nodeId}_${format}`;
@@ -98,7 +98,7 @@ export class CacheManager {
   }
 
   /**
-   * 获取缓存的节点数据
+   * Get cached node data
    */
   async getNodeData<T>(fileKey: string, nodeId?: string, depth?: number): Promise<T | null> {
     if (!this.config.enabled) return null;
@@ -108,20 +108,20 @@ export class CacheManager {
       const dataPath = path.join(this.dataDir, `${cacheKey}.json`);
       const metadataPath = path.join(this.metadataDir, `${cacheKey}.meta.json`);
 
-      // 检查文件是否存在
+      // Check if files exist
       if (!fs.existsSync(dataPath) || !fs.existsSync(metadataPath)) {
         return null;
       }
 
-      // 读取元数据检查是否过期
+      // Read metadata and check if expired
       const metadata: CacheMetadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
       if (Date.now() > metadata.expiresAt) {
-        // 缓存已过期，删除文件
+        // Cache has expired, delete files
         this.deleteCache(cacheKey);
         return null;
       }
 
-      // 读取并返回缓存数据
+      // Read and return cached data
       const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
       return data as T;
     } catch (error) {
@@ -131,7 +131,7 @@ export class CacheManager {
   }
 
   /**
-   * 设置节点数据缓存
+   * Set node data cache
    */
   async setNodeData<T>(data: T, fileKey: string, nodeId?: string, depth?: number): Promise<void> {
     if (!this.config.enabled) return;
@@ -141,7 +141,7 @@ export class CacheManager {
       const dataPath = path.join(this.dataDir, `${cacheKey}.json`);
       const metadataPath = path.join(this.metadataDir, `${cacheKey}.meta.json`);
 
-      // 创建元数据
+      // Create metadata
       const metadata: CacheMetadata = {
         createdAt: Date.now(),
         expiresAt: Date.now() + this.config.ttl,
@@ -150,7 +150,7 @@ export class CacheManager {
         depth,
       };
 
-      // 写入数据和元数据
+      // Write data and metadata
       fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
       fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
     } catch (error) {
@@ -159,7 +159,7 @@ export class CacheManager {
   }
 
   /**
-   * 检查图片是否已缓存
+   * Check if image is cached
    */
   async hasImage(fileKey: string, nodeId: string, format: string): Promise<string | null> {
     if (!this.config.enabled) return null;
@@ -173,7 +173,7 @@ export class CacheManager {
         return null;
       }
 
-      // 检查是否过期
+      // Check if expired
       const metadata: CacheMetadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
       if (Date.now() > metadata.expiresAt) {
         this.deleteImageCache(cacheKey, format);
@@ -187,7 +187,7 @@ export class CacheManager {
   }
 
   /**
-   * 缓存图片
+   * Cache image
    */
   async cacheImage(
     sourcePath: string,
@@ -202,10 +202,10 @@ export class CacheManager {
       const cachedImagePath = path.join(this.imageDir, `${cacheKey}.${format.toLowerCase()}`);
       const metadataPath = path.join(this.metadataDir, `img_${cacheKey}.meta.json`);
 
-      // 复制图片到缓存目录
+      // Copy image to cache directory
       fs.copyFileSync(sourcePath, cachedImagePath);
 
-      // 创建元数据
+      // Create metadata
       const metadata: CacheMetadata = {
         createdAt: Date.now(),
         expiresAt: Date.now() + this.config.ttl,
@@ -222,7 +222,7 @@ export class CacheManager {
   }
 
   /**
-   * 从缓存复制图片到目标路径
+   * Copy image from cache to target path
    */
   async copyImageFromCache(
     fileKey: string,
@@ -234,7 +234,7 @@ export class CacheManager {
     if (!cachedPath) return false;
 
     try {
-      // 确保目标目录存在
+      // Ensure target directory exists
       const targetDir = path.dirname(targetPath);
       if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
@@ -248,7 +248,7 @@ export class CacheManager {
   }
 
   /**
-   * 删除缓存
+   * Delete cache
    */
   private deleteCache(cacheKey: string): void {
     try {
@@ -258,12 +258,12 @@ export class CacheManager {
       if (fs.existsSync(dataPath)) fs.unlinkSync(dataPath);
       if (fs.existsSync(metadataPath)) fs.unlinkSync(metadataPath);
     } catch (error) {
-      // 忽略删除错误
+      // Ignore deletion errors
     }
   }
 
   /**
-   * 删除图片缓存
+   * Delete image cache
    */
   private deleteImageCache(cacheKey: string, format: string): void {
     try {
@@ -273,12 +273,12 @@ export class CacheManager {
       if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
       if (fs.existsSync(metadataPath)) fs.unlinkSync(metadataPath);
     } catch (error) {
-      // 忽略删除错误
+      // Ignore deletion errors
     }
   }
 
   /**
-   * 清理所有过期缓存
+   * Clean all expired cache
    */
   async cleanExpiredCache(): Promise<{ deletedCount: number }> {
     if (!this.config.enabled) return { deletedCount: 0 };
@@ -300,15 +300,15 @@ export class CacheManager {
             const cacheKey = file.replace(".meta.json", "");
 
             if (file.startsWith("img_")) {
-              // 图片缓存
+              // Image cache
               const imgCacheKey = cacheKey.replace("img_", "");
-              // 尝试删除各种格式
+              // Try to delete various formats
               ["png", "jpg", "svg"].forEach((format) => {
                 const imagePath = path.join(this.imageDir, `${imgCacheKey}.${format}`);
                 if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
               });
             } else {
-              // 数据缓存
+              // Data cache
               const dataPath = path.join(this.dataDir, `${cacheKey}.json`);
               if (fs.existsSync(dataPath)) fs.unlinkSync(dataPath);
             }
@@ -317,7 +317,7 @@ export class CacheManager {
             deletedCount++;
           }
         } catch {
-          // 忽略单个文件的错误
+          // Ignore individual file errors
         }
       }
     } catch (error) {
@@ -328,7 +328,7 @@ export class CacheManager {
   }
 
   /**
-   * 清空所有缓存
+   * Clear all cache
    */
   async clearAllCache(): Promise<void> {
     if (!this.config.enabled) return;
@@ -348,7 +348,7 @@ export class CacheManager {
   }
 
   /**
-   * 获取缓存统计信息
+   * Get cache statistics
    */
   getCacheStats(): {
     enabled: boolean;
@@ -390,7 +390,7 @@ export class CacheManager {
         });
       }
     } catch {
-      // 忽略错误
+      // Ignore errors
     }
 
     return {
@@ -403,5 +403,5 @@ export class CacheManager {
   }
 }
 
-// 导出单例实例
+// Export singleton instance
 export const cacheManager = new CacheManager();

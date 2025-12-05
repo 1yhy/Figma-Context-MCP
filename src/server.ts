@@ -7,17 +7,17 @@ import { IncomingMessage, ServerResponse } from "http";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SimplifiedDesign } from "./services/simplify-node-response.js";
 
-// ==================== 日志工具 ====================
+// ==================== Logging Utilities ====================
 
 export const Logger = {
   log: (...args: unknown[]) => {},
   error: (...args: unknown[]) => {},
 };
 
-// ==================== 错误格式化 ====================
+// ==================== Error Formatting ====================
 
 /**
- * 检查错误是否为 Figma API 错误
+ * Check if error is a Figma API error
  */
 function isFigmaError(error: unknown): error is FigmaError {
   return (
@@ -29,7 +29,7 @@ function isFigmaError(error: unknown): error is FigmaError {
 }
 
 /**
- * 格式化错误信息供 AI 理解
+ * Format error information for AI understanding
  */
 function formatErrorForAI(error: unknown, context: string): string {
   if (isFigmaError(error)) {
@@ -54,7 +54,7 @@ function formatErrorForAI(error: unknown, context: string): string {
   return `[Error] ${context}: ${String(error)}`;
 }
 
-// ==================== MCP 服务器 ====================
+// ==================== MCP Server ====================
 
 export class FigmaMcpServer {
   private readonly server: McpServer;
@@ -80,7 +80,7 @@ export class FigmaMcpServer {
   }
 
   private registerTools(): void {
-    // Tool: 获取 Figma 数据
+    // Tool: Get Figma data
     this.server.tool(
       "get_figma_data",
       "Get layout and style information from a Figma file or specific node. " +
@@ -123,12 +123,12 @@ export class FigmaMcpServer {
           Logger.log(`Successfully fetched file: ${file.name}`);
           const { nodes, ...metadata } = file;
 
-          // 分段序列化以处理大文件
+          // Serialize in segments to handle large files
           const nodesJson = `[${nodes.map((node) => JSON.stringify(node, null, 2)).join(",")}]`;
           const metadataJson = JSON.stringify(metadata, null, 2);
           const resultJson = `{ "metadata": ${metadataJson}, "nodes": ${nodesJson} }`;
 
-          // 添加缓存状态信息
+          // Add cache status information
           const rateLimitInfo = this.figmaService.getRateLimitInfo();
           let statusNote = "";
           if (rateLimitInfo && rateLimitInfo.remaining !== null) {
@@ -149,7 +149,7 @@ export class FigmaMcpServer {
       },
     );
 
-    // Tool: 下载图片
+    // Tool: Download images
     this.server.tool(
       "download_figma_images",
       "Download SVG and PNG images from a Figma file. " +
@@ -180,7 +180,7 @@ export class FigmaMcpServer {
       },
       async ({ fileKey, nodes, localPath }) => {
         try {
-          // 分类处理：图片填充 vs 渲染节点
+          // Classify processing: image fills vs rendered nodes
           const imageFills = nodes.filter(({ imageRef }) => !!imageRef) as {
             nodeId: string;
             imageRef: string;
@@ -195,7 +195,7 @@ export class FigmaMcpServer {
               fileType: fileName.toLowerCase().endsWith(".svg") ? ("svg" as const) : ("png" as const),
             }));
 
-          // 顺序执行以减少 Rate Limit 风险
+          // Execute sequentially to reduce rate limit risk
           const fillResults = await this.figmaService.getImageFills(fileKey, imageFills, localPath);
           const renderResults = await this.figmaService.getImages(fileKey, renderRequests, localPath);
 

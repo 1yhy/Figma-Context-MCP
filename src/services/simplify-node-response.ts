@@ -55,16 +55,16 @@ export type {
 
 // ---------------------- PARSING ----------------------
 export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse): SimplifiedDesign {
-  // 提取基本信息
+  // Extract basic information
   const { name, lastModified, thumbnailUrl } = data;
 
-  // 处理节点
+  // Process nodes
   let nodes: FigmaDocumentNode[] = [];
   if ('document' in data) {
-    // 如果是整个文件的响应
+    // If it's a response for the entire file
     nodes = data.document.children;
   } else if ('nodes' in data) {
-    // 如果是特定节点的响应
+    // If it's a response for specific nodes
     const nodeData = Object.values(data.nodes).filter(
       (node): node is { document: FigmaDocumentNode } =>
         node !== null && typeof node === 'object' && 'document' in node
@@ -73,8 +73,8 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
     nodes = nodeData.map(n => n.document);
   }
 
-  // 使用新的图标检测算法分析节点树
-  // 构建图标ID映射，用于快速查找
+  // Use the new icon detection algorithm to analyze the node tree
+  // Build icon ID map for fast lookup
   const iconMap = new Map<string, IconDetectionResult>();
   for (const node of nodes) {
     const { exportableIcons } = analyzeNodeTree(node as unknown as FigmaNode);
@@ -83,13 +83,13 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
     }
   }
 
-  // 提取节点并生成简化数据，传入图标映射
+  // Extract nodes and generate simplified data, passing in the icon map
   const simplifiedNodes = extractNodes(nodes, undefined, iconMap);
 
-  // 清理临时属性
+  // Clean up temporary properties
   simplifiedNodes.forEach(cleanupTemporaryProperties);
 
-  // 应用布局优化
+  // Apply layout optimization
   const optimizedDesign = LayoutOptimizer.optimizeDesign({
     name,
     lastModified,
@@ -100,7 +100,7 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
   return optimizedDesign;
 }
 
-// 提取节点信息
+// Extract node information
 function extractNodes(
   children: FigmaDocumentNode[],
   parentNode?: SimplifiedNode,
@@ -108,7 +108,7 @@ function extractNodes(
 ): SimplifiedNode[] {
   if (!Array.isArray(children)) return [];
 
-  // 创建一个对应的原始父节点对象，用于可见性判断
+  // Create a corresponding original parent node object for visibility judgment
   const parentForVisibility = parentNode ? {
     clipsContent: (parentNode as any).clipsContent,
     absoluteBoundingBox: parentNode._absoluteX !== undefined && parentNode._absoluteY !== undefined ? {
@@ -120,7 +120,7 @@ function extractNodes(
   } : undefined;
 
   const visibilityFilter = (node: FigmaDocumentNode) => {
-    // 使用类型保护确保只检查有必要属性的节点
+    // Use type guard to ensure only checking nodes with necessary properties
     const nodeForVisibility = {
       visible: (node as any).visible,
       opacity: (node as any).opacity,
@@ -128,12 +128,12 @@ function extractNodes(
       absoluteRenderBounds: (node as any).absoluteRenderBounds
     };
 
-    // 如果没有父节点信息，只检查节点自身可见性
+    // If there's no parent node information, only check the node's own visibility
     if (!parentForVisibility) {
       return isVisible(nodeForVisibility);
     }
 
-    // 如果有父节点，同时考虑父节点的裁剪效果
+    // If there's a parent node, also consider the parent's clipping effect
     return isVisibleInParent(nodeForVisibility, parentForVisibility);
   };
 
@@ -142,13 +142,13 @@ function extractNodes(
     .map(node => extractNode(node, parentNode, iconMap))
     .filter((node): node is SimplifiedNode => node !== null);
 
-  // 对同级元素按照top值排序（从上到下）
+  // Sort sibling elements by top value (from top to bottom)
   return sortNodesByPosition(nodes);
 }
 
 /**
- * 提取单个节点信息
- * 使用新的图标检测算法处理图标合并
+ * Extract single node information
+ * Use the new icon detection algorithm to handle icon merging
  */
 function extractNode(
   node: FigmaDocumentNode,
@@ -159,10 +159,10 @@ function extractNode(
 
   const { id, name, type } = node;
 
-  // 检查是否为需要导出的图标节点
+  // Check if this is an icon node that needs to be exported
   const iconInfo = iconMap?.get(id);
   if (iconInfo && iconInfo.shouldMerge) {
-    // 这是一个图标节点，整体导出，不处理子节点
+    // This is an icon node, export as a whole, don't process child nodes
     const result: SimplifiedNode = {
       id,
       name,
@@ -171,7 +171,7 @@ function extractNode(
 
     result.cssStyles = {};
 
-    // 添加尺寸信息
+    // Add size information
     if (hasValue('absoluteBoundingBox', node) && node.absoluteBoundingBox) {
       result.cssStyles.width = formatPxValue(node.absoluteBoundingBox.width);
       result.cssStyles.height = formatPxValue(node.absoluteBoundingBox.height);
@@ -193,88 +193,88 @@ function extractNode(
       }
     }
 
-    // 设置导出信息
+    // Set export information
     result.exportInfo = {
       type: 'IMAGE',
       format: iconInfo.exportFormat,
       fileName: generateFileName(name, iconInfo.exportFormat)
     };
 
-    // 不处理子节点，整体作为图片导出
+    // Don't process child nodes, export as a whole image
     return result;
   }
 
-  // 创建基本节点对象
+  // Create basic node object
   const result: SimplifiedNode = {
     id,
     name,
     type
   };
 
-  // 设置CSS样式
+  // Set CSS styles
   result.cssStyles = {};
 
 
-  // 添加尺寸和位置的CSS转换逻辑
+  // Add CSS conversion logic for size and position
   if (hasValue('absoluteBoundingBox', node) && node.absoluteBoundingBox) {
 
-    // 添加到CSS样式（使用优化的精度）
+    // Add to CSS styles (using optimized precision)
     result.cssStyles.width = formatPxValue(node.absoluteBoundingBox.width);
     result.cssStyles.height = formatPxValue(node.absoluteBoundingBox.height);
 
-    // 对非根节点添加定位信息
+    // Add positioning information for non-root nodes
     if ((node.type as string) !== 'DOCUMENT' && (node.type as string) !== 'CANVAS') {
       result.cssStyles.position = 'absolute';
 
-      // 存储原始坐标，供子节点计算相对位置使用
+      // Store original coordinates for child nodes to calculate relative positions
       result._absoluteX = node.absoluteBoundingBox.x;
       result._absoluteY = node.absoluteBoundingBox.y;
 
-      // 如果有父节点，计算相对位置
+      // If there's a parent node, calculate relative position
       if (parentNode &&
           parentNode._absoluteX !== undefined &&
           parentNode._absoluteY !== undefined) {
         result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x - parentNode._absoluteX);
         result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y - parentNode._absoluteY);
       } else {
-        // 否则使用绝对位置（顶层元素）
+        // Otherwise use absolute position (top-level elements)
         result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x);
         result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y);
       }
     }
   }
 
-  // 处理文本 - 保留原始文本内容
+  // Process text - preserve original text content
   if (hasValue('characters', node) && typeof node.characters === 'string') {
     result.text = node.characters;
 
-    // 对于文本节点，添加文本颜色样式
+    // For text nodes, add text color style
     if (hasValue('fills', node) && Array.isArray(node.fills) && node.fills.length > 0) {
       const fill = node.fills[0];
       if (fill.type === 'SOLID' && fill.color) {
-        // 使用convertColor获取hex格式的颜色
+        // Use convertColor to get hex format color
         const { hex, opacity } = convertColor(fill.color, fill.opacity ?? 1);
-        // 如果透明度为1，使用hex格式，否则使用rgba格式
+        // If opacity is 1, use hex format, otherwise use rgba format
         result.cssStyles.color = opacity === 1 ? hex : formatRGBAColor(fill.color, opacity);
       }
     }
   }
 
-  // 提取图片信息
+  // Extract image information
   processImageResources(node, result, iconMap);
 
-  // 提取通用的属性处理逻辑
+  // Extract common property processing logic
   processNodeStyle(node, result);
   processFills(node, result);
   processStrokes(node, result);
   processEffects(node, result);
   processCornerRadius(node, result);
 
-  // 递归处理子节点
+  // Recursively process child nodes
   if (hasValue('children', node) && Array.isArray(node.children) && node.children.length) {
     result.children = extractNodes(node.children, result, iconMap);
 
-    // 处理图片组（保留原有逻辑用于处理图片填充的情况）
+    // Process image groups (keep original logic for handling image fill cases)
     detectAndMarkImageGroup(result);
   }
 
@@ -282,7 +282,7 @@ function extractNode(
 }
 
 /**
- * 检测并标记图片组
+ * Detect and mark image groups
  */
 function detectAndMarkImageGroup(node: SimplifiedNode): void {
   markImageGroup(node,
@@ -292,23 +292,23 @@ function detectAndMarkImageGroup(node: SimplifiedNode): void {
 }
 
 /**
- * 提取节点中的图片资源
- * 图标导出已由 iconMap 处理，这里只处理图片填充
+ * Extract image resources from the node
+ * Icon export is already handled by iconMap, only process image fills here
  */
 function processImageResources(
   node: FigmaDocumentNode,
   result: SimplifiedNode,
   iconMap?: Map<string, IconDetectionResult>
 ): void {
-  // 如果已经被标记为图标导出，跳过
+  // If already marked as icon export, skip
   if (iconMap?.has(result.id)) {
     return;
   }
 
-  // 检查fills和background中的图片资源
+  // Check image resources in fills and background
   const imageResources: ImageResource[] = [];
 
-  // 从fills中提取图片资源
+  // Extract image resources from fills
   if (hasValue('fills', node) && Array.isArray(node.fills)) {
     const fillImages = node.fills.filter(fill =>
       fill.type === 'IMAGE' && fill.imageRef
@@ -319,7 +319,7 @@ function processImageResources(
     imageResources.push(...fillImages);
   }
 
-  // 从background中提取图片资源
+  // Extract image resources from background
   if (hasValue('background', node) && Array.isArray(node.background)) {
     const bgImages = node.background.filter(bg =>
       bg.type === 'IMAGE' && bg.imageRef
@@ -330,9 +330,9 @@ function processImageResources(
     imageResources.push(...bgImages);
   }
 
-  // 如果找到图片资源，保存并添加导出信息
+  // If image resources are found, save and add export information
   if (imageResources.length > 0) {
-    // 设置CSS背景图片属性 - 使用第一个图片
+    // Set CSS background image property - use the first image
     if (!result.cssStyles) {
       result.cssStyles = {};
     }
@@ -340,26 +340,26 @@ function processImageResources(
     const primaryImage = imageResources[0];
     result.cssStyles.backgroundImage = `url({{FIGMA_IMAGE:${primaryImage.imageRef}}})`;
 
-    // 添加导出信息（省略与节点 id 相同的 nodeId）
+    // Add export information (omit nodeId as it's the same as node id)
     const format = suggestExportFormat(result);
     result.exportInfo = {
       type: 'IMAGE',
       format,
-      // nodeId 省略，因为与节点 id 相同，下载时可以从节点 id 获取
+      // nodeId omitted because it's the same as node id, can be obtained from node id when downloading
       fileName: generateFileName(result.name, format)
     };
   }
 }
 
 /**
- * 处理节点的样式属性
+ * Process node's style properties
  */
 function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void {
   if (!hasValue('style', node)) return;
 
   const style = node.style as any;
 
-  // 转换文本样式
+  // Convert text style
   const textStyle: TextStyle = {
     fontFamily: style?.fontFamily,
     fontSize: style?.fontSize,
@@ -368,7 +368,7 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
     textAlignVertical: style?.textAlignVertical
   };
 
-  // 处理行高
+  // Process line height
   if (style?.lineHeightPx) {
     const cssStyle = textStyleToCss(textStyle);
     cssStyle.lineHeight = formatPxValue(style.lineHeightPx);
@@ -379,18 +379,18 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
 }
 
 /**
- * 处理渐变填充，转换为 CSS linear-gradient
+ * Process gradient fills, convert to CSS linear-gradient
  *
- * Figma 渐变坐标系：
- * - 原点 (0,0) 在左上角
- * - x 轴向右为正
- * - y 轴向下为正
+ * Figma gradient coordinate system:
+ * - Origin (0,0) is at top-left
+ * - x-axis points right as positive
+ * - y-axis points down as positive
  *
- * CSS 渐变角度：
- * - 0deg 从下到上
- * - 90deg 从左到右
- * - 180deg 从上到下
- * - 270deg 从右到左
+ * CSS gradient angles:
+ * - 0deg from bottom to top
+ * - 90deg from left to right
+ * - 180deg from top to bottom
+ * - 270deg from right to left
  */
 function processGradient(gradient: Paint): string {
   if (!gradient.gradientHandlePositions || !gradient.gradientStops) return '';
@@ -402,24 +402,24 @@ function processGradient(gradient: Paint): string {
 
   const [start, end] = gradient.gradientHandlePositions;
 
-  // 计算 Figma 中的角度（以 x 轴正方向为 0 度，逆时针为正）
+  // Calculate the angle in Figma (x-axis positive direction is 0 degrees, counter-clockwise is positive)
   const figmaAngle = Math.atan2(end.y - start.y, end.x - start.x) * (180 / Math.PI);
 
-  // 转换为 CSS 角度：
-  // CSS 中 0deg 是向上，顺时针旋转
-  // Figma 中的角度需要加上 90 度（因为 Figma 0 度是向右，CSS 0 度是向上）
+  // Convert to CSS angle:
+  // CSS 0deg is upward, rotating clockwise
+  // Figma angle needs to add 90 degrees (because Figma 0 degree is rightward, CSS 0 degree is upward)
   const cssAngle = Math.round((figmaAngle + 90 + 360) % 360);
 
   return `linear-gradient(${cssAngle}deg, ${stops})`;
 }
 
 /**
- * 处理节点的填充属性
+ * Process node's fill properties
  */
 function processFills(node: FigmaDocumentNode, result: SimplifiedNode): void {
   if (!hasValue('fills', node) || !Array.isArray(node.fills) || node.fills.length === 0) return;
 
-  // 跳过图片填充
+  // Skip image fills
   if (hasImageFill(node)) {
     return;
   }
@@ -454,7 +454,7 @@ function processFills(node: FigmaDocumentNode, result: SimplifiedNode): void {
 }
 
 /**
- * 处理节点的边框属性
+ * Process node's stroke properties
  */
 function processStrokes(node: FigmaDocumentNode, result: SimplifiedNode): void {
   if ((node as any).type === 'TEXT') return;
@@ -492,7 +492,7 @@ function processStrokes(node: FigmaDocumentNode, result: SimplifiedNode): void {
 }
 
 /**
- * 处理节点的特效属性
+ * Process node's effects properties
  */
 function processEffects(node: FigmaDocumentNode, result: SimplifiedNode): void {
   const effects = buildSimplifiedEffects(node);
@@ -502,16 +502,16 @@ function processEffects(node: FigmaDocumentNode, result: SimplifiedNode): void {
 }
 
 /**
- * 处理节点的圆角属性
+ * Process node's corner radius properties
  */
 function processCornerRadius(node: FigmaDocumentNode, result: SimplifiedNode): void {
   if (!hasValue('cornerRadius', node)) return;
 
   if (typeof node.cornerRadius === 'number' && node.cornerRadius > 0) {
-    // 处理均匀圆角（四舍五入）
+    // Process uniform corner radius (rounded)
     result.cssStyles!.borderRadius = formatPxValue(node.cornerRadius);
   } else if (node.cornerRadius === 'mixed' && hasValue('rectangleCornerRadii', node, isRectangleCornerRadii)) {
-    // 处理不均匀圆角 (左上、右上、右下、左下) - 四舍五入
+    // Process non-uniform corner radius (top-left, top-right, bottom-right, bottom-left) - rounded
     result.cssStyles!.borderRadius = generateCSSShorthand({
       top: Math.round(node.rectangleCornerRadii[0]),
       right: Math.round(node.rectangleCornerRadii[1]),
@@ -522,9 +522,9 @@ function processCornerRadius(node: FigmaDocumentNode, result: SimplifiedNode): v
 }
 
 /**
- * 将文本样式转换为CSS样式
- * @param textStyle Figma文本样式
- * @returns CSS样式对象（已省略默认值）
+ * Convert text style to CSS style
+ * @param textStyle Figma text style
+ * @returns CSS style object (default values omitted)
  */
 function textStyleToCss(textStyle: TextStyle): CSSStyle {
   const cssStyle: CSSStyle = {};
@@ -532,16 +532,16 @@ function textStyleToCss(textStyle: TextStyle): CSSStyle {
   if (textStyle.fontFamily) cssStyle.fontFamily = textStyle.fontFamily;
   if (textStyle.fontSize) cssStyle.fontSize = formatPxValue(textStyle.fontSize);
 
-  // fontWeight: 省略默认值 400
+  // fontWeight: omit default value 400
   if (textStyle.fontWeight && textStyle.fontWeight !== 400) {
     cssStyle.fontWeight = textStyle.fontWeight;
   }
 
-  // 处理文本对齐（省略默认值 'left'）
+  // Process text alignment (omit default value 'left')
   if (textStyle.textAlignHorizontal) {
     switch(textStyle.textAlignHorizontal) {
       case 'LEFT':
-        // 省略默认值
+        // Omit default value
         break;
       case 'CENTER':
         cssStyle.textAlign = 'center';
@@ -555,11 +555,11 @@ function textStyleToCss(textStyle: TextStyle): CSSStyle {
     }
   }
 
-  // 处理垂直对齐（省略默认值 'top'）
+  // Process vertical alignment (omit default value 'top')
   if (textStyle.textAlignVertical) {
     switch(textStyle.textAlignVertical) {
       case 'TOP':
-        // 省略默认值
+        // Omit default value
         break;
       case 'CENTER':
         cssStyle.verticalAlign = 'middle';
@@ -574,10 +574,10 @@ function textStyleToCss(textStyle: TextStyle): CSSStyle {
 }
 
 /**
- * 根据节点特征选择导出格式
- * 注：SVG 格式现由 icon-detection 算法决定，此函数仅用于图片填充
+ * Select export format based on node characteristics
+ * Note: SVG format is now determined by icon-detection algorithm, this function is only used for image fills
  */
 function suggestExportFormat(node: FigmaDocumentNode | SimplifiedNode): 'PNG' | 'JPG' | 'SVG' {
-  // 对于图片填充，默认使用 PNG 格式
+  // For image fills, default to PNG format
   return 'PNG';
 }

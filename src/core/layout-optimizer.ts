@@ -3,14 +3,14 @@ import { sanitizeNameForId } from "~/utils/file.js";
 import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css-optimize.js";
 
 /**
- * 布局优化器 - 优化UI设计的布局结构
+ * Layout optimizer - optimizes UI layout structures
  */
 export class LayoutOptimizer {
-  /** 容器 ID 计数器，每次 optimizeDesign 调用时重置 */
+  /** Container ID counter, reset on every optimizeDesign call */
   private static containerIdCounter = 0;
 
   /**
-   * 生成唯一的容器 ID
+   * Generate a unique container ID
    */
   private static generateContainerId(name: string): string {
     this.containerIdCounter++;
@@ -19,24 +19,24 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 优化设计的布局结构
+   * Optimize the design layout structure
    *
-   * @param design 原始简化设计
-   * @returns 优化后的设计
+   * @param design Original simplified design
+   * @returns Optimized design
    */
   static optimizeDesign(design: SimplifiedDesign): SimplifiedDesign {
-    // 重置计数器，避免跨调用累积
+    // Reset the counter to avoid accumulating across calls
     this.containerIdCounter = 0;
 
-    // 如果没有节点数据，直接返回
+    // If no node data is present, return as is
     if (!design.nodes) {
       return design;
     }
 
-    // 递归优化节点树
+    // Recursively optimize the node tree
     const optimizedNodes = design.nodes.map(node => this.optimizeNodeTree(node));
 
-    // 更新设计
+    // Update the design
     return {
       ...design,
       nodes: optimizedNodes
@@ -44,21 +44,21 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 递归优化节点树
+   * Recursively optimize the node tree
    *
-   * @param node 节点
-   * @returns 优化后的节点
+   * @param node Node
+   * @returns Optimized node
    */
   static optimizeNodeTree(node: SimplifiedNode): SimplifiedNode {
-    // 如果没有子节点，直接返回
+    // Return immediately if there are no children
     if (!node.children || node.children.length === 0) {
       return node;
     }
 
-    // 递归处理每个子节点
+    // Recursively process each child node
     const optimizedChildren = node.children.map(child => this.optimizeNodeTree(child));
 
-    // 对容器节点进行行列布局分析
+    // Analyze row/column layout for container nodes
     return this.optimizeContainer({
       ...node,
       children: optimizedChildren
@@ -66,40 +66,40 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 优化容器布局
+   * Optimize container layout
    *
-   * @param node 容器节点
-   * @returns 优化后的容器节点
+   * @param node Container node
+   * @returns Optimized container node
    */
   static optimizeContainer(node: SimplifiedNode): SimplifiedNode {
-    // 如果没有子节点或只有一个子节点，直接返回
+    // Return immediately when zero or one child exists
     if (!node.children || node.children.length <= 1) {
       return node;
     }
 
-    // 分析是否是FRAME或GROUP类型的容器
+    // Check whether this is a FRAME or GROUP container
     const isContainer = node.type === 'FRAME' || node.type === 'GROUP';
 
-    // 分析子节点的空间关系，确定是行布局还是列布局
+    // Analyze child spatial relationships to determine row or column layout
     const { isRow, isColumn, rowGap, columnGap, isGapConsistent,
             justifyContent, alignItems } = this.analyzeLayoutDirection(node.children);
 
-    // 如果是有效的行或列布局
+    // When layout is a valid row or column
     if (isRow || isColumn) {
-      // 如果是容器节点，直接添加flex样式而不创建新容器
+      // If already a container node, add flex styles directly instead of creating another wrapper
       if (isContainer) {
         const direction = isRow ? 'row' : 'column';
         const gap = isRow ? rowGap : columnGap;
 
-        // 构建flex样式（省略默认值）
+        // Build flex styles (omit defaults)
         const flexStyles: Record<string, string> = {
           display: 'flex',
         };
-        // 只有 column 方向才需要显式设置（row 是默认值）
+        // Only set the direction explicitly for column (row is the default)
         if (direction === 'column') {
           flexStyles.flexDirection = direction;
         }
-        // 只有间距一致且大于0时才添加gap
+        // Only add gap when spacing is consistent and greater than zero
         if (gap > 0 && isGapConsistent) {
           flexStyles.gap = `${gap}px`;
         }
@@ -115,12 +115,12 @@ export class LayoutOptimizer {
           children: node.children
         };
       }
-      // 不是容器节点但子节点有明确的布局关系，创建新的布局容器
+      // If not a container but children share a clear layout, create a new layout container
       else {
-        // 分析是否需要对子节点进行分组
+        // Determine whether the children should be grouped
         const groups = this.groupChildrenByLayout(node.children, isRow);
 
-        // 如果分组后只有一个组且包含所有子节点，直接返回带flex样式的原节点
+        // If grouping yields one group containing all children, return the original node with flex styles
         if (groups.length === 1 && groups[0].length === node.children.length) {
           const direction = isRow ? 'row' : 'column';
           const gap = isRow ? rowGap : columnGap;
@@ -147,19 +147,19 @@ export class LayoutOptimizer {
           };
         }
 
-        // 需要分组的情况
+        // Cases where grouping is required
         const groupContainers = groups.map((group, index) => {
-          // 如果组内只有一个元素，直接返回该元素
+          // Return the element itself when a group has only one member
           if (group.length === 1) {
             return group[0];
           }
 
-          // 为多元素组创建容器
+          // Create a container for groups with multiple elements
           const direction = isRow ? 'column' : 'row';
           return this.createLayoutContainer(`group-${index}`, direction, group);
         });
 
-        // 返回包含分组容器的父节点
+        // Return the parent containing the grouped containers
         const direction = isRow ? 'row' : 'column';
         const flexStyles: Record<string, string> = {
           display: 'flex',
@@ -181,12 +181,12 @@ export class LayoutOptimizer {
       }
     }
 
-    // 如果没有明显的行列布局，则保持原样
+    // If no clear row or column layout is detected, leave it unchanged
     return node;
   }
 
   /**
-   * 分析节点的布局方向
+   * Analyze the layout direction of nodes
    */
   static analyzeLayoutDirection(nodes: SimplifiedNode[]): {
     isRow: boolean;
@@ -222,7 +222,7 @@ export class LayoutOptimizer {
       };
     }
 
-    // 分析水平和垂直方向的对齐情况
+    // Analyze horizontal and vertical alignment
     const {
       horizontalAlignment,
       verticalAlignment,
@@ -230,23 +230,23 @@ export class LayoutOptimizer {
       verticalGap
     } = this.analyzeAlignment(rects);
 
-    // 计算行和列的可信度分数
+    // Calculate confidence scores for row and column layouts
     const rowScore = this.calculateRowScore(rects, horizontalAlignment, verticalAlignment);
     const columnScore = this.calculateColumnScore(rects, horizontalAlignment, verticalAlignment);
 
-    // 降低识别阈值，更容易识别布局
+    // Lower the detection threshold to identify layouts more readily
     const isRow = rowScore > columnScore && rowScore > 0.4;
     const isColumn = columnScore > rowScore && columnScore > 0.4;
 
-    // 确定对齐方式（省略默认值 flex-start 和 stretch）
+    // Determine alignment (omit flex-start and stretch defaults)
     let justifyContent: string | null = null;
     let alignItems: string | null = null;
 
     if (isRow) {
       const jc = this.getJustifyContent(horizontalAlignment);
-      justifyContent = jc !== 'flex-start' ? jc : null;  // 省略默认值
+      justifyContent = jc !== 'flex-start' ? jc : null;  // Skip default values
       const ai = this.getAlignItems(verticalAlignment);
-      alignItems = ai !== 'stretch' ? ai : null;  // 省略默认值
+      alignItems = ai !== 'stretch' ? ai : null;  // Skip default values
     } else if (isColumn) {
       const jc = this.getJustifyContent(verticalAlignment);
       justifyContent = jc !== 'flex-start' ? jc : null;
@@ -254,7 +254,7 @@ export class LayoutOptimizer {
       alignItems = ai !== 'stretch' ? ai : null;
     }
 
-    // 选择正确方向的 gap 和一致性
+    // Select the gap metrics and consistency for the chosen direction
     const selectedGap = isRow ? horizontalGap : verticalGap;
 
     return {
@@ -269,7 +269,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 分析节点的对齐情况
+   * Analyze node alignment
    */
   static analyzeAlignment(rects: { left: number; top: number; width: number; height: number }[]): {
     horizontalAlignment: string;
@@ -277,37 +277,37 @@ export class LayoutOptimizer {
     horizontalGap: { gap: number; isConsistent: boolean };
     verticalGap: { gap: number; isConsistent: boolean };
   } {
-    // 计算水平方向的位置和间距
+    // Calculate positions and spacing on the horizontal axis
     const lefts = rects.map(rect => rect.left);
     const rights = rects.map(rect => rect.left + rect.width);
 
-    // 计算垂直方向的位置和间距
+    // Calculate positions and spacing on the vertical axis
     const tops = rects.map(rect => rect.top);
     const bottoms = rects.map(rect => rect.top + rect.height);
 
-    // 判断水平对齐情况
+    // Evaluate horizontal alignment
     const leftAligned = this.areValuesAligned(lefts);
     const rightAligned = this.areValuesAligned(rights);
     const centerHAligned = this.areValuesAligned(rects.map(rect => rect.left + rect.width / 2));
 
-    // 判断垂直对齐情况
+    // Evaluate vertical alignment
     const topAligned = this.areValuesAligned(tops);
     const bottomAligned = this.areValuesAligned(bottoms);
     const centerVAligned = this.areValuesAligned(rects.map(rect => rect.top + rect.height / 2));
 
-    // 确定水平对齐方式
+    // Determine the horizontal alignment label
     let horizontalAlignment = 'none';
     if (leftAligned) horizontalAlignment = 'left';
     else if (rightAligned) horizontalAlignment = 'right';
     else if (centerHAligned) horizontalAlignment = 'center';
 
-    // 确定垂直对齐方式
+    // Determine the vertical alignment label
     let verticalAlignment = 'none';
     if (topAligned) verticalAlignment = 'top';
     else if (bottomAligned) verticalAlignment = 'bottom';
     else if (centerVAligned) verticalAlignment = 'center';
 
-    // 计算平均间距（带一致性检测）
+    // Compute the average gap (with consistency checks)
     const horizontalGap = this.calculateAverageGap(rects, 'horizontal');
     const verticalGap = this.calculateAverageGap(rects, 'vertical');
 
@@ -320,7 +320,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 判断一组值是否对齐（在一定容差范围内）
+   * Check whether a set of values aligns within a tolerance
    */
   static areValuesAligned(values: number[], tolerance: number = 2): boolean {
     if (values.length < 2) return true;
@@ -330,7 +330,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 计算平均间距（带一致性检测）
+   * Compute the average gap (with consistency checks)
    * @returns { gap: number, isConsistent: boolean }
    */
   static calculateAverageGap(
@@ -339,7 +339,7 @@ export class LayoutOptimizer {
   ): { gap: number; isConsistent: boolean } {
     if (rects.length < 2) return { gap: 0, isConsistent: true };
 
-    // 排序节点
+    // Sort nodes
     const sortedRects = [...rects].sort((a, b) => {
       if (direction === 'horizontal') {
         return a.left - b.left;
@@ -348,7 +348,7 @@ export class LayoutOptimizer {
       }
     });
 
-    // 计算相邻节点间的间距
+    // Calculate gaps between adjacent nodes
     const gaps: number[] = [];
     for (let i = 0; i < sortedRects.length - 1; i++) {
       const current = sortedRects[i];
@@ -363,11 +363,11 @@ export class LayoutOptimizer {
       }
     }
 
-    // 使用间距一致性分析
+    // Use gap consistency analysis
     if (gaps.length === 0) return { gap: 0, isConsistent: true };
 
     const analysis = analyzeGapConsistency(gaps);
-    // 四舍五入到常用值
+    // Round to a common value
     const roundedGap = roundToCommonGap(analysis.averageGap);
 
     return {
@@ -377,7 +377,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 计算行布局的可信度分数
+   * Calculate the confidence score for a row layout
    */
   static calculateRowScore(
     rects: { left: number; top: number; width: number; height: number }[],
@@ -386,10 +386,10 @@ export class LayoutOptimizer {
   ): number {
     if (rects.length < 2) return 0;
 
-    // 排序节点
+    // Sort nodes
     const sortedByLeft = [...rects].sort((a, b) => a.left - b.left);
 
-    // 计算相邻节点间的水平间距
+    // Calculate horizontal gaps between adjacent nodes
     let consecutiveHorizontalGaps = 0;
     for (let i = 0; i < sortedByLeft.length - 1; i++) {
       const current = sortedByLeft[i];
@@ -399,18 +399,18 @@ export class LayoutOptimizer {
       if (gap >= 0 && gap <= 50) consecutiveHorizontalGaps++;
     }
 
-    // 计算水平分布的均匀性
+    // Calculate the uniformity of horizontal distribution
     const horizontalDistribution = consecutiveHorizontalGaps / (sortedByLeft.length - 1);
 
-    // 垂直对齐增加分数
+    // Vertical alignment increases the score
     const verticalAlignmentScore = (verticalAlignment !== 'none') ? 0.3 : 0;
 
-    // 综合评分
+    // Combine into a final score
     return horizontalDistribution * 0.7 + verticalAlignmentScore;
   }
 
   /**
-   * 计算列布局的可信度分数
+   * Calculate the confidence score for a column layout
    */
   static calculateColumnScore(
     rects: { left: number; top: number; width: number; height: number }[],
@@ -419,10 +419,10 @@ export class LayoutOptimizer {
   ): number {
     if (rects.length < 2) return 0;
 
-    // 排序节点
+    // Sort nodes
     const sortedByTop = [...rects].sort((a, b) => a.top - b.top);
 
-    // 计算相邻节点间的垂直间距
+    // Calculate vertical gaps between adjacent nodes
     let consecutiveVerticalGaps = 0;
     for (let i = 0; i < sortedByTop.length - 1; i++) {
       const current = sortedByTop[i];
@@ -432,18 +432,18 @@ export class LayoutOptimizer {
       if (gap >= 0 && gap <= 50) consecutiveVerticalGaps++;
     }
 
-    // 计算垂直分布的均匀性
+    // Calculate the uniformity of vertical distribution
     const verticalDistribution = consecutiveVerticalGaps / (sortedByTop.length - 1);
 
-    // 水平对齐增加分数
+    // Horizontal alignment increases the score
     const horizontalAlignmentScore = (horizontalAlignment !== 'none') ? 0.3 : 0;
 
-    // 综合评分
+    // Combine into a final score
     return verticalDistribution * 0.7 + horizontalAlignmentScore;
   }
 
   /**
-   * 将子节点按布局特征分组
+   * Group child nodes based on layout characteristics
    */
   static groupChildrenByLayout(
     nodes: SimplifiedNode[],
@@ -451,7 +451,7 @@ export class LayoutOptimizer {
   ): SimplifiedNode[][] {
     if (nodes.length <= 1) return [nodes];
 
-    // 提取节点的位置信息
+    // Extract positional information for nodes
     const rects = nodes.map((node, index) => {
       if (!node.cssStyles) return null;
 
@@ -463,7 +463,7 @@ export class LayoutOptimizer {
       return { index, left, top, width, height };
     }).filter((rect): rect is { index: number; left: number; top: number; width: number; height: number } => rect !== null);
 
-    // 根据布局方向排序
+    // Sort according to the layout direction
     const sortedRects = [...rects].sort((a, b) => {
       if (isRow) {
         return a.left - b.left;
@@ -472,7 +472,7 @@ export class LayoutOptimizer {
       }
     });
 
-    // 寻找可能的分组点
+    // Look for potential grouping breakpoints
     const groups: SimplifiedNode[][] = [];
     let currentGroup: SimplifiedNode[] = [nodes[sortedRects[0].index]];
 
@@ -483,28 +483,28 @@ export class LayoutOptimizer {
       let shouldSplit = false;
 
       if (isRow) {
-        // 在行布局中，检查垂直位置是否有明显变化
+        // In a row layout, look for noticeable vertical shifts
         if (Math.abs(next.top - current.top) > 20) {
           shouldSplit = true;
         }
       } else {
-        // 在列布局中，检查水平位置是否有明显变化
+        // In a column layout, look for noticeable horizontal shifts
         if (Math.abs(next.left - current.left) > 20) {
           shouldSplit = true;
         }
       }
 
       if (shouldSplit) {
-        // 结束当前组并开始新组
+        // End the current group and start a new one
         groups.push(currentGroup);
         currentGroup = [nodes[next.index]];
       } else {
-        // 继续添加到当前组
+        // Keep adding to the current group
         currentGroup.push(nodes[next.index]);
       }
     }
 
-    // 添加最后一组
+    // Add the final group
     if (currentGroup.length > 0) {
       groups.push(currentGroup);
     }
@@ -513,7 +513,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 将justifyContent对齐方式转换为CSS值
+   * Convert justifyContent alignment into CSS values
    */
   static getJustifyContent(alignment: string): string | null {
     switch (alignment) {
@@ -531,7 +531,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 将alignItems对齐方式转换为CSS值
+   * Convert alignItems alignment into CSS values
    */
   static getAlignItems(alignment: string): string | null {
     switch (alignment) {
@@ -549,20 +549,20 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 创建布局容器节点
+   * Create a layout container node
    */
   static createLayoutContainer(
     name: string,
     direction: 'row' | 'column',
     children: SimplifiedNode[]
   ): SimplifiedNode {
-    // 计算容器的边界框
+    // Calculate the container bounding box
     let minLeft = Infinity;
     let minTop = Infinity;
     let maxRight = -Infinity;
     let maxBottom = -Infinity;
 
-    // 找出所有子节点的最小外接矩形
+    // Find the minimal bounding rectangle of all children
     children.forEach(child => {
       if (!child.cssStyles) return;
 
@@ -577,10 +577,10 @@ export class LayoutOptimizer {
       maxBottom = Math.max(maxBottom, top + height);
     });
 
-    // 计算对齐方式
+    // Calculate alignment
     const { justifyContent, alignItems } = this.analyzeLayoutDirection(children);
 
-    // 如果没有有效的子节点，返回空容器
+    // Return an empty container if no valid child nodes exist
     if (minLeft === Infinity || minTop === Infinity || maxRight === -Infinity || maxBottom === -Infinity) {
       return {
         id: this.generateContainerId(name),
@@ -596,7 +596,7 @@ export class LayoutOptimizer {
       };
     }
 
-    // 设置容器样式和位置
+    // Set container styles and position
     return {
       id: this.generateContainerId(name),
       name: `Layout Container ${name}`,
@@ -617,7 +617,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 计算方差
+   * Calculate variance
    */
   static calculateVariance(values: number[]): number {
     if (values.length <= 1) return 0;
@@ -627,11 +627,11 @@ export class LayoutOptimizer {
     return squaredDiffs.reduce((sum, sq) => sum + sq, 0) / values.length;
   }
 
-  // 以下是重新实现的analysisHorizontalLayout和analysisVerticalLayout方法
-  // 这些方法现在是从节点数组中直接提取位置信息，不再使用外部的extractElementRects
+  // The following reimplements the analysisHorizontalLayout and analysisVerticalLayout methods
+  // These methods now pull geometry directly from the node array instead of using the external extractElementRects helper
 
   /**
-   * 辅助方法：提取元素位置信息
+   * Helper method: extract element geometry
    */
   static extractElementRects(elements: SimplifiedNode[]): Array<{
     index: number;
@@ -673,7 +673,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 分析水平布局特征
+   * Analyze horizontal layout characteristics
    */
   static analyzeHorizontalLayout(
     rects: ReturnType<typeof LayoutOptimizer.extractElementRects>,
@@ -688,10 +688,10 @@ export class LayoutOptimizer {
     gapConsistency: number;
     gaps: number[];
   } {
-    // 按左边界排序
+    // Sort by left edges
     const sortedByLeft = [...rects].sort((a, b) => a.left - b.left);
 
-    // 计算水平间距
+    // Calculate horizontal gaps
     const gaps: number[] = [];
     let consecutiveGaps = 0;
     let totalGapWidth = 0;
@@ -708,28 +708,28 @@ export class LayoutOptimizer {
       }
     }
 
-    // 计算水平分布得分
+    // Calculate the horizontal distribution score
     const distributionScore = consecutiveGaps / (sortedByLeft.length - 1);
 
-    // 分析水平对齐
+    // Analyze horizontal alignment
     const lefts = sortedByLeft.map(r => r.left);
     const rights = sortedByLeft.map(r => r.right);
     const centers = sortedByLeft.map(r => r.centerX);
 
-    // 计算相对于容器宽度的对齐容差
-    const relativeTolerance = Math.max(5, bounds.width * 0.01); // 至少5px或容器宽度的1%
+    // Calculate alignment tolerance relative to the container width
+    const relativeTolerance = Math.max(5, bounds.width * 0.01); // At least 5px or 1% of the container width
 
     const leftAligned = this.areValuesAligned(lefts, relativeTolerance);
     const rightAligned = this.areValuesAligned(rights, relativeTolerance);
     const centerAligned = this.areValuesAligned(centers, relativeTolerance);
 
-    // 计算对齐得分
+    // Calculate the alignment score
     const alignmentScore = (leftAligned || rightAligned || centerAligned) ? 0.5 : 0;
 
-    // 计算平均间距
+    // Calculate the average gap
     const averageGap = gaps.length > 0 ? totalGapWidth / gaps.length : 0;
 
-    // 计算间距一致性：间距方差越小，一致性越高
+    // Calculate gap consistency: the smaller the variance, the higher the consistency
     const gapConsistency = gaps.length > 1 ?
       1 - this.calculateVariance(gaps) / (averageGap * averageGap + 0.1) : 0;
 
@@ -746,7 +746,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 分析垂直布局特征
+   * Analyze vertical layout characteristics
    */
   static analyzeVerticalLayout(
     rects: ReturnType<typeof LayoutOptimizer.extractElementRects>,
@@ -761,10 +761,10 @@ export class LayoutOptimizer {
     gapConsistency: number;
     gaps: number[];
   } {
-    // 按顶边界排序
+    // Sort by top edges
     const sortedByTop = [...rects].sort((a, b) => a.top - b.top);
 
-    // 计算垂直间距
+    // Calculate vertical gaps
     const gaps: number[] = [];
     let consecutiveGaps = 0;
     let totalGapHeight = 0;
@@ -781,28 +781,28 @@ export class LayoutOptimizer {
       }
     }
 
-    // 计算垂直分布得分
+    // Calculate the vertical distribution score
     const distributionScore = consecutiveGaps / (sortedByTop.length - 1);
 
-    // 分析垂直对齐
+    // Analyze vertical alignment
     const tops = sortedByTop.map(r => r.top);
     const bottoms = sortedByTop.map(r => r.bottom);
     const centers = sortedByTop.map(r => r.centerY);
 
-    // 计算相对于容器高度的对齐容差
-    const relativeTolerance = Math.max(5, bounds.height * 0.01); // 至少5px或容器高度的1%
+    // Calculate alignment tolerance relative to the container height
+    const relativeTolerance = Math.max(5, bounds.height * 0.01); // At least 5px or 1% of the container height
 
     const topAligned = this.areValuesAligned(tops, relativeTolerance);
     const bottomAligned = this.areValuesAligned(bottoms, relativeTolerance);
     const centerAligned = this.areValuesAligned(centers, relativeTolerance);
 
-    // 计算对齐得分
+    // Calculate the alignment score
     const alignmentScore = (topAligned || bottomAligned || centerAligned) ? 0.5 : 0;
 
-    // 计算平均间距
+    // Calculate the average gap
     const averageGap = gaps.length > 0 ? totalGapHeight / gaps.length : 0;
 
-    // 计算间距一致性
+    // Calculate gap consistency
     const gapConsistency = gaps.length > 1 ?
       1 - this.calculateVariance(gaps) / (averageGap * averageGap + 0.1) : 0;
 
@@ -819,7 +819,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 计算边界
+   * Calculate bounds
    */
   static calculateBounds(rects: ReturnType<typeof LayoutOptimizer.extractElementRects>) {
     const left = Math.min(...rects.map(r => r.left));
@@ -838,7 +838,7 @@ export class LayoutOptimizer {
   }
 
   /**
-   * 根据布局特征生成flex属性
+   * Generate flex properties based on layout characteristics
    */
   static generateFlexProperties(
     isRow: boolean,
@@ -849,16 +849,16 @@ export class LayoutOptimizer {
       flexDirection: isRow ? 'row' : 'column'
     };
 
-    // 设置间距
+    // Set gap values
     if (mainAxisInfo.averageGap > 0) {
       properties.gap = `${Math.round(mainAxisInfo.averageGap)}px`;
     }
 
-    // 设置主轴对齐方式
+    // Set main-axis alignment
     let justifyContent = 'flex-start';
 
     if (isRow) {
-      // 在水平布局中，处理水平方向的对齐
+      // For row layouts, handle horizontal alignment
       const horizontalInfo = mainAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>;
       if (horizontalInfo.rightAligned) {
         justifyContent = 'flex-end';
@@ -868,7 +868,7 @@ export class LayoutOptimizer {
         justifyContent = 'space-between';
       }
     } else {
-      // 在垂直布局中，处理垂直方向的对齐
+      // For column layouts, handle vertical alignment
       const verticalInfo = mainAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>;
       if (verticalInfo.bottomAligned) {
         justifyContent = 'flex-end';
@@ -881,11 +881,11 @@ export class LayoutOptimizer {
 
     properties.justifyContent = justifyContent;
 
-    // 设置交叉轴对齐方式
+    // Set cross-axis alignment
     let alignItems = 'flex-start';
 
     if (isRow) {
-      // 在水平布局中，处理垂直方向的对齐
+      // For row layouts, handle vertical alignment
       const verticalInfo = crossAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>;
       if (verticalInfo.bottomAligned) {
         alignItems = 'flex-end';
@@ -893,7 +893,7 @@ export class LayoutOptimizer {
         alignItems = 'center';
       }
     } else {
-      // 在垂直布局中，处理水平方向的对齐
+      // For column layouts, handle horizontal alignment
       const horizontalInfo = crossAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>;
       if (horizontalInfo.rightAligned) {
         alignItems = 'flex-end';

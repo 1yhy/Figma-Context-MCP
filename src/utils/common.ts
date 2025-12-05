@@ -1,7 +1,7 @@
 import type { Paint, RGBA } from "@figma/rest-api-spec";
 import { CSSHexColor, CSSRGBAColor, SimplifiedFill } from "~/services/simplify-node-response.js";
 
-// ==================== 类型定义 ====================
+// ==================== Type Definitions ====================
 
 export type StyleId = `${string}_${string}` & { __brand: "StyleId" };
 
@@ -10,7 +10,7 @@ export interface ColorValue {
   opacity: number;
 }
 
-/** 用于可见性检查的节点属性 */
+/** Properties for visibility checking */
 export interface VisibilityProperties {
   visible?: boolean;
   opacity?: number;
@@ -18,16 +18,16 @@ export interface VisibilityProperties {
   absoluteRenderBounds?: { x: number; y: number; width: number; height: number } | null;
 }
 
-/** 用于父容器裁剪检查的属性 */
+/** Properties for parent container clipping check */
 export interface ParentClipProperties {
   clipsContent?: boolean;
   absoluteBoundingBox?: { x: number; y: number; width: number; height: number };
 }
 
-// ==================== 对象处理 ====================
+// ==================== Object Processing ====================
 
 /**
- * 移除对象中的空数组和空对象
+ * Remove empty arrays and empty objects from an object
  */
 export function removeEmptyKeys<T>(input: T): T {
   if (typeof input !== "object" || input === null) {
@@ -61,10 +61,10 @@ export function removeEmptyKeys<T>(input: T): T {
   return result;
 }
 
-// ==================== 颜色转换 ====================
+// ==================== Color Conversion ====================
 
 /**
- * 将十六进制颜色和透明度转换为 rgba 格式
+ * Convert hex color and opacity to rgba format
  */
 export function hexToRgba(hex: string, opacity: number = 1): string {
   hex = hex.replace("#", "");
@@ -82,7 +82,7 @@ export function hexToRgba(hex: string, opacity: number = 1): string {
 }
 
 /**
- * 将 Figma RGBA 颜色转换为 { hex, opacity }
+ * Convert Figma RGBA color to { hex, opacity }
  */
 export function convertColor(color: RGBA, opacity = 1): ColorValue {
   const r = Math.round(color.r * 255);
@@ -97,7 +97,7 @@ export function convertColor(color: RGBA, opacity = 1): ColorValue {
 }
 
 /**
- * 将 Figma RGBA 转换为 CSS rgba() 格式
+ * Convert Figma RGBA to CSS rgba() format
  */
 export function formatRGBAColor(color: RGBA, opacity = 1): CSSRGBAColor {
   const r = Math.round(color.r * 255);
@@ -108,10 +108,10 @@ export function formatRGBAColor(color: RGBA, opacity = 1): CSSRGBAColor {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-// ==================== CSS 生成 ====================
+// ==================== CSS Generation ====================
 
 /**
- * 生成 CSS 简写属性（如 padding, margin, border-radius）
+ * Generate CSS shorthand properties (such as padding, margin, border-radius)
  *
  * @example
  * generateCSSShorthand({ top: 10, right: 10, bottom: 10, left: 10 }) // "10px"
@@ -150,10 +150,10 @@ export function generateCSSShorthand(
   return `${top}${suffix} ${right}${suffix} ${bottom}${suffix} ${left}${suffix}`;
 }
 
-// ==================== ID 生成 ====================
+// ==================== ID Generation ====================
 
 /**
- * 生成唯一的变量 ID
+ * Generate unique variable ID
  */
 export function generateVarId(prefix: string = "var"): StyleId {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -167,10 +167,10 @@ export function generateVarId(prefix: string = "var"): StyleId {
   return `${prefix}_${result}` as StyleId;
 }
 
-// ==================== 填充解析 ====================
+// ==================== Fill Parsing ====================
 
 /**
- * 将 Figma Paint 转换为简化的填充格式
+ * Convert Figma Paint to simplified fill format
  */
 export function parsePaint(raw: Paint): SimplifiedFill {
   if (raw.type === "IMAGE") {
@@ -207,10 +207,10 @@ export function parsePaint(raw: Paint): SimplifiedFill {
   throw new Error(`Unknown paint type: ${raw.type}`);
 }
 
-// ==================== 可见性检查 ====================
+// ==================== Visibility Check ====================
 
 /**
- * 检查元素是否可见
+ * Check if an element is visible
  */
 export function isVisible(element: VisibilityProperties): boolean {
   if (element.visible === false) {
@@ -229,7 +229,7 @@ export function isVisible(element: VisibilityProperties): boolean {
 }
 
 /**
- * 检查元素在父容器中是否可见（考虑裁剪）
+ * Check if an element is visible within its parent container (considering clipping)
  */
 export function isVisibleInParent(
   element: VisibilityProperties,

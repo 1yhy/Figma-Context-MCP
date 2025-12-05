@@ -10,10 +10,10 @@ import type {
 } from "@figma/rest-api-spec";
 import { Logger } from "~/server.js";
 
-// ==================== 类型定义 ====================
+// ==================== Type Definitions ====================
 
 /**
- * Figma API 错误
+ * Figma API Error
  */
 export interface FigmaError {
   status: number;
@@ -22,79 +22,79 @@ export interface FigmaError {
 }
 
 /**
- * Rate Limit 信息
+ * Rate Limit Information
  */
 export interface RateLimitInfo {
-  /** 剩余请求数 */
+  /** Remaining requests */
   remaining: number | null;
-  /** 重置时间（秒） */
+  /** Reset time (seconds) */
   resetAfter: number | null;
-  /** 重试等待时间（秒） */
+  /** Retry wait time (seconds) */
   retryAfter: number | null;
 }
 
 /**
- * 图片下载参数
+ * Image Download Parameters
  */
 export interface FetchImageParams {
-  /** Figma 节点 ID */
+  /** Figma node ID */
   nodeId: string;
-  /** 本地保存的文件名 */
+  /** Local filename to save */
   fileName: string;
-  /** 文件格式 */
+  /** File format */
   fileType: "png" | "svg";
 }
 
 /**
- * 图片填充下载参数
+ * Image Fill Download Parameters
  */
 export interface FetchImageFillParams {
-  /** 节点 ID */
+  /** Node ID */
   nodeId: string;
-  /** 本地保存的文件名 */
+  /** Local filename to save */
   fileName: string;
-  /** 图片引用 ID */
+  /** Image reference ID */
   imageRef: string;
 }
 
 /**
- * API 响应结果
+ * API Response Result
  */
 interface ApiResponse<T> {
   data: T;
   rateLimitInfo: RateLimitInfo;
 }
 
-// ==================== 工具函数 ====================
+// ==================== Utility Functions ====================
 
 /**
- * 验证 fileKey 格式
+ * Validate fileKey format
  */
 function validateFileKey(fileKey: string): void {
   if (!fileKey || typeof fileKey !== "string") {
     throw createFigmaError(400, "fileKey is required");
   }
-  // Figma fileKey 通常是字母数字组合
+  // Figma fileKey is typically alphanumeric
   if (!/^[a-zA-Z0-9_-]+$/.test(fileKey)) {
     throw createFigmaError(400, `Invalid fileKey format: ${fileKey}`);
   }
 }
 
 /**
- * 验证 nodeId 格式
+ * Validate nodeId format
  */
 function validateNodeId(nodeId: string): void {
   if (!nodeId || typeof nodeId !== "string") {
     throw createFigmaError(400, "nodeId is required");
   }
-  // Figma nodeId 格式通常是 数字:数字 或 数字-数字
+  // Figma nodeId format is typically number:number or number-number
   if (!/^[\d:_-]+$/.test(nodeId)) {
     throw createFigmaError(400, `Invalid nodeId format: ${nodeId}`);
   }
 }
 
 /**
- * 验证 depth 参数
+ * Validate depth parameter
  */
 function validateDepth(depth?: number): void {
   if (depth !== undefined) {
@@ -105,7 +105,7 @@ function validateDepth(depth?: number): void {
 }
 
 /**
- * 验证本地路径安全性
+ * Validate local path security
  */
 function validateLocalPath(localPath: string, fileName: string): string {
   const normalizedPath = path.resolve(localPath, fileName);
@@ -119,7 +119,7 @@ function validateLocalPath(localPath: string, fileName: string): string {
 }
 
 /**
- * 创建 Figma 错误
+ * Create Figma error
  */
 function createFigmaError(status: number, message: string, rateLimitInfo?: RateLimitInfo): FigmaError {
   return {
@@ -130,7 +130,7 @@ function createFigmaError(status: number, message: string, rateLimitInfo?: RateL
 }
 
 /**
- * 从响应头提取 Rate Limit 信息
+ * Extract Rate Limit information from response headers
  */
 function extractRateLimitInfo(headers: Headers): RateLimitInfo {
   return {
@@ -145,7 +145,7 @@ function extractRateLimitInfo(headers: Headers): RateLimitInfo {
 }
 
 /**
- * 格式化 Rate Limit 错误信息
+ * Format Rate Limit error message
  */
 function formatRateLimitError(rateLimitInfo: RateLimitInfo): string {
   const parts: string[] = ["Figma API rate limit exceeded (429 Too Many Requests)."];
@@ -177,7 +177,7 @@ function formatRateLimitError(rateLimitInfo: RateLimitInfo): string {
 }
 
 /**
- * 下载图片到本地
+ * Download image to local filesystem
  */
 async function downloadImage(
   url: string,
@@ -187,13 +187,13 @@ async function downloadImage(
   nodeId: string,
   format: string,
 ): Promise<string> {
-  // 验证路径安全性
+  // Validate path security
   const fullPath = validateLocalPath(localPath, fileName);
 
-  // 检查图片缓存
+  // Check image cache
   const cachedPath = await cacheManager.hasImage(fileKey, nodeId, format);
   if (cachedPath) {
-    // 从缓存复制到目标路径
+    // Copy from cache to target path
     const copied = await cacheManager.copyImageFromCache(fileKey, nodeId, format, fullPath);
     if (copied) {
       Logger.log(`Image loaded from cache: ${fileName}`);
@@ -201,36 +201,36 @@ async function downloadImage(
     }
   }
 
-  // 确保目录存在
+  // Ensure directory exists
   const dir = path.dirname(fullPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  // 下载图片
+  // Download image
   const response = await fetch(url, {
     method: "GET",
-    signal: AbortSignal.timeout(30000), // 30秒超时
+    signal: AbortSignal.timeout(30000), // 30 second timeout
   });
 
   if (!response.ok) {
     throw new Error(`Failed to download image: ${response.statusText}`);
   }
 
-  // 使用 arrayBuffer 替代流式处理，更可靠
+  // Use arrayBuffer instead of streaming for better reliability
   const buffer = await response.arrayBuffer();
   await fs.promises.writeFile(fullPath, Buffer.from(buffer));
 
-  // 缓存图片
+  // Cache image
   await cacheManager.cacheImage(fullPath, fileKey, nodeId, format);
 
   return fullPath;
 }
 
-// ==================== 日志工具 ====================
+// ==================== Logging Utilities ====================
 
 /**
- * 写入开发日志
+ * Write development logs
  */
 function writeLogs(name: string, value: unknown): void {
   try {
@@ -249,20 +249,20 @@ function writeLogs(name: string, value: unknown): void {
     }
     fs.writeFileSync(`${logsDir}/${name}`, JSON.stringify(value, null, 2));
   } catch {
-    // 忽略日志写入错误
+    // Ignore log write errors
   }
 }
 
-// ==================== Figma 服务类 ====================
+// ==================== Figma Service Class ====================
 
 /**
- * Figma API 服务
+ * Figma API Service
  */
 export class FigmaService {
   private readonly apiKey: string;
   private readonly baseUrl = "https://api.figma.com/v1";
 
-  /** 最近的 Rate Limit 信息 */
+  /** Most recent Rate Limit information */
   private lastRateLimitInfo: RateLimitInfo | null = null;
 
   constructor(apiKey: string) {
@@ -273,14 +273,14 @@ export class FigmaService {
   }
 
   /**
-   * 获取最近的 Rate Limit 信息
+   * Get most recent Rate Limit information
    */
   getRateLimitInfo(): RateLimitInfo | null {
     return this.lastRateLimitInfo;
   }
 
   /**
-   * 发起 API 请求
+   * Make API request
    */
   private async request<T>(endpoint: string): Promise<ApiResponse<T>> {
     if (typeof fetch !== "function") {
@@ -298,16 +298,16 @@ export class FigmaService {
       },
     });
 
-    // 提取 Rate Limit 信息
+    // Extract Rate Limit information
     const rateLimitInfo = extractRateLimitInfo(response.headers);
     this.lastRateLimitInfo = rateLimitInfo;
 
-    // 处理错误响应
+    // Handle error responses
     if (!response.ok) {
       const status = response.status;
       let errorMessage = response.statusText || "Unknown error";
 
-      // 特殊处理 429 错误
+      // Special handling for 429 errors
       if (status === 429) {
         errorMessage = formatRateLimitError(rateLimitInfo);
       } else if (status === 403) {
@@ -326,7 +326,7 @@ export class FigmaService {
   }
 
   /**
-   * 获取图片填充的 URL 并下载
+   * Get image fill URLs and download
    */
   async getImageFills(
     fileKey: string,
@@ -335,7 +335,7 @@ export class FigmaService {
   ): Promise<string[]> {
     if (nodes.length === 0) return [];
 
-    // 验证参数
+    // Validate parameters
     validateFileKey(fileKey);
     nodes.forEach((node) => {
       validateNodeId(node.nodeId);
@@ -365,7 +365,7 @@ export class FigmaService {
   }
 
   /**
-   * 渲染节点为图片并下载
+   * Render nodes as images and download
    */
   async getImages(
     fileKey: string,
@@ -374,15 +374,15 @@ export class FigmaService {
   ): Promise<string[]> {
     if (nodes.length === 0) return [];
 
-    // 验证参数
+    // Validate parameters
     validateFileKey(fileKey);
     nodes.forEach((node) => validateNodeId(node.nodeId));
 
-    // 分类获取 PNG 和 SVG
+    // Categorize PNG and SVG nodes
     const pngNodes = nodes.filter(({ fileType }) => fileType === "png");
     const svgNodes = nodes.filter(({ fileType }) => fileType === "svg");
 
-    // 获取图片 URL（顺序执行以减少 Rate Limit 风险）
+    // Get image URLs (sequential execution to reduce Rate Limit risk)
     const imageUrls: Record<string, string> = {};
 
     if (pngNodes.length > 0) {
@@ -401,7 +401,7 @@ export class FigmaService {
       Object.assign(imageUrls, data.images || {});
     }
 
-    // 下载图片
+    // Download images
     const downloads = nodes.map(async ({ nodeId, fileName, fileType }) => {
       const imageUrl = imageUrls[nodeId];
       if (!imageUrl) {
@@ -421,14 +421,14 @@ export class FigmaService {
   }
 
   /**
-   * 获取整个 Figma 文件
+   * Get entire Figma file
    */
   async getFile(fileKey: string, depth?: number): Promise<SimplifiedDesign> {
-    // 验证参数
+    // Validate parameters
     validateFileKey(fileKey);
     validateDepth(depth);
 
-    // 尝试从缓存获取
+    // Try to get from cache
     const cached = await cacheManager.getNodeData<SimplifiedDesign>(fileKey, undefined, depth);
     if (cached) {
       Logger.log(`File loaded from cache: ${fileKey}`);
@@ -444,16 +444,16 @@ export class FigmaService {
 
       const simplifiedResponse = parseFigmaResponse(response);
 
-      // 写入开发日志
+      // Write development logs
       writeLogs("figma-raw.json", response);
       writeLogs("figma-simplified.json", simplifiedResponse);
 
-      // 写入缓存
+      // Write to cache
       await cacheManager.setNodeData(simplifiedResponse, fileKey, undefined, depth);
 
       return simplifiedResponse;
     } catch (error) {
-      // 重新抛出 Figma 错误以保留详细信息
+      // Re-throw Figma errors to preserve details
       if ((error as FigmaError).status) {
         throw error;
       }
@@ -463,15 +463,15 @@ export class FigmaService {
   }
 
   /**
-   * 获取特定节点
+   * Get specific node
    */
   async getNode(fileKey: string, nodeId: string, depth?: number): Promise<SimplifiedDesign> {
-    // 验证参数
+    // Validate parameters
     validateFileKey(fileKey);
     validateNodeId(nodeId);
     validateDepth(depth);
 
-    // 尝试从缓存获取
+    // Try to get from cache
     const cached = await cacheManager.getNodeData<SimplifiedDesign>(fileKey, nodeId, depth);
     if (cached) {
       Logger.log(`Node loaded from cache: ${fileKey}/${nodeId}`);
@@ -487,7 +487,7 @@ export class FigmaService {
     const simplifiedResponse = parseFigmaResponse(response);
     writeLogs("figma-simplified.json", simplifiedResponse);
 
-    // 写入缓存
+    // Write to cache
     await cacheManager.setNodeData(simplifiedResponse, fileKey, nodeId, depth);
 
     return simplifiedResponse;
