@@ -408,6 +408,153 @@ Split `convertAlign` into two functions:
 2. Add integration tests with real Figma data
 3. Test edge cases (irregular grids, mixed layouts)
 
+## Current Implementation Issues (2024-12 Analysis)
+
+### Problem: Mixed Layout False Positives
+
+Testing with real Figma data revealed that the Grid detection algorithm incorrectly identifies mixed layouts as grids.
+
+**Example Case: Keywords Management Panel (node-402-34955)**
+
+```
+Container: 1580px × 340px
+Children:
+  1. Tabs (320×41)        left: 630px   top: 0px    ← centered tabs
+  2. Divider (1580×1)     left: 0px     top: 41px   ← full-width line
+  3. Info Bar (1528×88)   left: 26px    top: 62px   ← nearly full-width
+  4. Card 1 (500×78)      left: 26px    top: 170px  ┐
+  5. Card 2 (500×78)      left: 540px   top: 170px  ├─ actual grid candidates
+  6. Card 3 (500×78)      left: 1054px  top: 170px  ┘
+  7. Card 4 (500×78)      left: 26px    top: 262px  ← second row
+```
+
+**Detected Result (WRONG):**
+
+```css
+display: grid;
+grid-template-columns: 1580px 1528px 500px 320px 500px; /* ❌ Sum = 4428px > 1580px */
+```
+
+**Expected Result:**
+
+- Overall container: `flex-direction: column` or `position: absolute`
+- Cards only (items 4-7): `display: grid; grid-template-columns: repeat(3, 500px);`
+
+### Root Cause Analysis
+
+| Issue                           | Code Location         | Description                                            |
+| ------------------------------- | --------------------- | ------------------------------------------------------ |
+| **No element type filtering**   | `detector.ts:1073`    | All children analyzed together regardless of size/type |
+| **Y-overlap only row grouping** | `detector.ts:154-185` | 2px tolerance ignores visual/functional differences    |
+| **No homogeneity check**        | N/A                   | Missing validation that elements "look similar"        |
+| **Strict column alignment**     | `detector.ts:908-911` | 80% threshold fails on intentionally mixed layouts     |
+
+### Research: Industry Approaches
+
+#### 1. UI Semantic Group Detection (2024)
+
+> Source: [arxiv.org/html/2403.04984v1](https://arxiv.org/html/2403.04984v1)
+
+- **Key Insight**: "Group adjacent elements with similar semantics before layout detection"
+- **Method**: Transformer-based detector using Gestalt principles
+- **Relevance**: Pre-clustering homogeneous elements
+
+#### 2. UIHASH - Grid-Based UI Similarity
+
+> Source: [jun-zeng.github.io](https://jun-zeng.github.io/file/uihash_paper.pdf)
+
+- **Key Insight**: "Proximity principle - users group adjacent elements as unified entity"
+- **Method**: Partition screen into regions, encode by constituent controls
+- **Relevance**: Size-based clustering before grid analysis
+
+#### 3. GUI Layout Inference Algorithm
+
+> Source: [ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0950584915001718)
+
+- **Key Insight**: "Two-phase: relative positioning → pattern matching"
+- **Method**: Allen relations + exploratory algorithm for layout composition
+- **Relevance**: Hierarchical layout detection
+
+#### 4. Multilevel Homogeneity Structure
+
+> Source: [ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0957417417303469)
+
+- **Key Insight**: "Bottom-up aggregation into homogeneous regions"
+- **Method**: Connected components → words → text lines → regions
+- **Relevance**: Progressive homogeneous grouping
+
+## Optimization Plan
+
+### Solution: Homogeneous Element Pre-filtering
+
+Add a pre-filtering step before Grid detection to identify elements that "look similar" and should be considered together.
+
+#### Homogeneity Criteria
+
+```typescript
+interface HomogeneityCheck {
+  sizeVariance: number; // Width/height variance (threshold: 20%)
+  typeConsistency: boolean; // Same node types
+  stylesSimilar: boolean; // Similar CSS properties
+}
+
+function isHomogeneousGroup(nodes: SimplifiedNode[]): boolean {
+  if (nodes.length < 4) return false;
+
+  // 1. Size clustering - width/height within 20% variance
+  const widths = nodes.map((n) => parseFloat(n.cssStyles?.width || "0"));
+  const heights = nodes.map((n) => parseFloat(n.cssStyles?.height || "0"));
+
+  const widthCV = coefficientOfVariation(widths);
+  const heightCV = coefficientOfVariation(heights);
+
+  if (widthCV > 0.2 || heightCV > 0.2) return false;
+
+  // 2. Type consistency - allow FRAME + INSTANCE + COMPONENT
+  const types = new Set(nodes.map((n) => n.type));
+  const allowedTypes = new Set(["FRAME", "INSTANCE", "COMPONENT", "GROUP"]);
+  const hasDisallowedType = [...types].some((t) => !allowedTypes.has(t));
+  if (hasDisallowedType || types.size > 3) return false;
+
+  // 3. Style similarity (optional) - background, border, etc.
+  // ...
+
+  return true;
+}
+```
+
+#### Updated Detection Flow
+
+```
+Before:
+  detectGridLayout(allChildren) → wrong grid
+
+After:
+  1. clusterBySimilarSize(allChildren) → size groups
+  2. For each group with 4+ elements:
+     a. isHomogeneousGroup(group) → true/false
+     b. If true: detectGridLayout(group)
+  3. Remaining elements: use flex/absolute
+```
+
+#### Implementation Steps
+
+1. **Add `isHomogeneousGroup()` function** - `detector.ts`
+2. **Add `clusterBySimilarSize()` function** - `detector.ts`
+3. **Update `LayoutOptimizer.optimizeContainer()`** - `optimizer.ts`
+   - Call homogeneity check before grid detection
+   - Only pass homogeneous elements to `detectGridLayout()`
+4. **Add tests** - `layout.test.ts`
+
+### Expected Results
+
+| Scenario                      | Before             | After                |
+| ----------------------------- | ------------------ | -------------------- |
+| Mixed layout (tabs + cards)   | Wrong grid for all | Cards only → grid    |
+| Pure card grid (4+ same size) | Correct grid       | Correct grid         |
+| Single row items              | Flex row           | Flex row (no change) |
+| Irregular sizes               | Wrong grid         | Flex/absolute        |
+
 ## References
 
 - [Allen's Interval Algebra - Wikipedia](https://en.wikipedia.org/wiki/Allen's_interval_algebra)

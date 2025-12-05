@@ -4,6 +4,7 @@ import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css.js";
 import {
   detectGridLayout,
   toElementRect,
+  filterHomogeneousForGrid,
   type ElementRect,
   type GridAnalysisResult,
 } from "./detector.js";
@@ -771,6 +772,9 @@ export class LayoutOptimizer {
   /**
    * Check if Grid layout should be applied
    * Returns GridAnalysisResult if grid is detected, null otherwise
+   *
+   * Uses homogeneity filtering to prevent mixed layouts (like tabs + cards)
+   * from being incorrectly detected as grids.
    */
   static detectGridIfApplicable(nodes: SimplifiedNode[]): GridAnalysisResult | null {
     // Need at least 4 elements for a meaningful grid (2x2)
@@ -779,7 +783,20 @@ export class LayoutOptimizer {
     const elementRects = this.nodesToElementRects(nodes);
     if (elementRects.length < 4) return null;
 
-    const gridResult = detectGridLayout(elementRects);
+    // Extract node types for homogeneity check
+    const nodeTypes = nodes.map((n) => n.type);
+
+    // Filter to only homogeneous elements (similar size/type)
+    // This prevents mixed layouts from being detected as grids
+    const homogeneousRects = filterHomogeneousForGrid(elementRects, nodeTypes);
+
+    // If not enough homogeneous elements, skip grid detection
+    if (homogeneousRects.length < 4) {
+      return null;
+    }
+
+    // Run grid detection on homogeneous elements only
+    const gridResult = detectGridLayout(homogeneousRects);
 
     // Only use grid if:
     // 1. Grid is detected (isGrid: true)

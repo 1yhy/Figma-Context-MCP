@@ -817,6 +817,207 @@ export interface GridAnalysisResult {
   cellMap: (number | null)[][];
 }
 
+// ==================== Homogeneity Detection ====================
+
+/**
+ * Result of homogeneity analysis for a group of elements
+ */
+export interface HomogeneityResult {
+  /** Whether the group is homogeneous (similar size/type) */
+  isHomogeneous: boolean;
+  /** Coefficient of variation for widths (lower = more similar) */
+  widthCV: number;
+  /** Coefficient of variation for heights (lower = more similar) */
+  heightCV: number;
+  /** Unique element types in the group */
+  types: string[];
+  /** Elements that belong to the homogeneous group */
+  homogeneousElements: ElementRect[];
+  /** Elements that don't fit the homogeneous pattern */
+  outlierElements: ElementRect[];
+}
+
+/**
+ * Size cluster for grouping elements by similar dimensions
+ */
+export interface SizeCluster {
+  /** Representative width for this cluster */
+  width: number;
+  /** Representative height for this cluster */
+  height: number;
+  /** Elements belonging to this cluster */
+  elements: ElementRect[];
+  /** Original node types (if available) */
+  types?: string[];
+}
+
+/**
+ * Calculate coefficient of variation (CV) for a set of values
+ * CV = stddev / mean, lower values indicate more consistency
+ * Returns 0 for single values or empty arrays
+ */
+export function coefficientOfVariation(values: number[]): number {
+  if (values.length <= 1) return 0;
+
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  if (mean === 0) return 0;
+
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+  const stddev = Math.sqrt(variance);
+
+  return stddev / mean;
+}
+
+/**
+ * Cluster elements by similar size (width × height)
+ * Groups elements whose dimensions are within the tolerance percentage
+ *
+ * @param rects - Elements to cluster
+ * @param tolerancePercent - Size tolerance as decimal (0.2 = 20%)
+ * @returns Array of size clusters, sorted by element count (largest first)
+ */
+export function clusterBySimilarSize(
+  rects: ElementRect[],
+  tolerancePercent: number = 0.2,
+): SizeCluster[] {
+  if (rects.length === 0) return [];
+
+  const clusters: SizeCluster[] = [];
+
+  for (const rect of rects) {
+    let foundCluster = false;
+
+    for (const cluster of clusters) {
+      // Check if rect dimensions are within tolerance of cluster
+      const widthDiff = Math.abs(rect.width - cluster.width) / Math.max(cluster.width, 1);
+      const heightDiff = Math.abs(rect.height - cluster.height) / Math.max(cluster.height, 1);
+
+      if (widthDiff <= tolerancePercent && heightDiff <= tolerancePercent) {
+        cluster.elements.push(rect);
+        // Update cluster center to average
+        const allWidths = cluster.elements.map((e) => e.width);
+        const allHeights = cluster.elements.map((e) => e.height);
+        cluster.width = allWidths.reduce((a, b) => a + b, 0) / allWidths.length;
+        cluster.height = allHeights.reduce((a, b) => a + b, 0) / allHeights.length;
+        foundCluster = true;
+        break;
+      }
+    }
+
+    if (!foundCluster) {
+      clusters.push({
+        width: rect.width,
+        height: rect.height,
+        elements: [rect],
+      });
+    }
+  }
+
+  // Sort by element count (largest cluster first)
+  return clusters.sort((a, b) => b.elements.length - a.elements.length);
+}
+
+/**
+ * Check if a group of elements is homogeneous
+ * Homogeneous = similar sizes, compatible types
+ *
+ * @param rects - Elements to check
+ * @param nodeTypes - Optional array of node types corresponding to rects
+ * @param sizeToleranceCV - Max coefficient of variation for size (default 0.2 = 20%)
+ * @returns Homogeneity analysis result
+ */
+export function analyzeHomogeneity(
+  rects: ElementRect[],
+  nodeTypes?: string[],
+  sizeToleranceCV: number = 0.2,
+): HomogeneityResult {
+  const emptyResult: HomogeneityResult = {
+    isHomogeneous: false,
+    widthCV: 1,
+    heightCV: 1,
+    types: [],
+    homogeneousElements: [],
+    outlierElements: rects,
+  };
+
+  if (rects.length < 4) {
+    return emptyResult;
+  }
+
+  // 1. Cluster by size first
+  const sizeClusters = clusterBySimilarSize(rects, sizeToleranceCV);
+
+  // If no cluster has 4+ elements, not homogeneous enough for grid
+  const largestCluster = sizeClusters[0];
+  if (!largestCluster || largestCluster.elements.length < 4) {
+    return emptyResult;
+  }
+
+  // 2. Calculate CV for the largest cluster
+  const widths = largestCluster.elements.map((e) => e.width);
+  const heights = largestCluster.elements.map((e) => e.height);
+  const widthCV = coefficientOfVariation(widths);
+  const heightCV = coefficientOfVariation(heights);
+
+  // 3. Check type consistency if provided
+  let types: string[] = [];
+  if (nodeTypes) {
+    const clusterIndices = new Set(largestCluster.elements.map((e) => e.index));
+    types = [...new Set(nodeTypes.filter((_, i) => clusterIndices.has(i)))];
+
+    // Allow compatible container types
+    const allowedTypes = new Set(["FRAME", "INSTANCE", "COMPONENT", "GROUP", "RECTANGLE"]);
+    const hasIncompatibleType = types.some((t) => !allowedTypes.has(t));
+
+    if (hasIncompatibleType) {
+      return {
+        ...emptyResult,
+        widthCV,
+        heightCV,
+        types,
+      };
+    }
+  }
+
+  // 4. Determine if homogeneous
+  const isHomogeneous = widthCV <= sizeToleranceCV && heightCV <= sizeToleranceCV;
+
+  // 5. Separate homogeneous elements from outliers
+  const homogeneousSet = new Set(largestCluster.elements.map((e) => e.index));
+  const homogeneousElements = rects.filter((r) => homogeneousSet.has(r.index));
+  const outlierElements = rects.filter((r) => !homogeneousSet.has(r.index));
+
+  return {
+    isHomogeneous,
+    widthCV,
+    heightCV,
+    types,
+    homogeneousElements,
+    outlierElements,
+  };
+}
+
+/**
+ * Filter elements for grid detection by keeping only homogeneous groups
+ * This prevents mixed layouts from being incorrectly detected as grids
+ *
+ * @param rects - All child elements
+ * @param nodeTypes - Optional node types for additional filtering
+ * @returns Elements suitable for grid detection, or empty array if not homogeneous
+ */
+export function filterHomogeneousForGrid(
+  rects: ElementRect[],
+  nodeTypes?: string[],
+): ElementRect[] {
+  const analysis = analyzeHomogeneity(rects, nodeTypes);
+
+  if (analysis.isHomogeneous && analysis.homogeneousElements.length >= 4) {
+    return analysis.homogeneousElements;
+  }
+
+  return [];
+}
+
 /**
  * A cluster of similar values
  */
