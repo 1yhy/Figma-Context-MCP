@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Output Quality Validation > node-240-32163 (Call Logs 有数据 (375x827)) > Output Statistics > should produce consistent layout statistics 1`] = `
+{
+  "absoluteCount": 79,
+  "flexCount": 3,
+  "gridCount": 0,
+  "issueCount": 1,
+  "redundantCount": 2,
+  "totalNodes": 96,
+}
+`;
+
+exports[`Output Quality Validation > node-402-34955 (Group 1410104853 (1580x895)) > Output Statistics > should produce consistent layout statistics 1`] = `
+{
+  "absoluteCount": 12,
+  "flexCount": 13,
+  "gridCount": 1,
+  "issueCount": 1,
+  "redundantCount": 0,
+  "totalNodes": 52,
+}
+`;

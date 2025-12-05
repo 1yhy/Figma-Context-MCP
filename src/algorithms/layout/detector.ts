@@ -280,6 +280,69 @@ export function detectOverlappingElements(
   };
 }
 
+/**
+ * Background element detection result
+ */
+export interface BackgroundDetectionResult {
+  /** Index of background element (or -1 if none) */
+  backgroundIndex: number;
+  /** Indices of content elements */
+  contentIndices: number[];
+  /** Whether a valid background was detected */
+  hasBackground: boolean;
+}
+
+/**
+ * Detect if a container has a background element pattern
+ *
+ * Background element pattern:
+ * - Element at position 0,0 (or very close)
+ * - Same size as parent container (or very close)
+ * - Typically a RECTANGLE type
+ * - Other elements are positioned on top of it
+ *
+ * @param rects All child element rectangles
+ * @param parentWidth Parent container width
+ * @param parentHeight Parent container height
+ * @returns Background detection result
+ */
+export function detectBackgroundElement(
+  rects: ElementRect[],
+  parentWidth: number,
+  parentHeight: number,
+): BackgroundDetectionResult {
+  const emptyResult: BackgroundDetectionResult = {
+    backgroundIndex: -1,
+    contentIndices: rects.map((r) => r.index),
+    hasBackground: false,
+  };
+
+  if (rects.length < 2) return emptyResult;
+
+  // Find element at origin that matches parent size
+  for (const rect of rects) {
+    // Must be at origin (within 2px tolerance)
+    if (rect.x > 2 || rect.y > 2) continue;
+
+    // Must match parent size (within 5% tolerance)
+    const widthMatch = Math.abs(rect.width - parentWidth) / parentWidth < 0.05;
+    const heightMatch = Math.abs(rect.height - parentHeight) / parentHeight < 0.05;
+
+    if (widthMatch && heightMatch) {
+      // Found background element
+      const contentIndices = rects.filter((r) => r.index !== rect.index).map((r) => r.index);
+
+      return {
+        backgroundIndex: rect.index,
+        contentIndices,
+        hasBackground: true,
+      };
+    }
+  }
+
+  return emptyResult;
+}
+
 // ==================== Row/Column Grouping Algorithm ====================
 
 /**

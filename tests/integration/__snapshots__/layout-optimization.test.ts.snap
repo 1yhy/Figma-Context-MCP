@@ -1,0 +1,37 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Layout Optimization Idempotency > node-240-32163 (Call Logs 有数据 (375x827)) > should have expected optimization metrics 1`] = `
+{
+  "absoluteCount": 82,
+  "flexCount": 3,
+  "gridCount": 0,
+  "paddingCount": 0,
+}
+`;
+
+exports[`Layout Optimization Idempotency > node-402-34955 (Group 1410104853 (1580x895)) > should have expected optimization metrics 1`] = `
+{
+  "absoluteCount": 19,
+  "flexCount": 13,
+  "gridCount": 1,
+  "paddingCount": 1,
+}
+`;
+
+exports[`Layout Optimization Integration > node-240-32163 (Call Logs 有数据 (375x827)) > Snapshot Comparison > should produce consistent layout stats 1`] = `
+{
+  "absoluteRatio": 82,
+  "flexRatio": 3,
+  "gridRatio": 0,
+  "total": 96,
+}
+`;
+
+exports[`Layout Optimization Integration > node-402-34955 (Group 1410104853 (1580x895)) > Snapshot Comparison > should produce consistent layout stats 1`] = `
+{
+  "absoluteRatio": 23,
+  "flexRatio": 25,
+  "gridRatio": 2,
+  "total": 52,
+}
+`;

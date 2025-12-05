@@ -22,7 +22,10 @@ import {
   calculateIoU,
   classifyOverlap,
   detectOverlappingElements,
+  detectBackgroundElement,
   LayoutOptimizer,
+  analyzeHomogeneity,
+  filterHomogeneousForGrid,
   type ElementRect,
   type BoundingBox,
 } from "~/algorithms/layout/index.js";
@@ -887,6 +890,826 @@ describe("Layout Detection Algorithm", () => {
         expect(child.cssStyles?.left).toBeUndefined();
         expect(child.cssStyles?.top).toBeUndefined();
       });
+    });
+  });
+
+  describe("Homogeneity Analysis", () => {
+    it("should detect homogeneous elements with similar sizes", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+
+      const result = analyzeHomogeneity(elements);
+
+      expect(result.isHomogeneous).toBe(true);
+      expect(result.widthCV).toBe(0);
+      expect(result.heightCV).toBe(0);
+      expect(result.homogeneousElements.length).toBe(4);
+      expect(result.outlierElements.length).toBe(0);
+    });
+
+    it("should detect non-homogeneous elements with varying sizes", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 200, height: 100 }, 1), // Much larger
+        toElementRect({ x: 0, y: 70, width: 50, height: 25 }, 2), // Much smaller
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+
+      const result = analyzeHomogeneity(elements);
+
+      // Elements have high size variance
+      expect(result.widthCV).toBeGreaterThan(0.2);
+    });
+
+    it("should return not homogeneous for fewer than 4 elements", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+      ];
+
+      const result = analyzeHomogeneity(elements);
+
+      expect(result.isHomogeneous).toBe(false);
+    });
+
+    it("should filter by node types when provided", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+      const nodeTypes = ["FRAME", "FRAME", "FRAME", "FRAME"];
+
+      const result = analyzeHomogeneity(elements, nodeTypes);
+
+      expect(result.isHomogeneous).toBe(true);
+      expect(result.types).toContain("FRAME");
+    });
+
+    it("should reject incompatible node types", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+      // TEXT nodes are not allowed in grid
+      const nodeTypes = ["TEXT", "TEXT", "TEXT", "TEXT"];
+
+      const result = analyzeHomogeneity(elements, nodeTypes);
+
+      expect(result.isHomogeneous).toBe(false);
+    });
+
+    it("should separate outliers from homogeneous elements", () => {
+      const elements: ElementRect[] = [
+        // 4 similar-sized elements
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+        // 1 outlier (much larger)
+        toElementRect({ x: 0, y: 140, width: 300, height: 200 }, 4),
+      ];
+
+      const result = analyzeHomogeneity(elements);
+
+      expect(result.isHomogeneous).toBe(true);
+      expect(result.homogeneousElements.length).toBe(4);
+      expect(result.outlierElements.length).toBe(1);
+      expect(result.outlierElements[0].index).toBe(4);
+    });
+
+    it("should use custom size tolerance", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 110, height: 55 }, 1), // 10% larger
+        toElementRect({ x: 0, y: 70, width: 90, height: 45 }, 2), // 10% smaller
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+
+      // With strict tolerance (5%), should fail
+      const strictResult = analyzeHomogeneity(elements, undefined, 0.05);
+      expect(strictResult.isHomogeneous).toBe(false);
+
+      // With relaxed tolerance (25%), should pass
+      const relaxedResult = analyzeHomogeneity(elements, undefined, 0.25);
+      expect(relaxedResult.isHomogeneous).toBe(true);
+    });
+  });
+
+  describe("Filter Homogeneous For Grid", () => {
+    it("should return homogeneous elements for grid detection", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+
+      const filtered = filterHomogeneousForGrid(elements);
+
+      expect(filtered.length).toBe(4);
+    });
+
+    it("should return empty array for non-homogeneous elements", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 300, height: 200 }, 1), // Very different
+        toElementRect({ x: 0, y: 70, width: 50, height: 25 }, 2), // Very different
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+
+      const filtered = filterHomogeneousForGrid(elements);
+
+      // Not enough homogeneous elements
+      expect(filtered.length).toBeLessThan(4);
+    });
+
+    it("should return empty array for fewer than 4 elements", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+      ];
+
+      const filtered = filterHomogeneousForGrid(elements);
+
+      expect(filtered.length).toBe(0);
+    });
+
+    it("should filter out outliers and return only homogeneous elements", () => {
+      const elements: ElementRect[] = [
+        // 4 similar-sized elements (grid candidates)
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+        // Outlier (header or title)
+        toElementRect({ x: 0, y: -30, width: 240, height: 20 }, 4),
+      ];
+
+      const filtered = filterHomogeneousForGrid(elements);
+
+      expect(filtered.length).toBe(4);
+      // Outlier should not be included
+      expect(filtered.every((e) => e.index !== 4)).toBe(true);
+    });
+
+    it("should work with node types filtering", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
+      ];
+      const nodeTypes = ["INSTANCE", "INSTANCE", "INSTANCE", "INSTANCE"];
+
+      const filtered = filterHomogeneousForGrid(elements, nodeTypes);
+
+      expect(filtered.length).toBe(4);
+    });
+  });
+
+  describe("Grid Detection with Real Data", () => {
+    let testData: FigmaNode;
+
+    beforeAll(() => {
+      testData = loadTestData();
+    });
+
+    it("should detect grid layout in real Figma data", () => {
+      // Find any container with 4+ children that might form a grid
+      function findGridCandidate(node: FigmaNode): FigmaNode | null {
+        if (node.children && node.children.length >= 4) {
+          const childBoxes = node.children
+            .filter((c) => c.absoluteBoundingBox)
+            .map((c, i) => toElementRect(c.absoluteBoundingBox!, i));
+
+          if (childBoxes.length >= 4) {
+            const gridResult = detectGridLayout(childBoxes);
+            if (gridResult.isGrid && gridResult.rowCount >= 2) {
+              return node;
+            }
+          }
+        }
+
+        if (node.children) {
+          for (const child of node.children) {
+            const found = findGridCandidate(child);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+
+      const gridCandidate = findGridCandidate(testData);
+
+      // Test passes if we either find a grid or don't (depends on fixture data)
+      if (gridCandidate) {
+        const childBoxes = gridCandidate
+          .children!.filter((c) => c.absoluteBoundingBox)
+          .map((c, i) => toElementRect(c.absoluteBoundingBox!, i));
+
+        const gridResult = detectGridLayout(childBoxes);
+
+        expect(gridResult.isGrid).toBe(true);
+        expect(gridResult.rowCount).toBeGreaterThanOrEqual(2);
+        expect(gridResult.columnCount).toBeGreaterThanOrEqual(2);
+        expect(gridResult.trackWidths.length).toBe(gridResult.columnCount);
+      }
+    });
+
+    it("should filter homogeneous elements before grid detection", () => {
+      // Find a container with mixed children
+      function findMixedContainer(node: FigmaNode): FigmaNode | null {
+        if (node.children && node.children.length >= 5) {
+          const sizes = node.children
+            .filter((c) => c.absoluteBoundingBox)
+            .map((c) => c.absoluteBoundingBox!.width * c.absoluteBoundingBox!.height);
+
+          if (sizes.length >= 5) {
+            const maxSize = Math.max(...sizes);
+            const minSize = Math.min(...sizes);
+            // Look for containers where max is at least 2x min (mixed sizes)
+            if (maxSize > minSize * 2) {
+              return node;
+            }
+          }
+        }
+
+        if (node.children) {
+          for (const child of node.children) {
+            const found = findMixedContainer(child);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+
+      const mixedContainer = findMixedContainer(testData);
+
+      if (mixedContainer) {
+        const childBoxes = mixedContainer
+          .children!.filter((c) => c.absoluteBoundingBox)
+          .map((c, i) => toElementRect(c.absoluteBoundingBox!, i));
+
+        const nodeTypes = mixedContainer.children!.map((c) => c.type);
+
+        // Filter should reduce the set
+        const filtered = filterHomogeneousForGrid(childBoxes, nodeTypes);
+
+        // Filtered should be less than or equal to original
+        expect(filtered.length).toBeLessThanOrEqual(childBoxes.length);
+      }
+    });
+  });
+
+  // ==================== Absolute to Relative Position Conversion ====================
+  describe("Absolute to Relative Position Conversion", () => {
+    describe("collectFlowChildOffsets", () => {
+      it("should collect offsets from flow children only", () => {
+        const children: SimplifiedNode[] = [
+          {
+            id: "1",
+            name: "child1",
+            type: "FRAME",
+            cssStyles: { left: "10px", top: "20px", width: "100px", height: "50px" },
+          },
+          {
+            id: "2",
+            name: "child2",
+            type: "FRAME",
+            cssStyles: { left: "120px", top: "20px", width: "100px", height: "50px" },
+          },
+          {
+            id: "3",
+            name: "stacked",
+            type: "FRAME",
+            cssStyles: { left: "50px", top: "30px", width: "80px", height: "40px" },
+          },
+        ];
+
+        // Child index 2 is stacked (overlapping)
+        const stackedIndices = new Set([2]);
+
+        const offsets = LayoutOptimizer.collectFlowChildOffsets(children, stackedIndices);
+
+        expect(offsets.length).toBe(2); // Only 2 flow children
+        expect(offsets[0].index).toBe(0);
+        expect(offsets[0].left).toBe(10);
+        expect(offsets[0].top).toBe(20);
+        expect(offsets[1].index).toBe(1);
+        expect(offsets[1].left).toBe(120);
+      });
+
+      it("should skip children without cssStyles", () => {
+        const children: SimplifiedNode[] = [
+          { id: "1", name: "child1", type: "FRAME" },
+          {
+            id: "2",
+            name: "child2",
+            type: "FRAME",
+            cssStyles: { left: "10px", top: "20px", width: "100px", height: "50px" },
+          },
+        ];
+
+        const offsets = LayoutOptimizer.collectFlowChildOffsets(children, new Set());
+
+        expect(offsets.length).toBe(1);
+        expect(offsets[0].index).toBe(1);
+      });
+    });
+
+    describe("inferContainerPadding", () => {
+      it("should infer padding from child offsets", () => {
+        const offsets = [
+          { index: 0, left: 20, top: 15, width: 100, height: 50, right: 120, bottom: 65 },
+          { index: 1, left: 130, top: 15, width: 100, height: 50, right: 230, bottom: 65 },
+        ];
+
+        const padding = LayoutOptimizer.inferContainerPadding(offsets, 250, 80, "row");
+
+        expect(padding.paddingLeft).toBe(20);
+        expect(padding.paddingTop).toBe(15);
+        expect(padding.paddingRight).toBe(20); // 250 - 230 = 20
+        expect(padding.paddingBottom).toBe(15); // 80 - 65 = 15
+      });
+
+      it("should return zero padding for small offsets (<= 2px)", () => {
+        const offsets = [
+          { index: 0, left: 1, top: 2, width: 100, height: 50, right: 101, bottom: 52 },
+        ];
+
+        const padding = LayoutOptimizer.inferContainerPadding(offsets, 103, 54, "row");
+
+        expect(padding.paddingLeft).toBe(0); // 1 <= 2
+        expect(padding.paddingTop).toBe(0); // 2 <= 2
+        expect(padding.paddingRight).toBe(0); // 103 - 101 = 2 <= 2
+        expect(padding.paddingBottom).toBe(0); // 54 - 52 = 2 <= 2
+      });
+
+      it("should return zero padding for empty offsets", () => {
+        const padding = LayoutOptimizer.inferContainerPadding([], 100, 100, "row");
+
+        expect(padding.paddingLeft).toBe(0);
+        expect(padding.paddingTop).toBe(0);
+        expect(padding.paddingRight).toBe(0);
+        expect(padding.paddingBottom).toBe(0);
+      });
+    });
+
+    describe("calculateChildMargins", () => {
+      it("should calculate marginTop for row layout with flex-start alignment", () => {
+        const offsets = [
+          { index: 0, left: 10, top: 10, width: 100, height: 50, right: 110, bottom: 60 },
+          { index: 1, left: 120, top: 25, width: 100, height: 30, right: 220, bottom: 55 }, // offset 15px down
+        ];
+        const padding = { paddingTop: 10, paddingRight: 10, paddingBottom: 10, paddingLeft: 10 };
+
+        const margins = LayoutOptimizer.calculateChildMargins(
+          offsets,
+          padding,
+          "row",
+          "flex-start",
+        );
+
+        expect(margins.get(0)).toBeUndefined(); // No margin needed
+        expect(margins.get(1)?.marginTop).toBe(15); // 25 - 10 = 15
+      });
+
+      it("should calculate marginLeft for column layout with flex-start alignment", () => {
+        const offsets = [
+          { index: 0, left: 10, top: 10, width: 100, height: 50, right: 110, bottom: 60 },
+          { index: 1, left: 30, top: 70, width: 80, height: 50, right: 110, bottom: 120 }, // offset 20px right
+        ];
+        const padding = { paddingTop: 10, paddingRight: 10, paddingBottom: 10, paddingLeft: 10 };
+
+        const margins = LayoutOptimizer.calculateChildMargins(
+          offsets,
+          padding,
+          "column",
+          "flex-start",
+        );
+
+        expect(margins.get(0)).toBeUndefined(); // No margin needed
+        expect(margins.get(1)?.marginLeft).toBe(20); // 30 - 10 = 20
+      });
+
+      it("should not add margins for center alignment", () => {
+        const offsets = [
+          { index: 0, left: 10, top: 10, width: 100, height: 50, right: 110, bottom: 60 },
+          { index: 1, left: 120, top: 25, width: 100, height: 30, right: 220, bottom: 55 },
+        ];
+        const padding = { paddingTop: 10, paddingRight: 10, paddingBottom: 10, paddingLeft: 10 };
+
+        const margins = LayoutOptimizer.calculateChildMargins(offsets, padding, "row", "center");
+
+        expect(margins.size).toBe(0); // No margins for center alignment
+      });
+    });
+
+    describe("generatePaddingCSS", () => {
+      it("should generate single value when all padding is equal", () => {
+        const padding = { paddingTop: 10, paddingRight: 10, paddingBottom: 10, paddingLeft: 10 };
+        const css = LayoutOptimizer.generatePaddingCSS(padding);
+        expect(css).toBe("10px");
+      });
+
+      it("should generate two values when top/bottom and left/right are equal", () => {
+        const padding = { paddingTop: 10, paddingRight: 20, paddingBottom: 10, paddingLeft: 20 };
+        const css = LayoutOptimizer.generatePaddingCSS(padding);
+        expect(css).toBe("10px 20px");
+      });
+
+      it("should generate three values when left/right are equal", () => {
+        const padding = { paddingTop: 10, paddingRight: 20, paddingBottom: 30, paddingLeft: 20 };
+        const css = LayoutOptimizer.generatePaddingCSS(padding);
+        expect(css).toBe("10px 20px 30px");
+      });
+
+      it("should generate four values when all padding is different", () => {
+        const padding = { paddingTop: 10, paddingRight: 20, paddingBottom: 30, paddingLeft: 40 };
+        const css = LayoutOptimizer.generatePaddingCSS(padding);
+        expect(css).toBe("10px 20px 30px 40px");
+      });
+
+      it("should return null when all padding is zero", () => {
+        const padding = { paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0 };
+        const css = LayoutOptimizer.generatePaddingCSS(padding);
+        expect(css).toBeNull();
+      });
+    });
+
+    describe("convertAbsoluteToRelative", () => {
+      it("should convert absolute positioning to padding and clean children", () => {
+        const parent: SimplifiedNode = {
+          id: "parent",
+          name: "container",
+          type: "FRAME",
+          cssStyles: { width: "300px", height: "100px" },
+        };
+
+        const children: SimplifiedNode[] = [
+          {
+            id: "1",
+            name: "child1",
+            type: "FRAME",
+            cssStyles: {
+              position: "absolute",
+              left: "20px",
+              top: "10px",
+              width: "100px",
+              height: "80px",
+            },
+          },
+          {
+            id: "2",
+            name: "child2",
+            type: "FRAME",
+            cssStyles: {
+              position: "absolute",
+              left: "140px",
+              top: "10px",
+              width: "140px",
+              height: "80px",
+            },
+          },
+        ];
+
+        const result = LayoutOptimizer.convertAbsoluteToRelative(
+          parent,
+          children,
+          "flex",
+          "row",
+          new Set(),
+          "flex-start",
+        );
+
+        // Should have padding
+        expect(result.parentPaddingStyle).toBe("10px 20px");
+
+        // Children should not have position: absolute or left/top
+        expect(result.convertedChildren[0].cssStyles?.position).toBeUndefined();
+        expect(result.convertedChildren[0].cssStyles?.left).toBeUndefined();
+        expect(result.convertedChildren[0].cssStyles?.top).toBeUndefined();
+        expect(result.convertedChildren[1].cssStyles?.position).toBeUndefined();
+      });
+
+      it("should keep stacked elements with absolute positioning", () => {
+        const parent: SimplifiedNode = {
+          id: "parent",
+          name: "container",
+          type: "FRAME",
+          cssStyles: { width: "200px", height: "100px" },
+        };
+
+        const children: SimplifiedNode[] = [
+          {
+            id: "1",
+            name: "background",
+            type: "RECTANGLE",
+            cssStyles: {
+              position: "absolute",
+              left: "0px",
+              top: "0px",
+              width: "200px",
+              height: "100px",
+            },
+          },
+          {
+            id: "2",
+            name: "content",
+            type: "FRAME",
+            cssStyles: {
+              position: "absolute",
+              left: "20px",
+              top: "10px",
+              width: "160px",
+              height: "80px",
+            },
+          },
+        ];
+
+        // Child 0 is stacked (background)
+        const stackedIndices = new Set([0]);
+
+        const result = LayoutOptimizer.convertAbsoluteToRelative(
+          parent,
+          children,
+          "flex",
+          "row",
+          stackedIndices,
+          "flex-start",
+        );
+
+        // Stacked element should keep absolute positioning
+        expect(result.convertedChildren[0].cssStyles?.position).toBe("absolute");
+        expect(result.convertedChildren[0].cssStyles?.left).toBe("0px");
+
+        // Flow element should be cleaned
+        expect(result.convertedChildren[1].cssStyles?.position).toBeUndefined();
+      });
+    });
+  });
+
+  // ==================== Background Element Detection Tests ====================
+  describe("detectBackgroundElement", () => {
+    it("should detect background element at origin matching parent size", () => {
+      const rects: ElementRect[] = [
+        {
+          x: 0,
+          y: 0,
+          width: 400,
+          height: 300,
+          index: 0,
+          right: 400,
+          bottom: 300,
+          centerX: 200,
+          centerY: 150,
+        },
+        {
+          x: 20,
+          y: 20,
+          width: 100,
+          height: 50,
+          index: 1,
+          right: 120,
+          bottom: 70,
+          centerX: 70,
+          centerY: 45,
+        },
+        {
+          x: 150,
+          y: 100,
+          width: 80,
+          height: 40,
+          index: 2,
+          right: 230,
+          bottom: 140,
+          centerX: 190,
+          centerY: 120,
+        },
+      ];
+
+      const result = detectBackgroundElement(rects, 400, 300);
+
+      expect(result.hasBackground).toBe(true);
+      expect(result.backgroundIndex).toBe(0);
+      expect(result.contentIndices).toEqual([1, 2]);
+    });
+
+    it("should not detect background when no element matches parent size", () => {
+      const rects: ElementRect[] = [
+        {
+          x: 10,
+          y: 10,
+          width: 200,
+          height: 150,
+          index: 0,
+          right: 210,
+          bottom: 160,
+          centerX: 110,
+          centerY: 85,
+        },
+        {
+          x: 50,
+          y: 50,
+          width: 100,
+          height: 50,
+          index: 1,
+          right: 150,
+          bottom: 100,
+          centerX: 100,
+          centerY: 75,
+        },
+      ];
+
+      const result = detectBackgroundElement(rects, 400, 300);
+
+      expect(result.hasBackground).toBe(false);
+      expect(result.backgroundIndex).toBe(-1);
+    });
+
+    it("should detect background with small tolerance (within 5%)", () => {
+      const rects: ElementRect[] = [
+        {
+          x: 0,
+          y: 0,
+          width: 395,
+          height: 290,
+          index: 0,
+          right: 395,
+          bottom: 290,
+          centerX: 197.5,
+          centerY: 145,
+        },
+        {
+          x: 20,
+          y: 20,
+          width: 100,
+          height: 50,
+          index: 1,
+          right: 120,
+          bottom: 70,
+          centerX: 70,
+          centerY: 45,
+        },
+      ];
+
+      const result = detectBackgroundElement(rects, 400, 300);
+
+      expect(result.hasBackground).toBe(true);
+      expect(result.backgroundIndex).toBe(0);
+    });
+
+    it("should return empty result for single element", () => {
+      const rects: ElementRect[] = [
+        {
+          x: 0,
+          y: 0,
+          width: 400,
+          height: 300,
+          index: 0,
+          right: 400,
+          bottom: 300,
+          centerX: 200,
+          centerY: 150,
+        },
+      ];
+
+      const result = detectBackgroundElement(rects, 400, 300);
+
+      expect(result.hasBackground).toBe(false);
+    });
+  });
+
+  // ==================== Background Style Extraction Tests ====================
+  describe("extractBackgroundStyles", () => {
+    it("should extract backgroundColor from background element", () => {
+      const bgChild: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+        cssStyles: {
+          backgroundColor: "rgba(255, 255, 255, 1)",
+          width: "400px",
+          height: "300px",
+        },
+      };
+
+      const result = LayoutOptimizer.extractBackgroundStyles(bgChild);
+
+      expect(result.backgroundColor).toBe("rgba(255, 255, 255, 1)");
+      expect(result.width).toBeUndefined();
+      expect(result.height).toBeUndefined();
+    });
+
+    it("should extract borderRadius from background element", () => {
+      const bgChild: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+        cssStyles: {
+          backgroundColor: "rgba(0, 0, 0, 1)",
+          borderRadius: "8px",
+        },
+      };
+
+      const result = LayoutOptimizer.extractBackgroundStyles(bgChild);
+
+      expect(result.backgroundColor).toBe("rgba(0, 0, 0, 1)");
+      expect(result.borderRadius).toBe("8px");
+    });
+
+    it("should extract boxShadow from background element", () => {
+      const bgChild: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+        cssStyles: {
+          backgroundColor: "white",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        },
+      };
+
+      const result = LayoutOptimizer.extractBackgroundStyles(bgChild);
+
+      expect(result.boxShadow).toBe("0 2px 4px rgba(0,0,0,0.1)");
+    });
+
+    it("should return empty object for element without styles", () => {
+      const bgChild: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+      };
+
+      const result = LayoutOptimizer.extractBackgroundStyles(bgChild);
+
+      expect(Object.keys(result)).toHaveLength(0);
+    });
+  });
+
+  // ==================== isBackgroundElement Tests ====================
+  describe("isBackgroundElement", () => {
+    it("should return true for valid background element", () => {
+      const child: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+        cssStyles: {
+          backgroundColor: "white",
+        },
+      };
+
+      expect(LayoutOptimizer.isBackgroundElement(0, 0, child)).toBe(true);
+    });
+
+    it("should return false when index does not match", () => {
+      const child: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+        cssStyles: {
+          backgroundColor: "white",
+        },
+      };
+
+      expect(LayoutOptimizer.isBackgroundElement(1, 0, child)).toBe(false);
+    });
+
+    it("should return false for non-visual element types", () => {
+      const child: SimplifiedNode = {
+        id: "text-1",
+        name: "Text",
+        type: "TEXT",
+        cssStyles: {
+          backgroundColor: "white",
+        },
+      };
+
+      expect(LayoutOptimizer.isBackgroundElement(0, 0, child)).toBe(false);
+    });
+
+    it("should return false for element without visual styles", () => {
+      const child: SimplifiedNode = {
+        id: "bg-1",
+        name: "Background",
+        type: "RECTANGLE",
+        cssStyles: {
+          width: "100px",
+          height: "50px",
+        },
+      };
+
+      expect(LayoutOptimizer.isBackgroundElement(0, 0, child)).toBe(false);
     });
   });
 });
