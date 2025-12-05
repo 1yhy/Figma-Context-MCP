@@ -31,7 +31,6 @@ pnpm-debug.log*
 
 # Testing
 coverage
-test/test-output
 tests/utils/simplified-with-css.json
 
 # OS
