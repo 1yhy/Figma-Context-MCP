@@ -16,6 +16,9 @@ export {
   type ProjectionLine,
 } from "./spatial.js";
 
+// Layout optimizer
+export { LayoutOptimizer } from "./optimizer.js";
+
 // Layout detection algorithm
 export {
   // Types

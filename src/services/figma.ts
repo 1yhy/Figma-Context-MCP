@@ -9,56 +9,20 @@ import type {
   GetImageFillsResponse,
 } from "@figma/rest-api-spec";
 import { Logger } from "~/server.js";
+import type {
+  FigmaError,
+  RateLimitInfo,
+  FetchImageParams,
+  FetchImageFillParams,
+} from "~/types/index.js";
 
-// ==================== Type Definitions ====================
+// Re-export types for backward compatibility
+export type { FigmaError, RateLimitInfo, FetchImageParams, FetchImageFillParams };
 
-/**
- * Figma API Error
- */
-export interface FigmaError {
-  status: number;
-  err: string;
-  rateLimitInfo?: RateLimitInfo;
-}
-
-/**
- * Rate Limit Information
- */
-export interface RateLimitInfo {
-  /** Remaining requests */
-  remaining: number | null;
-  /** Reset time (seconds) */
-  resetAfter: number | null;
-  /** Retry wait time (seconds) */
-  retryAfter: number | null;
-}
+// ==================== Internal Types ====================
 
 /**
- * Image Download Parameters
- */
-export interface FetchImageParams {
-  /** Figma node ID */
-  nodeId: string;
-  /** Local filename to save */
-  fileName: string;
-  /** File format */
-  fileType: "png" | "svg";
-}
-
-/**
- * Image Fill Download Parameters
- */
-export interface FetchImageFillParams {
-  /** Node ID */
-  nodeId: string;
-  /** Local filename to save */
-  fileName: string;
-  /** Image reference ID */
-  imageRef: string;
-}
-
-/**
- * API Response Result
+ * API Response Result (internal use only)
  */
 interface ApiResponse<T> {
   data: T;

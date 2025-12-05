@@ -1,7 +1,53 @@
 /**
- * CSS output optimization utilities
- * Used to reduce output size and improve readability
+ * CSS Utilities
+ *
+ * CSS output optimization and generation utilities.
+ * Used to reduce output size and improve readability.
+ *
+ * @module utils/css
  */
+
+// ==================== CSS Shorthand Generation ====================
+
+/**
+ * Generate CSS shorthand properties (such as padding, margin, border-radius)
+ *
+ * @example
+ * generateCSSShorthand({ top: 10, right: 10, bottom: 10, left: 10 }) // "10px"
+ * generateCSSShorthand({ top: 10, right: 20, bottom: 10, left: 20 }) // "10px 20px"
+ */
+export function generateCSSShorthand(
+  values: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  },
+  options: {
+    ignoreZero?: boolean;
+    suffix?: string;
+  } = {},
+): string | undefined {
+  const { ignoreZero = true, suffix = "px" } = options;
+  const { top, right, bottom, left } = values;
+
+  if (ignoreZero && top === 0 && right === 0 && bottom === 0 && left === 0) {
+    return undefined;
+  }
+
+  if (top === right && right === bottom && bottom === left) {
+    return `${top}${suffix}`;
+  }
+
+  if (right === left) {
+    if (top === bottom) {
+      return `${top}${suffix} ${right}${suffix}`;
+    }
+    return `${top}${suffix} ${right}${suffix} ${bottom}${suffix}`;
+  }
+
+  return `${top}${suffix} ${right}${suffix} ${bottom}${suffix} ${left}${suffix}`;
+}
 
 // ==================== Numeric Precision Optimization ====================
 

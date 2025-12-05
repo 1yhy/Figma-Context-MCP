@@ -1,6 +1,6 @@
-import { SimplifiedNode, SimplifiedDesign } from "~/services/simplify-node-response.js";
+import type { SimplifiedNode, SimplifiedDesign } from "~/types/index.js";
 import { sanitizeNameForId } from "~/utils/file.js";
-import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css-optimize.js";
+import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css.js";
 
 /**
  * Layout optimizer - optimizes UI layout structures

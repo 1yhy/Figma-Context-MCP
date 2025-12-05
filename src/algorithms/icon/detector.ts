@@ -11,10 +11,21 @@
  * @module algorithms/icon/detector
  */
 
-// ==================== Type Definitions ====================
+import type {
+  IconDetectionResult,
+  IconDetectionConfig,
+} from "~/types/index.js";
+
+// Re-export types for module consumers
+export type { IconDetectionResult };
+
+// Use IconDetectionConfig from types, alias as DetectionConfig for internal use
+export type DetectionConfig = IconDetectionConfig;
+
+// ==================== Module-Specific Types ====================
 
 /**
- * Figma node structure for icon detection
+ * Figma node structure for icon detection (minimal interface)
  */
 export interface FigmaNode {
   id: string;
@@ -46,37 +57,6 @@ export interface FigmaNode {
     visible?: boolean;
   }>;
   strokes?: Array<unknown>;
-}
-
-/**
- * Result of icon detection for a single node
- */
-export interface IconDetectionResult {
-  nodeId: string;
-  nodeName: string;
-  shouldMerge: boolean;
-  exportFormat: "SVG" | "PNG";
-  reason: string;
-  size?: { width: number; height: number };
-  childCount?: number;
-}
-
-/**
- * Configuration for icon detection algorithm
- */
-export interface DetectionConfig {
-  /** Maximum icon size in pixels */
-  maxIconSize: number;
-  /** Minimum icon size in pixels */
-  minIconSize: number;
-  /** Minimum ratio of mergeable types (0-1) */
-  mergeableRatio: number;
-  /** Maximum nesting depth */
-  maxDepth: number;
-  /** Maximum number of child elements */
-  maxChildren: number;
-  /** Only respect exportSettings below this size */
-  respectExportSettingsMaxSize: number;
 }
 
 // ==================== Constants ====================

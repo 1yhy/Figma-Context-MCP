@@ -11,7 +11,7 @@ import {
   analyzeNodeTree,
   type FigmaNode,
   type IconDetectionResult,
-} from "../src/utils/icon-detection.js";
+} from "../src/algorithms/icon/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -1,7 +1,9 @@
 import { Node as FigmaDocumentNode } from "@figma/rest-api-spec";
-import { SimplifiedFill } from "~/services/simplify-node-response.js";
-import { generateCSSShorthand, isVisible, parsePaint } from "~/utils/common.js";
-import { hasValue, isStrokeWeights } from "~/utils/identity.js";
+import type { SimplifiedFill } from "~/types/index.js";
+import { generateCSSShorthand } from "~/utils/css.js";
+import { isVisible } from "~/utils/validation.js";
+import { parsePaint } from "~/utils/color.js";
+import { hasValue, isStrokeWeights } from "~/utils/validation.js";
 export type SimplifiedStroke = {
   colors: SimplifiedFill[];
   strokeWeight?: string;
