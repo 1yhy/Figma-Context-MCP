@@ -92,33 +92,35 @@ export type TextStyle = Partial<{
 /**
  * Fill type for simplified nodes
  */
-export interface SimplifiedFill {
-  type:
-    | "SOLID"
-    | "GRADIENT_LINEAR"
-    | "GRADIENT_RADIAL"
-    | "GRADIENT_ANGULAR"
-    | "GRADIENT_DIAMOND"
-    | "IMAGE";
-  /** Hex color string */
-  color?: string;
-  /** RGBA color object */
-  rgba?: {
-    r: number;
-    g: number;
-    b: number;
-    a: number;
-  };
+export type SimplifiedFill =
+  | CSSHexColor
+  | CSSRGBAColor
+  | SimplifiedSolidFill
+  | SimplifiedGradientFill
+  | SimplifiedImageFill;
+
+/** Solid fill with explicit type */
+export interface SimplifiedSolidFill {
+  type: "SOLID";
+  color: string;
   opacity?: number;
-  /** Gradient handle positions */
+}
+
+/** Gradient fill */
+export interface SimplifiedGradientFill {
+  type: "GRADIENT_LINEAR" | "GRADIENT_RADIAL" | "GRADIENT_ANGULAR" | "GRADIENT_DIAMOND";
   gradientHandlePositions?: Array<{ x: number; y: number }>;
-  /** Gradient color stops */
   gradientStops?: Array<{
     position: number;
     color: string;
   }>;
-  /** Image reference ID */
+}
+
+/** Image fill */
+export interface SimplifiedImageFill {
+  type: "IMAGE";
   imageRef?: string;
+  scaleMode?: string;
 }
 
 /**

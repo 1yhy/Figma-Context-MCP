@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { parseFigmaResponse, SimplifiedDesign } from "./simplify-node-response.js";
+import { parseFigmaResponse } from "~/core/parser.js";
+import type { SimplifiedDesign } from "~/types/index.js";
 import { cacheManager } from "./cache.js";
 import type {
   GetImagesResponse,

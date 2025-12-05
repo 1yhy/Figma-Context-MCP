@@ -70,10 +70,11 @@ export function formatRGBAColor(color: RGBA, opacity = 1): CSSRGBAColor {
  */
 export function parsePaint(raw: Paint): SimplifiedFill {
   if (raw.type === "IMAGE") {
+    const imagePaint = raw as { type: "IMAGE"; imageRef?: string; scaleMode?: string };
     return {
       type: "IMAGE",
-      imageRef: raw.imageRef,
-      scaleMode: raw.scaleMode,
+      imageRef: imagePaint.imageRef,
+      scaleMode: imagePaint.scaleMode,
     };
   }
 
@@ -86,16 +87,22 @@ export function parsePaint(raw: Paint): SimplifiedFill {
   }
 
   if (
-    ["GRADIENT_LINEAR", "GRADIENT_RADIAL", "GRADIENT_ANGULAR", "GRADIENT_DIAMOND"].includes(
-      raw.type,
-    )
+    raw.type === "GRADIENT_LINEAR" ||
+    raw.type === "GRADIENT_RADIAL" ||
+    raw.type === "GRADIENT_ANGULAR" ||
+    raw.type === "GRADIENT_DIAMOND"
   ) {
+    const gradientPaint = raw as {
+      type: typeof raw.type;
+      gradientHandlePositions?: Array<{ x: number; y: number }>;
+      gradientStops?: Array<{ position: number; color: RGBA }>;
+    };
     return {
       type: raw.type,
-      gradientHandlePositions: raw.gradientHandlePositions,
-      gradientStops: raw.gradientStops.map(({ position, color }) => ({
+      gradientHandlePositions: gradientPaint.gradientHandlePositions,
+      gradientStops: gradientPaint.gradientStops?.map(({ position, color }) => ({
         position,
-        color: convertColor(color),
+        color: convertColor(color).hex,
       })),
     };
   }

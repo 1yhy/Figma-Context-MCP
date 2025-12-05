@@ -153,11 +153,11 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
   } else if ('nodes' in data) {
     // If it's a response for specific nodes
     const nodeData = Object.values(data.nodes).filter(
-      (node): node is { document: FigmaDocumentNode } =>
+      (node): node is NonNullable<typeof node> =>
         node !== null && typeof node === 'object' && 'document' in node
     );
 
-    nodes = nodeData.map(n => n.document);
+    nodes = nodeData.map(n => (n as { document: FigmaDocumentNode }).document);
   }
 
   // Use the new icon detection algorithm to analyze the node tree
@@ -404,9 +404,9 @@ function processImageResources(
   // Extract image resources from fills
   if (hasValue('fills', node) && Array.isArray(node.fills)) {
     const fillImages = node.fills.filter(fill =>
-      fill.type === 'IMAGE' && fill.imageRef
+      fill.type === 'IMAGE' && (fill as { imageRef?: string }).imageRef
     ).map(fill => ({
-      imageRef: fill.imageRef,
+      imageRef: (fill as { imageRef: string }).imageRef,
     }));
 
     imageResources.push(...fillImages);
@@ -415,9 +415,9 @@ function processImageResources(
   // Extract image resources from background
   if (hasValue('background', node) && Array.isArray(node.background)) {
     const bgImages = node.background.filter(bg =>
-      bg.type === 'IMAGE' && bg.imageRef
+      bg.type === 'IMAGE' && (bg as { imageRef?: string }).imageRef
     ).map(bg => ({
-      imageRef: bg.imageRef,
+      imageRef: (bg as { imageRef: string }).imageRef,
     }));
 
     imageResources.push(...bgImages);
@@ -470,6 +470,13 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
   }
 }
 
+/** Gradient paint type for type narrowing */
+interface GradientPaint {
+  type: string;
+  gradientHandlePositions?: Array<{ x: number; y: number }>;
+  gradientStops?: Array<{ position: number; color: { r: number; g: number; b: number; a: number } }>;
+}
+
 /**
  * Process gradient fills, convert to CSS linear-gradient
  *
@@ -484,7 +491,7 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
  * - 180deg from top to bottom
  * - 270deg from right to left
  */
-function processGradient(gradient: Paint): string {
+function processGradient(gradient: GradientPaint): string {
   if (!gradient.gradientHandlePositions || !gradient.gradientStops) return '';
 
   const stops = gradient.gradientStops.map(stop => {
@@ -532,7 +539,7 @@ function processFills(node: FigmaDocumentNode, result: SimplifiedNode): void {
     }
   }
   else if (fill.type === 'GRADIENT_LINEAR') {
-    const gradient = processGradient(fill);
+    const gradient = processGradient(fill as unknown as GradientPaint);
 
     if (node.type === 'TEXT') {
       result.cssStyles!.background = gradient;
@@ -556,6 +563,7 @@ function processStrokes(node: FigmaDocumentNode, result: SimplifiedNode): void {
 
   const stroke = strokes.colors[0];
 
+  // Handle string colors (hex or rgba) - already converted by parsePaint
   if (typeof stroke === 'string') {
     result.cssStyles!.borderColor = stroke;
     if (strokes.strokeWeight) {
@@ -563,19 +571,25 @@ function processStrokes(node: FigmaDocumentNode, result: SimplifiedNode): void {
     }
     result.cssStyles!.borderStyle = 'solid';
   }
+  // Handle object fills
   else if (typeof stroke === 'object' && 'type' in stroke) {
-    if (stroke.type === 'SOLID' && stroke.color) {
-      const { hex, opacity } = convertColor(stroke.color);
-      result.cssStyles!.borderColor = opacity === 1 ? hex : formatRGBAColor(stroke.color);
+    if (stroke.type === 'SOLID' && 'color' in stroke) {
+      // SimplifiedSolidFill - color is already a string
+      result.cssStyles!.borderColor = stroke.color;
       if (strokes.strokeWeight) {
         result.cssStyles!.borderWidth = strokes.strokeWeight;
       }
       result.cssStyles!.borderStyle = 'solid';
     }
     else if (stroke.type === 'GRADIENT_LINEAR') {
-      const gradient = processGradient(stroke);
-      result.cssStyles!.borderImage = gradient;
-      result.cssStyles!.borderImageSlice = '1';
+      // For gradient strokes, we need to build gradient from original data
+      // SimplifiedGradientFill doesn't have the raw color data anymore
+      // So we use border-image with a simple fallback
+      if ('gradientStops' in stroke && stroke.gradientStops && stroke.gradientStops.length > 0) {
+        const stops = stroke.gradientStops.map(s => `${s.color} ${Math.round(s.position * 100)}%`).join(', ');
+        result.cssStyles!.borderImage = `linear-gradient(90deg, ${stops})`;
+        result.cssStyles!.borderImageSlice = '1';
+      }
       if (strokes.strokeWeight) {
         result.cssStyles!.borderWidth = strokes.strokeWeight;
       }

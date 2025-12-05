@@ -5,7 +5,7 @@ import express, { Request, Response } from "express";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { IncomingMessage, ServerResponse } from "http";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
-import { SimplifiedDesign } from "./services/simplify-node-response.js";
+import type { SimplifiedDesign } from "./types/index.js";
 
 // ==================== Logging Utilities ====================
 
