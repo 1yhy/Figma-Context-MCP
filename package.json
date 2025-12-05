@@ -31,6 +31,7 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:legacy": "tsx test/test-layout-detection.ts && tsx test/test-icon-detection.ts",
+    "preview": "tsx tests/utils/preview.ts",
     "inspect": "pnpx @modelcontextprotocol/inspector",
     "mcp-test": "pnpm start -- --stdio",
     "prepublishOnly": "pnpm run build",
