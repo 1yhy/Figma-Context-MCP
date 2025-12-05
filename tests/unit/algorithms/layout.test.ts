@@ -19,9 +19,11 @@ import {
   calculateBounds,
   clusterValues,
   detectGridLayout,
+  LayoutOptimizer,
   type ElementRect,
   type BoundingBox,
 } from "~/algorithms/layout/index.js";
+import type { SimplifiedNode } from "~/types/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesPath = path.join(__dirname, "../../fixtures");
@@ -421,6 +423,128 @@ describe("Layout Detection Algorithm", () => {
       expect(result.isGrid).toBe(true);
       // Track widths should use max width in column
       expect(result.trackWidths[1]).toBe(150);
+    });
+  });
+
+  describe("LayoutOptimizer Grid Integration", () => {
+    // Helper to create SimplifiedNode from position/size
+    function createNode(
+      id: string,
+      left: number,
+      top: number,
+      width: number,
+      height: number,
+    ): SimplifiedNode {
+      return {
+        id,
+        name: `Node ${id}`,
+        type: "FRAME",
+        cssStyles: {
+          left: `${left}px`,
+          top: `${top}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+        },
+      };
+    }
+
+    it("should detect and apply Grid CSS for 2x2 grid container", () => {
+      const container: SimplifiedNode = {
+        id: "container",
+        name: "Grid Container",
+        type: "FRAME",
+        cssStyles: {
+          width: "260px",
+          height: "140px",
+        },
+        children: [
+          createNode("1", 0, 0, 100, 50),
+          createNode("2", 120, 0, 100, 50),
+          createNode("3", 0, 70, 100, 50),
+          createNode("4", 120, 70, 100, 50),
+        ],
+      };
+
+      const result = LayoutOptimizer.optimizeContainer(container);
+
+      expect(result.cssStyles?.display).toBe("grid");
+      expect(result.cssStyles?.gridTemplateColumns).toBeDefined();
+    });
+
+    it("should apply gap for Grid layout", () => {
+      const container: SimplifiedNode = {
+        id: "container",
+        name: "Grid Container",
+        type: "FRAME",
+        cssStyles: {
+          width: "260px",
+          height: "140px",
+        },
+        children: [
+          createNode("1", 0, 0, 100, 50),
+          createNode("2", 120, 0, 100, 50), // 20px column gap
+          createNode("3", 0, 70, 100, 50), // 20px row gap
+          createNode("4", 120, 70, 100, 50),
+        ],
+      };
+
+      const result = LayoutOptimizer.optimizeContainer(container);
+
+      expect(result.cssStyles?.display).toBe("grid");
+      // Should have gap property
+      expect(
+        result.cssStyles?.gap || result.cssStyles?.rowGap || result.cssStyles?.columnGap,
+      ).toBeDefined();
+    });
+
+    it("should fall back to flex for single row", () => {
+      const container: SimplifiedNode = {
+        id: "container",
+        name: "Row Container",
+        type: "FRAME",
+        cssStyles: {
+          width: "260px",
+          height: "50px",
+        },
+        children: [
+          createNode("1", 0, 0, 100, 50),
+          createNode("2", 120, 0, 100, 50),
+          createNode("3", 240, 0, 100, 50),
+        ],
+      };
+
+      const result = LayoutOptimizer.optimizeContainer(container);
+
+      // Should be flex, not grid (single row)
+      expect(result.cssStyles?.display).toBe("flex");
+      expect(result.cssStyles?.gridTemplateColumns).toBeUndefined();
+    });
+
+    it("should generate correct gridTemplateColumns", () => {
+      // Use common design values (96, 80, 64) that don't get rounded
+      const container: SimplifiedNode = {
+        id: "container",
+        name: "Grid Container",
+        type: "FRAME",
+        cssStyles: {
+          width: "340px",
+          height: "140px",
+        },
+        children: [
+          createNode("1", 0, 0, 96, 48),
+          createNode("2", 116, 0, 80, 48), // different width column
+          createNode("3", 216, 0, 96, 48),
+          createNode("4", 0, 68, 96, 48),
+          createNode("5", 116, 68, 80, 48),
+          createNode("6", 216, 68, 96, 48),
+        ],
+      };
+
+      const result = LayoutOptimizer.optimizeContainer(container);
+
+      expect(result.cssStyles?.display).toBe("grid");
+      expect(result.cssStyles?.gridTemplateColumns).toContain("96px");
+      expect(result.cssStyles?.gridTemplateColumns).toContain("80px");
     });
   });
 });

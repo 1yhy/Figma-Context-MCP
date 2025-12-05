@@ -1,6 +1,12 @@
 import type { SimplifiedNode, SimplifiedDesign } from "~/types/index.js";
 import { sanitizeNameForId } from "~/utils/file.js";
 import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css.js";
+import {
+  detectGridLayout,
+  toElementRect,
+  type ElementRect,
+  type GridAnalysisResult,
+} from "./detector.js";
 
 /**
  * Layout optimizer - optimizes UI layout structures
@@ -80,6 +86,26 @@ export class LayoutOptimizer {
     // Check whether this is a FRAME or GROUP container
     const isContainer = node.type === "FRAME" || node.type === "GROUP";
 
+    // ===== GRID DETECTION (check first before Flex) =====
+    // Grid is only applicable for container nodes with enough children
+    if (isContainer) {
+      const gridResult = this.detectGridIfApplicable(node.children);
+      if (gridResult) {
+        // Grid layout detected! Apply CSS Grid styles
+        const gridStyles = this.generateGridCSS(gridResult);
+
+        return {
+          ...node,
+          cssStyles: {
+            ...node.cssStyles,
+            ...gridStyles,
+          },
+          children: node.children,
+        };
+      }
+    }
+
+    // ===== FLEX DETECTION (fallback) =====
     // Analyze child spatial relationships to determine row or column layout
     const { isRow, isColumn, rowGap, columnGap, isGapConsistent, justifyContent, alignItems } =
       this.analyzeLayoutDirection(node.children);
@@ -678,6 +704,98 @@ export class LayoutOptimizer {
       centerX: number;
       centerY: number;
     }>;
+  }
+
+  /**
+   * Convert SimplifiedNode[] to ElementRect[] for Grid detection
+   */
+  static nodesToElementRects(nodes: SimplifiedNode[]): ElementRect[] {
+    return nodes
+      .map((node, index) => {
+        if (!node.cssStyles) return null;
+
+        const x = parseFloat((node.cssStyles.left as string) || "0");
+        const y = parseFloat((node.cssStyles.top as string) || "0");
+        const width = parseFloat((node.cssStyles.width as string) || "0");
+        const height = parseFloat((node.cssStyles.height as string) || "0");
+
+        // Use toElementRect to create proper ElementRect with computed properties
+        return toElementRect({ x, y, width, height }, index);
+      })
+      .filter((rect): rect is ElementRect => rect !== null);
+  }
+
+  /**
+   * Generate CSS Grid styles from GridAnalysisResult
+   */
+  static generateGridCSS(gridResult: GridAnalysisResult): Record<string, string> {
+    const css: Record<string, string> = {
+      display: "grid",
+    };
+
+    // grid-template-columns
+    if (gridResult.trackWidths.length > 0) {
+      css.gridTemplateColumns = gridResult.trackWidths.map((w) => `${w}px`).join(" ");
+    }
+
+    // grid-template-rows (only if heights vary significantly)
+    if (gridResult.trackHeights.length > 0) {
+      const heights = gridResult.trackHeights;
+      const avgHeight = heights.reduce((a, b) => a + b, 0) / heights.length;
+      const allSimilar = heights.every((h) => Math.abs(h - avgHeight) < 5);
+
+      // Only set explicit row heights if they vary
+      if (!allSimilar) {
+        css.gridTemplateRows = heights.map((h) => `${h}px`).join(" ");
+      }
+    }
+
+    // Gap handling
+    if (gridResult.rowGap > 0 || gridResult.columnGap > 0) {
+      if (gridResult.rowGap === gridResult.columnGap && gridResult.rowGap > 0) {
+        css.gap = `${gridResult.rowGap}px`;
+      } else {
+        if (gridResult.rowGap > 0 && gridResult.columnGap > 0) {
+          css.gap = `${gridResult.rowGap}px ${gridResult.columnGap}px`;
+        } else if (gridResult.rowGap > 0) {
+          css.rowGap = `${gridResult.rowGap}px`;
+        } else if (gridResult.columnGap > 0) {
+          css.columnGap = `${gridResult.columnGap}px`;
+        }
+      }
+    }
+
+    return css;
+  }
+
+  /**
+   * Check if Grid layout should be applied
+   * Returns GridAnalysisResult if grid is detected, null otherwise
+   */
+  static detectGridIfApplicable(nodes: SimplifiedNode[]): GridAnalysisResult | null {
+    // Need at least 4 elements for a meaningful grid (2x2)
+    if (nodes.length < 4) return null;
+
+    const elementRects = this.nodesToElementRects(nodes);
+    if (elementRects.length < 4) return null;
+
+    const gridResult = detectGridLayout(elementRects);
+
+    // Only use grid if:
+    // 1. Grid is detected (isGrid: true)
+    // 2. Confidence is high enough (>= 0.6)
+    // 3. Has multiple rows (grid is 2D, not just a single row)
+    // 4. Has multiple columns
+    if (
+      gridResult.isGrid &&
+      gridResult.confidence >= 0.6 &&
+      gridResult.rowCount >= 2 &&
+      gridResult.columnCount >= 2
+    ) {
+      return gridResult;
+    }
+
+    return null;
   }
 
   /**
