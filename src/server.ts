@@ -11,6 +11,17 @@ import {
   COMPONENT_ANALYSIS_PROMPT,
   STYLE_EXTRACTION_PROMPT,
 } from "./prompts/index.js";
+import {
+  getFileMetadata,
+  getStyleTokens,
+  getComponentList,
+  getAssetList,
+  createFileMetadataTemplate,
+  createStylesTemplate,
+  createComponentsTemplate,
+  createAssetsTemplate,
+  FIGMA_MCP_HELP,
+} from "./resources/index.js";
 
 // ==================== Logging Utilities ====================
 
@@ -78,12 +89,14 @@ export class FigmaMcpServer {
           logging: {},
           tools: {},
           prompts: {},
+          resources: {},
         },
       },
     );
 
     this.registerTools();
     this.registerPrompts();
+    this.registerResources();
   }
 
   private registerTools(): void {
@@ -336,6 +349,159 @@ export class FigmaMcpServer {
             },
           ],
         };
+      },
+    );
+  }
+
+  private registerResources(): void {
+    // Static Resource: Help guide
+    this.server.resource(
+      "figma_help",
+      "figma://help",
+      {
+        description: "Figma MCP Server usage guide and resource documentation",
+        mimeType: "text/markdown",
+      },
+      async () => {
+        return {
+          contents: [
+            {
+              uri: "figma://help",
+              mimeType: "text/markdown",
+              text: FIGMA_MCP_HELP,
+            },
+          ],
+        };
+      },
+    );
+
+    // Template Resource: File metadata
+    this.server.resource(
+      "figma_file",
+      createFileMetadataTemplate(),
+      {
+        description: "Get Figma file metadata (name, pages, last modified). Low token cost (~200).",
+        mimeType: "application/json",
+      },
+      async (uri, variables) => {
+        const fileKey = variables.fileKey as string;
+        if (!fileKey) {
+          throw new Error("fileKey is required");
+        }
+
+        try {
+          const metadata = await getFileMetadata(this.figmaService, fileKey);
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                mimeType: "application/json",
+                text: JSON.stringify(metadata, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to fetch file metadata: ${message}`);
+        }
+      },
+    );
+
+    // Template Resource: Style tokens
+    this.server.resource(
+      "figma_styles",
+      createStylesTemplate(),
+      {
+        description:
+          "Extract design tokens (colors, typography, effects) from Figma file. Token cost ~500.",
+        mimeType: "application/json",
+      },
+      async (uri, variables) => {
+        const fileKey = variables.fileKey as string;
+        if (!fileKey) {
+          throw new Error("fileKey is required");
+        }
+
+        try {
+          const styles = await getStyleTokens(this.figmaService, fileKey);
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                mimeType: "application/json",
+                text: JSON.stringify(styles, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to fetch styles: ${message}`);
+        }
+      },
+    );
+
+    // Template Resource: Component list
+    this.server.resource(
+      "figma_components",
+      createComponentsTemplate(),
+      {
+        description: "List all components and component sets in Figma file. Token cost ~300.",
+        mimeType: "application/json",
+      },
+      async (uri, variables) => {
+        const fileKey = variables.fileKey as string;
+        if (!fileKey) {
+          throw new Error("fileKey is required");
+        }
+
+        try {
+          const components = await getComponentList(this.figmaService, fileKey);
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                mimeType: "application/json",
+                text: JSON.stringify(components, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to fetch components: ${message}`);
+        }
+      },
+    );
+
+    // Template Resource: Asset list
+    this.server.resource(
+      "figma_assets",
+      createAssetsTemplate(),
+      {
+        description:
+          "List exportable assets (icons, images, vectors) with node IDs for download. Token cost ~400.",
+        mimeType: "application/json",
+      },
+      async (uri, variables) => {
+        const fileKey = variables.fileKey as string;
+        if (!fileKey) {
+          throw new Error("fileKey is required");
+        }
+
+        try {
+          const assets = await getAssetList(this.figmaService, fileKey);
+          return {
+            contents: [
+              {
+                uri: uri.href,
+                mimeType: "application/json",
+                text: JSON.stringify(assets, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to fetch assets: ${message}`);
+        }
       },
     );
   }

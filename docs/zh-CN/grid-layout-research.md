@@ -406,6 +406,153 @@ function generateGridCSS(analysis: GridAnalysisResult): CSSStyle {
 2. 使用真实 Figma 数据添加集成测试
 3. 测试边缘情况（不规则网格、混合布局）
 
+## 当前实现问题（2024-12 分析）
+
+### 问题：混合布局误判
+
+使用真实 Figma 数据测试发现，Grid 检测算法错误地将混合布局识别为网格。
+
+**示例案例：关键词管理面板 (node-402-34955)**
+
+```
+容器：1580px × 340px
+子元素：
+  1. 标签页 (320×41)      left: 630px   top: 0px    ← 居中的标签页
+  2. 分隔线 (1580×1)      left: 0px     top: 41px   ← 全宽线条
+  3. 信息栏 (1528×88)     left: 26px    top: 62px   ← 几乎全宽
+  4. 卡片 1 (500×78)      left: 26px    top: 170px  ┐
+  5. 卡片 2 (500×78)      left: 540px   top: 170px  ├─ 实际的网格候选元素
+  6. 卡片 3 (500×78)      left: 1054px  top: 170px  ┘
+  7. 卡片 4 (500×78)      left: 26px    top: 262px  ← 第二行
+```
+
+**检测结果（错误）：**
+
+```css
+display: grid;
+grid-template-columns: 1580px 1528px 500px 320px 500px; /* ❌ 总和 = 4428px > 1580px */
+```
+
+**期望结果：**
+
+- 整体容器：`flex-direction: column` 或 `position: absolute`
+- 仅卡片部分（项目 4-7）：`display: grid; grid-template-columns: repeat(3, 500px);`
+
+### 根本原因分析
+
+| 问题                    | 代码位置              | 描述                                      |
+| ----------------------- | --------------------- | ----------------------------------------- |
+| **缺少元素类型过滤**    | `detector.ts:1073`    | 所有子元素被统一分析，不考虑大小/类型差异 |
+| **仅通过 Y 轴重叠分组** | `detector.ts:154-185` | 2px 容差忽略了视觉/功能上的差异           |
+| **缺少同质性检查**      | N/A                   | 缺少验证元素是否"看起来相似"的逻辑        |
+| **严格的列对齐要求**    | `detector.ts:908-911` | 80% 阈值在有意混合的布局中失效            |
+
+### 研究：业界方法
+
+#### 1. UI 语义分组检测（2024）
+
+> 来源：[arxiv.org/html/2403.04984v1](https://arxiv.org/html/2403.04984v1)
+
+- **核心洞察**："在布局检测之前，将具有相似语义的相邻元素分组"
+- **方法**：基于 Transformer 的检测器，使用格式塔原则
+- **相关性**：对同质元素进行预聚类
+
+#### 2. UIHASH - 基于网格的 UI 相似性
+
+> 来源：[jun-zeng.github.io](https://jun-zeng.github.io/file/uihash_paper.pdf)
+
+- **核心洞察**："邻近原则 - 用户将相邻元素视为统一实体"
+- **方法**：将屏幕划分为区域，按组成控件编码
+- **相关性**：网格分析前基于大小的聚类
+
+#### 3. GUI 布局推断算法
+
+> 来源：[ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0950584915001718)
+
+- **核心洞察**："两阶段：相对定位 → 模式匹配"
+- **方法**：Allen 关系 + 探索式算法用于布局组合
+- **相关性**：层次化布局检测
+
+#### 4. 多级同质性结构
+
+> 来源：[ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0957417417303469)
+
+- **核心洞察**："自底向上聚合为同质区域"
+- **方法**：连通组件 → 单词 → 文本行 → 区域
+- **相关性**：渐进式同质分组
+
+## 优化方案
+
+### 解决方案：同质元素预过滤
+
+在 Grid 检测之前添加预过滤步骤，识别"看起来相似"且应该一起考虑的元素。
+
+#### 同质性判断标准
+
+```typescript
+interface HomogeneityCheck {
+  sizeVariance: number; // 宽度/高度方差（阈值：20%）
+  typeConsistency: boolean; // 相同的节点类型
+  stylesSimilar: boolean; // 相似的 CSS 属性
+}
+
+function isHomogeneousGroup(nodes: SimplifiedNode[]): boolean {
+  if (nodes.length < 4) return false;
+
+  // 1. 大小聚类 - 宽度/高度在 20% 方差范围内
+  const widths = nodes.map((n) => parseFloat(n.cssStyles?.width || "0"));
+  const heights = nodes.map((n) => parseFloat(n.cssStyles?.height || "0"));
+
+  const widthCV = coefficientOfVariation(widths);
+  const heightCV = coefficientOfVariation(heights);
+
+  if (widthCV > 0.2 || heightCV > 0.2) return false;
+
+  // 2. 类型一致性 - 允许 FRAME + INSTANCE + COMPONENT
+  const types = new Set(nodes.map((n) => n.type));
+  const allowedTypes = new Set(["FRAME", "INSTANCE", "COMPONENT", "GROUP"]);
+  const hasDisallowedType = [...types].some((t) => !allowedTypes.has(t));
+  if (hasDisallowedType || types.size > 3) return false;
+
+  // 3. 样式相似性（可选）- 背景、边框等
+  // ...
+
+  return true;
+}
+```
+
+#### 更新的检测流程
+
+```
+之前：
+  detectGridLayout(allChildren) → 错误的网格
+
+之后：
+  1. clusterBySimilarSize(allChildren) → 大小分组
+  2. 对每个包含 4+ 元素的分组：
+     a. isHomogeneousGroup(group) → true/false
+     b. 如果为 true：detectGridLayout(group)
+  3. 剩余元素：使用 flex/absolute
+```
+
+#### 实现步骤
+
+1. **添加 `isHomogeneousGroup()` 函数** - `detector.ts`
+2. **添加 `clusterBySimilarSize()` 函数** - `detector.ts`
+3. **更新 `LayoutOptimizer.optimizeContainer()`** - `optimizer.ts`
+   - 在网格检测前调用同质性检查
+   - 只将同质元素传递给 `detectGridLayout()`
+4. **添加测试** - `layout.test.ts`
+
+### 预期结果
+
+| 场景                      | 之前             | 之后              |
+| ------------------------- | ---------------- | ----------------- |
+| 混合布局（标签页 + 卡片） | 所有元素错误网格 | 仅卡片部分 → 网格 |
+| 纯卡片网格（4+ 相同大小） | 正确的网格       | 正确的网格        |
+| 单行项目                  | Flex 行          | Flex 行（无变化） |
+| 不规则大小                | 错误的网格       | Flex/absolute     |
+
 ## 参考资料
 
 - [Allen's Interval Algebra - Wikipedia](https://en.wikipedia.org/wiki/Allen's_interval_algebra)
