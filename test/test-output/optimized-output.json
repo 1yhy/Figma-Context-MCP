@@ -1,0 +1,135 @@
+{
+  "id": "2:674",
+  "name": "Group 1410104851",
+  "type": "GROUP",
+  "cssStyles": {
+    "width": "1580px",
+    "height": "895px"
+  },
+  "children": [
+    {
+      "id": "2:676",
+      "name": "Group 1410104850",
+      "type": "GROUP",
+      "cssStyles": {
+        "width": "350px",
+        "height": "316px"
+      },
+      "children": [
+        {
+          "id": "2:677",
+          "name": "Group 1410104480",
+          "type": "GROUP",
+          "cssStyles": {
+            "width": "350px",
+            "height": "148px"
+          },
+          "children": [
+            {
+              "id": "2:678",
+              "name": "添加自定义关键词，当检测到关键词出现时您将接收警报",
+              "type": "TEXT",
+              "text": "添加自定义关键词，当检测到关键词出现时您将接收警报",
+              "cssStyles": {
+                "width": "350px",
+                "height": "20px"
+              }
+            },
+            {
+              "id": "2:679",
+              "name": "Group 1410104479",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "240px",
+                "height": "98px"
+              },
+              "children": [
+                {
+                  "id": "2:680",
+                  "name": "Group 1410086131",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "240px",
+                    "height": "44px"
+                  },
+                  "children": [
+                    {
+                      "id": "2:682",
+                      "name": "Group 1410104509",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "115px",
+                        "height": "20px"
+                      },
+                      "children": [
+                        {
+                          "id": "2:683",
+                          "name": "AI生成关键词",
+                          "type": "TEXT",
+                          "text": "AI生成关键词",
+                          "cssStyles": {
+                            "width": "84px",
+                            "height": "16px"
+                          }
+                        },
+                        {
+                          "id": "2:684",
+                          "name": "Frame",
+                          "type": "FRAME",
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG",
+                            "fileName": "Frame.svg"
+                          },
+                          "cssStyles": {
+                            "width": "20px",
+                            "height": "20px"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "2:686",
+                  "name": "Group 1410104451",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "240px",
+                    "height": "44px"
+                  },
+                  "children": [
+                    {
+                      "id": "2:688",
+                      "name": "添加自定义关键词",
+                      "type": "TEXT",
+                      "text": "添加自定义关键词",
+                      "cssStyles": {
+                        "width": "146px",
+                        "height": "16px"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2:689",
+          "name": "Group 1410104849",
+          "type": "GROUP",
+          "exportInfo": {
+            "type": "IMAGE",
+            "format": "PNG",
+            "fileName": "Group_1410104849.png"
+          },
+          "cssStyles": {
+            "width": "220px",
+            "height": "138px"
+          }
+        }
+      ]
+    }
+  ]
+}

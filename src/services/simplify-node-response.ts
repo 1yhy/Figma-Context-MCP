@@ -18,8 +18,7 @@ import {
 } from "~/utils/identity.js";
 import { buildSimplifiedEffects } from "~/transformers/effects.js";
 import { buildSimplifiedStrokes } from "~/transformers/style.js";
-import { generateFileName, suggestExportFormat as suggestFormat } from "~/utils/file.js";
-import { isSVGNode, processSVGNodesBottomUp } from "~/utils/svg.js";
+import { generateFileName } from "~/utils/file.js";
 import {
   hasImageFill,
   detectAndMarkImageGroup as markImageGroup,
@@ -32,6 +31,11 @@ import {
   omitDefaultStyles,
   optimizeExportInfo
 } from "~/utils/css-optimize.js";
+import {
+  analyzeNodeTree,
+  type FigmaNode,
+  type IconDetectionResult,
+} from "~/utils/icon-detection.js";
 
 // -------------------- SIMPLIFIED STRUCTURES --------------------
 
@@ -185,8 +189,18 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
     nodes = nodeData.map(n => n.document);
   }
 
-  // 提取节点并生成简化数据
-  const simplifiedNodes = extractNodes(nodes);
+  // 使用新的图标检测算法分析节点树
+  // 构建图标ID映射，用于快速查找
+  const iconMap = new Map<string, IconDetectionResult>();
+  for (const node of nodes) {
+    const { exportableIcons } = analyzeNodeTree(node as unknown as FigmaNode);
+    for (const icon of exportableIcons) {
+      iconMap.set(icon.nodeId, icon);
+    }
+  }
+
+  // 提取节点并生成简化数据，传入图标映射
+  const simplifiedNodes = extractNodes(nodes, undefined, iconMap);
 
   // 清理临时属性
   simplifiedNodes.forEach(cleanupTemporaryProperties);
@@ -203,7 +217,11 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
 }
 
 // 提取节点信息
-function extractNodes(children: FigmaDocumentNode[], parentNode?: SimplifiedNode): SimplifiedNode[] {
+function extractNodes(
+  children: FigmaDocumentNode[],
+  parentNode?: SimplifiedNode,
+  iconMap?: Map<string, IconDetectionResult>
+): SimplifiedNode[] {
   if (!Array.isArray(children)) return [];
 
   // 创建一个对应的原始父节点对象，用于可见性判断
@@ -237,7 +255,7 @@ function extractNodes(children: FigmaDocumentNode[], parentNode?: SimplifiedNode
 
   const nodes = children
     .filter(visibilityFilter)
-    .map(node => extractNode(node, parentNode))
+    .map(node => extractNode(node, parentNode, iconMap))
     .filter((node): node is SimplifiedNode => node !== null);
 
   // 对同级元素按照top值排序（从上到下）
@@ -246,12 +264,61 @@ function extractNodes(children: FigmaDocumentNode[], parentNode?: SimplifiedNode
 
 /**
  * 提取单个节点信息
- * 优化对SVG类型的处理
+ * 使用新的图标检测算法处理图标合并
  */
-function extractNode(node: FigmaDocumentNode, parentNode?: SimplifiedNode): SimplifiedNode | null {
+function extractNode(
+  node: FigmaDocumentNode,
+  parentNode?: SimplifiedNode,
+  iconMap?: Map<string, IconDetectionResult>
+): SimplifiedNode | null {
   if (!node) return null;
 
   const { id, name, type } = node;
+
+  // 检查是否为需要导出的图标节点
+  const iconInfo = iconMap?.get(id);
+  if (iconInfo && iconInfo.shouldMerge) {
+    // 这是一个图标节点，整体导出，不处理子节点
+    const result: SimplifiedNode = {
+      id,
+      name,
+      type
+    };
+
+    result.cssStyles = {};
+
+    // 添加尺寸信息
+    if (hasValue('absoluteBoundingBox', node) && node.absoluteBoundingBox) {
+      result.cssStyles.width = formatPxValue(node.absoluteBoundingBox.width);
+      result.cssStyles.height = formatPxValue(node.absoluteBoundingBox.height);
+
+      if ((node.type as string) !== 'DOCUMENT' && (node.type as string) !== 'CANVAS') {
+        result.cssStyles.position = 'absolute';
+        result._absoluteX = node.absoluteBoundingBox.x;
+        result._absoluteY = node.absoluteBoundingBox.y;
+
+        if (parentNode &&
+            parentNode._absoluteX !== undefined &&
+            parentNode._absoluteY !== undefined) {
+          result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x - parentNode._absoluteX);
+          result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y - parentNode._absoluteY);
+        } else {
+          result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x);
+          result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y);
+        }
+      }
+    }
+
+    // 设置导出信息
+    result.exportInfo = {
+      type: 'IMAGE',
+      format: iconInfo.exportFormat,
+      fileName: generateFileName(name, iconInfo.exportFormat)
+    };
+
+    // 不处理子节点，整体作为图片导出
+    return result;
+  }
 
   // 创建基本节点对象
   const result: SimplifiedNode = {
@@ -310,7 +377,7 @@ function extractNode(node: FigmaDocumentNode, parentNode?: SimplifiedNode): Simp
   }
 
   // 提取图片信息
-  processImageResources(node, result);
+  processImageResources(node, result, iconMap);
 
   // 提取通用的属性处理逻辑
   processNodeStyle(node, result);
@@ -321,12 +388,10 @@ function extractNode(node: FigmaDocumentNode, parentNode?: SimplifiedNode): Simp
 
   // 递归处理子节点
   if (hasValue('children', node) && Array.isArray(node.children) && node.children.length) {
-    result.children = extractNodes(node.children, result);
+    result.children = extractNodes(node.children, result, iconMap);
 
-    // 处理图片组
+    // 处理图片组（保留原有逻辑用于处理图片填充的情况）
     detectAndMarkImageGroup(result);
-
-    processSVGNodesBottomUp(result, generateFileName);
   }
 
   return result;
@@ -344,8 +409,18 @@ function detectAndMarkImageGroup(node: SimplifiedNode): void {
 
 /**
  * 提取节点中的图片资源
+ * 图标导出已由 iconMap 处理，这里只处理图片填充
  */
-function processImageResources(node: FigmaDocumentNode, result: SimplifiedNode): void {
+function processImageResources(
+  node: FigmaDocumentNode,
+  result: SimplifiedNode,
+  iconMap?: Map<string, IconDetectionResult>
+): void {
+  // 如果已经被标记为图标导出，跳过
+  if (iconMap?.has(result.id)) {
+    return;
+  }
+
   // 检查fills和background中的图片资源
   const imageResources: ImageResource[] = [];
 
@@ -389,15 +464,6 @@ function processImageResources(node: FigmaDocumentNode, result: SimplifiedNode):
       // nodeId 省略，因为与节点 id 相同，下载时可以从节点 id 获取
       fileName: generateFileName(result.name, format)
     };
-  }
-
-  if (isSVGNode(node)) {
-    // SVG 节点的导出信息（省略 nodeId）
-    result.exportInfo = {
-      type: 'IMAGE',
-      format: 'SVG',
-      // nodeId 省略，与节点 id 相同
-    }
   }
 }
 
@@ -625,7 +691,9 @@ function textStyleToCss(textStyle: TextStyle): CSSStyle {
 
 /**
  * 根据节点特征选择导出格式
+ * 注：SVG 格式现由 icon-detection 算法决定，此函数仅用于图片填充
  */
 function suggestExportFormat(node: FigmaDocumentNode | SimplifiedNode): 'PNG' | 'JPG' | 'SVG' {
-  return suggestFormat(node, isSVGNode);
+  // 对于图片填充，默认使用 PNG 格式
+  return 'PNG';
 }
