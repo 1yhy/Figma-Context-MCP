@@ -1,0 +1,301 @@
+{
+  "name": "test",
+  "lastModified": "2025-03-25T08:22:10Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/473a648c-4039-40c2-8046-1e1a2030aa81?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCT3MRUCDU%2F20250323%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250323T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=016073092878d75d2d8b7e2fc2425fd97579e7f97d0d33fd89cd770cd30cc65a",
+  "nodes": [
+    {
+      "id": "409:3528",
+      "name": "Frame",
+      "type": "FRAME",
+      "cssStyles": {
+        "width": "322px",
+        "height": "523px",
+        "position": "absolute",
+        "left": "13338px",
+        "top": "12889px",
+        "borderColor": "rgba(217, 217, 217, 0.4)",
+        "borderWidth": "1px",
+        "borderStyle": "solid",
+        "borderRadius": "10px"
+      },
+      "children": [
+        {
+          "id": "409:3529",
+          "name": "Group",
+          "type": "GROUP",
+          "cssStyles": {
+            "width": "276px",
+            "height": "275.5px",
+            "position": "absolute",
+            "left": "26.7px",
+            "top": "230.4px"
+          },
+          "children": [
+            {
+              "id": "409:3530",
+              "name": "Group",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "276px",
+                "height": "275.5px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "0px",
+                "display": "flex",
+                "flexDirection": "column",
+                "justifyContent": "space-between"
+              },
+              "children": [
+                {
+                  "id": "409:3565",
+                  "name": "Group 1410104421",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "47px",
+                    "height": "47px",
+                    "position": "absolute",
+                    "left": "228.8px",
+                    "top": "0px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410104421.svg"
+                  }
+                },
+                {
+                  "id": "409:3555",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "28.8px",
+                    "height": "25px",
+                    "position": "absolute",
+                    "left": "238px",
+                    "top": "66.4px",
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG"
+                  }
+                },
+                {
+                  "id": "409:3539",
+                  "name": "500 K",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "27px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "239.3px",
+                    "top": "97.7px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.9px",
+                    "fontWeight": 600,
+                    "lineHeight": "10.8px"
+                  },
+                  "text": "500 K"
+                },
+                {
+                  "id": "409:3550",
+                  "name": "Group",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "28.7px",
+                    "height": "29.1px",
+                    "position": "absolute",
+                    "left": "238px",
+                    "top": "120.1px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group.svg"
+                  }
+                },
+                {
+                  "id": "409:3537",
+                  "name": "400",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "19px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "244px",
+                    "top": "155.3px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.9px",
+                    "fontWeight": 600,
+                    "lineHeight": "10.8px"
+                  },
+                  "text": "400"
+                },
+                {
+                  "id": "409:3549",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "25px",
+                    "height": "25.3px",
+                    "position": "absolute",
+                    "left": "239.9px",
+                    "top": "176px",
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG"
+                  }
+                },
+                {
+                  "id": "409:3562",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "32.7px",
+                    "height": "14.2px",
+                    "position": "absolute",
+                    "left": "2.2px",
+                    "top": "204.7px",
+                    "backgroundColor": "#F7214E"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG"
+                  }
+                },
+                {
+                  "id": "409:3563",
+                  "name": "HOT",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "21px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "7.6px",
+                    "top": "205.8px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.8px",
+                    "fontWeight": 800,
+                    "lineHeight": "10.8px"
+                  },
+                  "text": "HOT"
+                },
+                {
+                  "id": "409:3535",
+                  "name": "Share",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "27px",
+                    "height": "11px",
+                    "position": "absolute",
+                    "left": "239.3px",
+                    "top": "207px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "8.9px",
+                    "fontWeight": 600,
+                    "lineHeight": "10.8px"
+                  },
+                  "text": "Share"
+                },
+                {
+                  "id": "409:3533",
+                  "name": "@LoremIpsum",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "86px",
+                    "height": "14px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "223.8px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "11.2px",
+                    "fontWeight": 600,
+                    "lineHeight": "13.7px"
+                  },
+                  "text": "@LoremIpsum"
+                },
+                {
+                  "id": "409:3542",
+                  "name": "Group",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "34.3px",
+                    "height": "34.2px",
+                    "position": "absolute",
+                    "left": "235.3px",
+                    "top": "237.2px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group.svg"
+                  }
+                },
+                {
+                  "id": "409:3541",
+                  "name": "#lorem#Ipsum#loremipsum",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "165px",
+                    "height": "14px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "238.5px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "11.2px",
+                    "fontWeight": 600,
+                    "lineHeight": "13.7px"
+                  },
+                  "text": "#lorem#Ipsum#loremipsum"
+                },
+                {
+                  "id": "409:3531",
+                  "name": "Song Title - Singer",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "106px",
+                    "height": "14px",
+                    "position": "absolute",
+                    "left": "27.7px",
+                    "top": "261.5px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Montserrat",
+                    "fontSize": "11.2px",
+                    "fontWeight": 600,
+                    "lineHeight": "13.7px"
+                  },
+                  "text": "Song Title - Singer"
+                },
+                {
+                  "id": "409:3558",
+                  "name": "Vector",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "12.1px",
+                    "height": "12px",
+                    "position": "absolute",
+                    "left": "4.5px",
+                    "top": "262.6px",
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
