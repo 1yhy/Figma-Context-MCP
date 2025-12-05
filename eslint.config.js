@@ -7,7 +7,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   prettierConfig,
   {
-    ignores: ["dist/**", "node_modules/**", "test/test-output/**", "*.config.js"],
+    ignores: ["dist/**", "node_modules/**", "*.config.js"],
   },
   {
     languageOptions: {
@@ -33,6 +33,14 @@ export default tseslint.config(
       "prefer-const": "error",
       "no-var": "error",
       eqeqeq: ["error", "always"],
+    },
+  },
+  // Test files - allow console.log and non-null assertions
+  {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
     },
   },
 );

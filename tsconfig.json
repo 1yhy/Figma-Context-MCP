@@ -25,5 +25,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*", "test-*.ts", "test/test-simplify.ts", "script/custom/test-figma-api.ts", "script/custom/test-figma-comparison.ts", "script/custom/test-figma-data.ts"]
+  "include": ["src/**/*", "tests/**/*"]
 }

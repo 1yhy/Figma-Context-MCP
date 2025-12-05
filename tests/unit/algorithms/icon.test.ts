@@ -28,18 +28,6 @@ function loadTestData(): FigmaNode {
   return rawData.nodes[nodeKey].document;
 }
 
-// Find node by ID recursively
-function findNodeById(node: FigmaNode, id: string): FigmaNode | null {
-  if (node.id === id) return node;
-  if (node.children) {
-    for (const child of node.children) {
-      const found = findNodeById(child, id);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
 // Count total icons detected
 function countIcons(results: IconDetectionResult[]): number {
   return results.filter((r) => r.shouldMerge).length;
@@ -68,9 +56,7 @@ describe("Icon Detection Algorithm", () => {
         name: "Large Node",
         type: "GROUP",
         absoluteBoundingBox: { x: 0, y: 0, width: 500, height: 500 },
-        children: [
-          { id: "child-1", name: "Vector", type: "VECTOR" },
-        ],
+        children: [{ id: "child-1", name: "Vector", type: "VECTOR" }],
       };
 
       const result = detectIcon(largeNode, DEFAULT_CONFIG);
@@ -84,9 +70,7 @@ describe("Icon Detection Algorithm", () => {
         name: "Small Node",
         type: "GROUP",
         absoluteBoundingBox: { x: 0, y: 0, width: 4, height: 4 },
-        children: [
-          { id: "child-1", name: "Vector", type: "VECTOR" },
-        ],
+        children: [{ id: "child-1", name: "Vector", type: "VECTOR" }],
       };
 
       const result = detectIcon(smallNode, DEFAULT_CONFIG);
@@ -137,9 +121,7 @@ describe("Icon Detection Algorithm", () => {
         name: "Star",
         type: "GROUP",
         absoluteBoundingBox: { x: 0, y: 0, width: 24, height: 24 },
-        children: [
-          { id: "star", name: "Star", type: "STAR" },
-        ],
+        children: [{ id: "star", name: "Star", type: "STAR" }],
       };
 
       const result = detectIcon(vectorIcon, DEFAULT_CONFIG);
@@ -153,12 +135,8 @@ describe("Icon Detection Algorithm", () => {
         name: "Shadow Icon",
         type: "GROUP",
         absoluteBoundingBox: { x: 0, y: 0, width: 24, height: 24 },
-        effects: [
-          { type: "DROP_SHADOW", visible: true },
-        ],
-        children: [
-          { id: "shape", name: "Shape", type: "RECTANGLE" },
-        ],
+        effects: [{ type: "DROP_SHADOW", visible: true }],
+        children: [{ id: "shape", name: "Shape", type: "RECTANGLE" }],
       };
 
       const result = detectIcon(effectIcon, DEFAULT_CONFIG);
@@ -173,12 +151,8 @@ describe("Icon Detection Algorithm", () => {
         name: "Custom Export",
         type: "GROUP",
         absoluteBoundingBox: { x: 0, y: 0, width: 32, height: 32 },
-        exportSettings: [
-          { format: "PNG", suffix: "", constraint: { type: "SCALE", value: 2 } },
-        ],
-        children: [
-          { id: "v1", name: "Vector", type: "VECTOR" },
-        ],
+        exportSettings: [{ format: "PNG", suffix: "", constraint: { type: "SCALE", value: 2 } }],
+        children: [{ id: "v1", name: "Vector", type: "VECTOR" }],
       };
 
       const result = detectIcon(exportNode, DEFAULT_CONFIG);
@@ -188,7 +162,15 @@ describe("Icon Detection Algorithm", () => {
   });
 
   describe("Mergeable Types", () => {
-    const mergeableTypes = ["VECTOR", "ELLIPSE", "RECTANGLE", "STAR", "POLYGON", "LINE", "BOOLEAN_OPERATION"];
+    const mergeableTypes = [
+      "VECTOR",
+      "ELLIPSE",
+      "RECTANGLE",
+      "STAR",
+      "POLYGON",
+      "LINE",
+      "BOOLEAN_OPERATION",
+    ];
 
     mergeableTypes.forEach((type) => {
       it(`should recognize ${type} as mergeable`, () => {
@@ -197,9 +179,7 @@ describe("Icon Detection Algorithm", () => {
           name: `${type} Icon`,
           type: "GROUP",
           absoluteBoundingBox: { x: 0, y: 0, width: 24, height: 24 },
-          children: [
-            { id: "child", name: type, type: type },
-          ],
+          children: [{ id: "child", name: type, type: type }],
         };
 
         const result = detectIcon(node, DEFAULT_CONFIG);
@@ -278,9 +258,7 @@ describe("Icon Detection Algorithm", () => {
                 id: "level2",
                 name: "Level 2",
                 type: "GROUP",
-                children: [
-                  { id: "vector", name: "Vector", type: "VECTOR" },
-                ],
+                children: [{ id: "vector", name: "Vector", type: "VECTOR" }],
               },
             ],
           },

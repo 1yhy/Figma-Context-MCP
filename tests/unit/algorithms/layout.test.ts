@@ -159,8 +159,9 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 0, y: 40, width: 150, height: 30 }, 1),
         toElementRect({ x: 0, y: 80, width: 80, height: 30 }, 2),
       ];
+      const bounds: BoundingBox = { x: 0, y: 0, width: 200, height: 110 };
 
-      const alignment = analyzeAlignment(elements, "horizontal");
+      const alignment = analyzeAlignment(elements, bounds);
       expect(alignment).toHaveProperty("horizontal");
       expect(alignment).toHaveProperty("vertical");
     });
@@ -171,8 +172,9 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 25, y: 40, width: 150, height: 30 }, 1),
         toElementRect({ x: 60, y: 80, width: 80, height: 30 }, 2),
       ];
+      const bounds: BoundingBox = { x: 0, y: 0, width: 200, height: 110 };
 
-      const alignment = analyzeAlignment(elements, "horizontal");
+      const alignment = analyzeAlignment(elements, bounds);
       expect(typeof alignment.horizontal).toBe("string");
     });
 
@@ -182,8 +184,9 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 60, y: 0, width: 50, height: 80 }, 1),
         toElementRect({ x: 120, y: 0, width: 50, height: 120 }, 2),
       ];
+      const bounds: BoundingBox = { x: 0, y: 0, width: 170, height: 120 };
 
-      const alignment = analyzeAlignment(elements, "vertical");
+      const alignment = analyzeAlignment(elements, bounds);
       expect(typeof alignment.vertical).toBe("string");
     });
   });

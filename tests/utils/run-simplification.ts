@@ -5,7 +5,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { parseFigmaResponse } from "../src/services/simplify-node-response.js";
+import { parseFigmaResponse } from "../../src/services/simplify-node-response.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

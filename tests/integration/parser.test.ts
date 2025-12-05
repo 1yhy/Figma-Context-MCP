@@ -36,9 +36,7 @@ describe("Figma Response Parser", () => {
 
   describe("Basic Parsing", () => {
     it("should parse raw Figma response", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       expect(result).toBeDefined();
       expect(result.name).toBeDefined();
@@ -47,9 +45,7 @@ describe("Figma Response Parser", () => {
     });
 
     it("should extract file metadata", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       expect(result.name).toBe("Vigilkids产品站");
       expect(result.lastModified).toBeDefined();
@@ -58,9 +54,7 @@ describe("Figma Response Parser", () => {
 
   describe("Node Structure", () => {
     it("should preserve node hierarchy", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       expect(result.nodes.length).toBeGreaterThan(0);
 
@@ -71,22 +65,18 @@ describe("Figma Response Parser", () => {
     });
 
     it("should generate CSS styles", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       const rootNode = result.nodes[0];
       expect(rootNode.cssStyles).toBeDefined();
-      expect(rootNode.cssStyles.width).toBeDefined();
-      expect(rootNode.cssStyles.height).toBeDefined();
+      expect(rootNode.cssStyles?.width).toBeDefined();
+      expect(rootNode.cssStyles?.height).toBeDefined();
     });
   });
 
   describe("Data Compression", () => {
     it("should significantly reduce data size", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       const originalSize = Buffer.byteLength(JSON.stringify(rawData));
       const simplifiedSize = Buffer.byteLength(JSON.stringify(result));
@@ -99,9 +89,7 @@ describe("Figma Response Parser", () => {
 
   describe("CSS Style Generation", () => {
     it("should convert colors to hex format", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       // Find a node with background color
       const findNodeWithBg = (
@@ -128,13 +116,11 @@ describe("Figma Response Parser", () => {
     });
 
     it("should round pixel values to integers", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       const rootNode = result.nodes[0];
-      const width = rootNode.cssStyles.width as string;
-      const height = rootNode.cssStyles.height as string;
+      const width = rootNode.cssStyles?.width as string;
+      const height = rootNode.cssStyles?.height as string;
 
       // Should be integer pixel values
       expect(width).toMatch(/^\d+px$/);
@@ -144,9 +130,7 @@ describe("Figma Response Parser", () => {
 
   describe("Layout Detection Integration", () => {
     it("should detect flex layouts in appropriate nodes", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       // Find nodes with flex properties
       const findFlexNode = (
@@ -176,9 +160,7 @@ describe("Figma Response Parser", () => {
 
   describe("Icon Detection Integration", () => {
     it("should mark icon nodes with exportInfo", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       // Find nodes with export info
       const findExportNode = (
@@ -209,9 +191,7 @@ describe("Figma Response Parser", () => {
 
   describe("Text Node Processing", () => {
     it("should extract text content", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       // Find text nodes
       const findTextNode = (
@@ -239,9 +219,7 @@ describe("Figma Response Parser", () => {
     });
 
     it("should include font styles for text nodes", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       const findTextStyles = (
         nodes: Array<{ type?: string; cssStyles?: Record<string, unknown>; children?: unknown[] }>,
@@ -274,15 +252,11 @@ describe("Figma Response Parser", () => {
 
   describe("Output Stability", () => {
     it("should produce consistent output structure", () => {
-      const result = parseFigmaResponse(
-        rawData as Parameters<typeof parseFigmaResponse>[0],
-      );
+      const result = parseFigmaResponse(rawData as Parameters<typeof parseFigmaResponse>[0]);
 
       // Compare key structure with expected output
       expect(Object.keys(result)).toEqual(Object.keys(expectedOutput as object));
-      expect(result.nodes.length).toBe(
-        (expectedOutput as { nodes: unknown[] }).nodes.length,
-      );
+      expect(result.nodes.length).toBe((expectedOutput as { nodes: unknown[] }).nodes.length);
     });
   });
 });

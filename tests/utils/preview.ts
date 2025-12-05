@@ -41,11 +41,7 @@ async function main() {
   // Open viewer in browser
   console.log("🌐 Opening viewer...");
   const openCommand =
-    process.platform === "darwin"
-      ? "open"
-      : process.platform === "win32"
-        ? "start"
-        : "xdg-open";
+    process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
 
   exec(`${openCommand} "${viewerPath}"`, (error) => {
     if (error) {
