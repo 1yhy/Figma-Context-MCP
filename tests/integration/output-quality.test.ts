@@ -258,10 +258,12 @@ describe("Output Quality Validation", () => {
           const absoluteInLayout = analysis.redundantPatterns.filter(
             (p) => p.pattern === "absolute-in-layout",
           );
-          // Allow some absolute positioning for overlapping elements
-          // but it should be minimal (less than 5% of total nodes)
+          // Allow some absolute positioning for:
+          // - Overlapping elements that need stacking
+          // - Non-homogeneous elements in grid containers (e.g., tabs, dividers)
+          // These are intentionally kept absolute to preserve their original position
           const ratio = absoluteInLayout.length / analysis.totalNodes;
-          expect(ratio).toBeLessThan(0.05);
+          expect(ratio).toBeLessThan(0.1); // Allow up to 10%
         });
 
         it("should not have conflicting width and flex properties", () => {

@@ -1013,9 +1013,10 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
       ];
 
-      const filtered = filterHomogeneousForGrid(elements);
+      const result = filterHomogeneousForGrid(elements);
 
-      expect(filtered.length).toBe(4);
+      expect(result.elements.length).toBe(4);
+      expect(result.gridIndices.size).toBe(4);
     });
 
     it("should return empty array for non-homogeneous elements", () => {
@@ -1026,10 +1027,10 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 3),
       ];
 
-      const filtered = filterHomogeneousForGrid(elements);
+      const result = filterHomogeneousForGrid(elements);
 
       // Not enough homogeneous elements
-      expect(filtered.length).toBeLessThan(4);
+      expect(result.elements.length).toBeLessThan(4);
     });
 
     it("should return empty array for fewer than 4 elements", () => {
@@ -1039,9 +1040,10 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
       ];
 
-      const filtered = filterHomogeneousForGrid(elements);
+      const result = filterHomogeneousForGrid(elements);
 
-      expect(filtered.length).toBe(0);
+      expect(result.elements.length).toBe(0);
+      expect(result.gridIndices.size).toBe(0);
     });
 
     it("should filter out outliers and return only homogeneous elements", () => {
@@ -1055,11 +1057,12 @@ describe("Layout Detection Algorithm", () => {
         toElementRect({ x: 0, y: -30, width: 240, height: 20 }, 4),
       ];
 
-      const filtered = filterHomogeneousForGrid(elements);
+      const result = filterHomogeneousForGrid(elements);
 
-      expect(filtered.length).toBe(4);
+      expect(result.elements.length).toBe(4);
       // Outlier should not be included
-      expect(filtered.every((e) => e.index !== 4)).toBe(true);
+      expect(result.elements.every((e) => e.index !== 4)).toBe(true);
+      expect(result.gridIndices.has(4)).toBe(false);
     });
 
     it("should work with node types filtering", () => {
@@ -1071,9 +1074,10 @@ describe("Layout Detection Algorithm", () => {
       ];
       const nodeTypes = ["INSTANCE", "INSTANCE", "INSTANCE", "INSTANCE"];
 
-      const filtered = filterHomogeneousForGrid(elements, nodeTypes);
+      const result = filterHomogeneousForGrid(elements, nodeTypes);
 
-      expect(filtered.length).toBe(4);
+      expect(result.elements.length).toBe(4);
+      expect(result.gridIndices.size).toBe(4);
     });
   });
 
@@ -1163,10 +1167,10 @@ describe("Layout Detection Algorithm", () => {
         const nodeTypes = mixedContainer.children!.map((c) => c.type);
 
         // Filter should reduce the set
-        const filtered = filterHomogeneousForGrid(childBoxes, nodeTypes);
+        const result = filterHomogeneousForGrid(childBoxes, nodeTypes);
 
         // Filtered should be less than or equal to original
-        expect(filtered.length).toBeLessThanOrEqual(childBoxes.length);
+        expect(result.elements.length).toBeLessThanOrEqual(childBoxes.length);
       }
     });
   });

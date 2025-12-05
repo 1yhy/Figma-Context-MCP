@@ -1196,24 +1196,42 @@ export function analyzeHomogeneity(
 }
 
 /**
+ * Result of filtering homogeneous elements for grid detection
+ */
+export interface HomogeneousFilterResult {
+  /** Elements suitable for grid detection */
+  elements: ElementRect[];
+  /** Indices of grid elements in the original array */
+  gridIndices: Set<number>;
+}
+
+/**
  * Filter elements for grid detection by keeping only homogeneous groups
  * This prevents mixed layouts from being incorrectly detected as grids
  *
  * @param rects - All child elements
  * @param nodeTypes - Optional node types for additional filtering
- * @returns Elements suitable for grid detection, or empty array if not homogeneous
+ * @returns Elements suitable for grid detection with their indices, or empty if not homogeneous
  */
 export function filterHomogeneousForGrid(
   rects: ElementRect[],
   nodeTypes?: string[],
-): ElementRect[] {
+): HomogeneousFilterResult {
   const analysis = analyzeHomogeneity(rects, nodeTypes);
 
   if (analysis.isHomogeneous && analysis.homogeneousElements.length >= 4) {
-    return analysis.homogeneousElements;
+    // Extract indices from homogeneous elements
+    const gridIndices = new Set(analysis.homogeneousElements.map((el) => el.index));
+    return {
+      elements: analysis.homogeneousElements,
+      gridIndices,
+    };
   }
 
-  return [];
+  return {
+    elements: [],
+    gridIndices: new Set(),
+  };
 }
 
 /**

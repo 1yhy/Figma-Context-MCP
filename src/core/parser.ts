@@ -500,8 +500,10 @@ function processGradient(gradient: GradientPaint): string {
 
   const stops = gradient.gradientStops
     .map((stop) => {
-      const color = convertColor(stop.color, stop.color.a);
-      return `${color.hex} ${Math.round(stop.position * 100)}%`;
+      const { hex, opacity } = convertColor(stop.color);
+      // Use rgba format if alpha < 1, otherwise use hex
+      const colorStr = opacity < 1 ? formatRGBAColor(stop.color) : hex;
+      return `${colorStr} ${Math.round(stop.position * 100)}%`;
     })
     .join(", ");
 

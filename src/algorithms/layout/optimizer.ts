@@ -165,12 +165,16 @@ export class LayoutOptimizer {
     // ===== STEP 2: GRID DETECTION (check first before Flex) =====
     // Grid is only applicable for container nodes with enough children
     if (isContainer) {
-      const gridResult = this.detectGridIfApplicable(filteredChildren);
-      if (gridResult) {
+      const gridDetection = this.detectGridIfApplicable(filteredChildren);
+      if (gridDetection) {
+        const { gridResult, gridIndices } = gridDetection;
+
         // Grid layout detected! Apply CSS Grid styles
         const gridStyles = this.generateGridCSS(gridResult);
 
         // Convert absolute positioning to padding/margin
+        // Only grid elements (gridIndices) will have their position removed
+        // Non-grid elements (tabs, dividers, etc.) keep their original positioning
         const { parentPaddingStyle, convertedChildren } = this.convertAbsoluteToRelative(
           node,
           filteredChildren,
@@ -178,6 +182,7 @@ export class LayoutOptimizer {
           "row", // Grid doesn't have a primary direction, use row as default
           stackedIndices,
           null,
+          gridIndices, // Only convert grid elements to flow layout
         );
 
         // Build final styles with padding and merged background
@@ -908,13 +913,12 @@ export class LayoutOptimizer {
   }
 
   /**
-   * Check if Grid layout should be applied
-   * Returns GridAnalysisResult if grid is detected, null otherwise
-   *
-   * Uses homogeneity filtering to prevent mixed layouts (like tabs + cards)
-   * from being incorrectly detected as grids.
+   * Result of grid detection including which elements belong to the grid
    */
-  static detectGridIfApplicable(nodes: SimplifiedNode[]): GridAnalysisResult | null {
+  static detectGridIfApplicable(nodes: SimplifiedNode[]): {
+    gridResult: GridAnalysisResult;
+    gridIndices: Set<number>;
+  } | null {
     // Need at least 4 elements for a meaningful grid (2x2)
     if (nodes.length < 4) return null;
 
@@ -926,15 +930,15 @@ export class LayoutOptimizer {
 
     // Filter to only homogeneous elements (similar size/type)
     // This prevents mixed layouts from being detected as grids
-    const homogeneousRects = filterHomogeneousForGrid(elementRects, nodeTypes);
+    const filterResult = filterHomogeneousForGrid(elementRects, nodeTypes);
 
     // If not enough homogeneous elements, skip grid detection
-    if (homogeneousRects.length < 4) {
+    if (filterResult.elements.length < 4) {
       return null;
     }
 
     // Run grid detection on homogeneous elements only
-    const gridResult = detectGridLayout(homogeneousRects);
+    const gridResult = detectGridLayout(filterResult.elements);
 
     // Only use grid if:
     // 1. Grid is detected (isGrid: true)
@@ -947,7 +951,10 @@ export class LayoutOptimizer {
       gridResult.rowCount >= 2 &&
       gridResult.columnCount >= 2
     ) {
-      return gridResult;
+      return {
+        gridResult,
+        gridIndices: filterResult.gridIndices,
+      };
     }
 
     return null;
@@ -1576,6 +1583,9 @@ export class LayoutOptimizer {
    * @param layoutDirection 'row' | 'column'
    * @param stackedIndices Indices of stacked (overlapping) elements
    * @param alignItems The alignItems value for cross-axis alignment
+   * @param flowIndices Optional set of indices that should be converted to flow layout.
+   *                    If not provided, all non-stacked elements are converted.
+   *                    For grid layouts, only grid elements should be in this set.
    * @returns Updated parent styles and children with converted positioning
    */
   static convertAbsoluteToRelative(
@@ -1585,17 +1595,40 @@ export class LayoutOptimizer {
     layoutDirection: "row" | "column",
     stackedIndices: Set<number>,
     alignItems: string | null,
+    flowIndices?: Set<number>,
   ): {
     parentPaddingStyle: string | null;
     convertedChildren: SimplifiedNode[];
   } {
-    // Step 1: Collect flow child offsets before cleaning
-    const offsets = this.collectFlowChildOffsets(children, stackedIndices);
+    // Determine which elements should be converted to flow
+    // If flowIndices is provided, only those elements are converted
+    // Otherwise, all non-stacked elements are converted (backward compatible)
+    const shouldConvertToFlow = (index: number): boolean => {
+      if (stackedIndices.has(index)) return false;
+      if (flowIndices) return flowIndices.has(index);
+      return true;
+    };
+
+    // Step 1: Collect flow child offsets before cleaning (only for flow elements)
+    const flowOnlyStackedIndices = new Set<number>();
+    children.forEach((_, index) => {
+      if (!shouldConvertToFlow(index)) {
+        flowOnlyStackedIndices.add(index);
+      }
+    });
+    const offsets = this.collectFlowChildOffsets(children, flowOnlyStackedIndices);
 
     if (offsets.length === 0) {
+      // No flow elements, return children with only flow elements cleaned
+      const convertedChildren = children.map((child, index) => {
+        if (!shouldConvertToFlow(index)) {
+          return child; // Keep non-flow elements unchanged
+        }
+        return this.cleanChildStylesForLayout(child, layoutType);
+      });
       return {
         parentPaddingStyle: null,
-        convertedChildren: this.cleanChildrenStyles(children, layoutType, stackedIndices),
+        convertedChildren,
       };
     }
 
@@ -1603,7 +1636,7 @@ export class LayoutOptimizer {
     const parentWidth = parseFloat((parent.cssStyles?.width as string) || "0");
     const parentHeight = parseFloat((parent.cssStyles?.height as string) || "0");
 
-    // Step 2: Infer container padding
+    // Step 2: Infer container padding (only from flow elements)
     const padding = this.inferContainerPadding(offsets, parentWidth, parentHeight, layoutDirection);
 
     // Step 3: Calculate individual child margins for cross-axis alignment
@@ -1614,12 +1647,12 @@ export class LayoutOptimizer {
 
     // Step 5: Clean children and apply margins
     const convertedChildren = children.map((child, index) => {
-      // Skip stacked elements - they keep absolute positioning
-      if (stackedIndices.has(index)) {
+      // Non-flow elements keep their original positioning
+      if (!shouldConvertToFlow(index)) {
         return child;
       }
 
-      // Clean absolute positioning styles
+      // Clean absolute positioning styles for flow elements
       let cleaned = this.cleanChildStylesForLayout(child, layoutType);
 
       // Apply calculated margins if any

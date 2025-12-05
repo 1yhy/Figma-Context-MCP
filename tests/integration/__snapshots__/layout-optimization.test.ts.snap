@@ -11,10 +11,10 @@ exports[`Layout Optimization Idempotency > node-240-32163 (Call Logs 有数据 (
 
 exports[`Layout Optimization Idempotency > node-402-34955 (Group 1410104853 (1580x895)) > should have expected optimization metrics 1`] = `
 {
-  "absoluteCount": 19,
+  "absoluteCount": 22,
   "flexCount": 13,
   "gridCount": 1,
-  "paddingCount": 1,
+  "paddingCount": 2,
 }
 `;
 
@@ -29,7 +29,7 @@ exports[`Layout Optimization Integration > node-240-32163 (Call Logs 有数据 (
 
 exports[`Layout Optimization Integration > node-402-34955 (Group 1410104853 (1580x895)) > Snapshot Comparison > should produce consistent layout stats 1`] = `
 {
-  "absoluteRatio": 23,
+  "absoluteRatio": 27,
   "flexRatio": 25,
   "gridRatio": 2,
   "total": 52,

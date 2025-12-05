@@ -41,7 +41,8 @@
             "top": "19px",
             "display": "grid",
             "gridTemplateColumns": "500px 500px 500px",
-            "gap": "12px"
+            "gap": "12px",
+            "padding": "170px 26px 0px"
           },
           "children": [
             {
@@ -51,6 +52,9 @@
               "cssStyles": {
                 "width": "320px",
                 "height": "41px",
+                "position": "absolute",
+                "left": "630px",
+                "top": "0px",
                 "display": "flex",
                 "justifyContent": "space-between",
                 "alignItems": "flex-start"
@@ -150,6 +154,9 @@
               "cssStyles": {
                 "width": "1580px",
                 "height": "1px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "41px",
                 "backgroundColor": "rgba(66, 149, 136, 0.2)"
               }
             },
@@ -160,6 +167,9 @@
               "cssStyles": {
                 "width": "1528px",
                 "height": "88px",
+                "position": "absolute",
+                "left": "26px",
+                "top": "62px",
                 "backgroundColor": "#F4F3F6",
                 "borderRadius": "16px"
               },
