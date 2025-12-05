@@ -1,8 +1,7 @@
-import fs from "fs";
-import path from "path";
-
 import type { Paint, RGBA } from "@figma/rest-api-spec";
 import { CSSHexColor, CSSRGBAColor, SimplifiedFill } from "~/services/simplify-node-response.js";
+
+// ==================== 类型定义 ====================
 
 export type StyleId = `${string}_${string}` & { __brand: "StyleId" };
 
@@ -11,106 +10,40 @@ export interface ColorValue {
   opacity: number;
 }
 
-/**
- * Download Figma image and save it locally
- * @param fileName - The filename to save as
- * @param localPath - The local path to save to
- * @param imageUrl - Image URL (images[nodeId])
- * @returns A Promise that resolves to the full file path where the image was saved
- * @throws Error if download fails
- */
-export async function downloadFigmaImage(
-  fileName: string,
-  localPath: string,
-  imageUrl: string,
-): Promise<string> {
-  try {
-    // Ensure local path exists
-    if (!fs.existsSync(localPath)) {
-      fs.mkdirSync(localPath, { recursive: true });
-    }
-
-    // Build the complete file path
-    const fullPath = path.join(localPath, fileName);
-
-    // Use fetch to download the image
-    const response = await fetch(imageUrl, {
-      method: "GET",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to download image: ${response.statusText}`);
-    }
-
-    // Create write stream
-    const writer = fs.createWriteStream(fullPath);
-
-    // Get the response as a readable stream and pipe it to the file
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error("Failed to get response body");
-    }
-
-    return new Promise((resolve, reject) => {
-      // Process stream
-      const processStream = async () => {
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              writer.end();
-              break;
-            }
-            writer.write(value);
-          }
-          resolve(fullPath);
-        } catch (err) {
-          writer.end();
-          fs.unlink(fullPath, () => {});
-          reject(err);
-        }
-      };
-
-      writer.on("error", (err) => {
-        reader.cancel();
-        fs.unlink(fullPath, () => {});
-        reject(new Error(`Failed to write image: ${err.message}`));
-      });
-
-      processStream();
-    });
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Error downloading image: ${errorMessage}`);
-  }
+/** 用于可见性检查的节点属性 */
+export interface VisibilityProperties {
+  visible?: boolean;
+  opacity?: number;
+  absoluteBoundingBox?: { x: number; y: number; width: number; height: number };
+  absoluteRenderBounds?: { x: number; y: number; width: number; height: number } | null;
 }
 
+/** 用于父容器裁剪检查的属性 */
+export interface ParentClipProperties {
+  clipsContent?: boolean;
+  absoluteBoundingBox?: { x: number; y: number; width: number; height: number };
+}
+
+// ==================== 对象处理 ====================
+
 /**
- * Remove keys with empty arrays or empty objects from an object.
- * @param input - The input object or value.
- * @returns The processed object or the original value.
+ * 移除对象中的空数组和空对象
  */
 export function removeEmptyKeys<T>(input: T): T {
-  // If not an object type or null, return directly
   if (typeof input !== "object" || input === null) {
     return input;
   }
 
-  // Handle array type
   if (Array.isArray(input)) {
     return input.map((item) => removeEmptyKeys(item)) as T;
   }
 
-  // Handle object type
   const result = {} as T;
   for (const key in input) {
     if (Object.prototype.hasOwnProperty.call(input, key)) {
       const value = input[key];
-
-      // Recursively process nested objects
       const cleanedValue = removeEmptyKeys(value);
 
-      // Skip empty arrays and empty objects
       if (
         cleanedValue !== undefined &&
         !(Array.isArray(cleanedValue) && cleanedValue.length === 0) &&
@@ -128,45 +61,33 @@ export function removeEmptyKeys<T>(input: T): T {
   return result;
 }
 
+// ==================== 颜色转换 ====================
+
 /**
- * Convert hex color value and opacity to rgba format
- * @param hex - Hexadecimal color value (e.g., "#FF0000" or "#F00")
- * @param opacity - Opacity value (0-1)
- * @returns Color string in rgba format
+ * 将十六进制颜色和透明度转换为 rgba 格式
  */
 export function hexToRgba(hex: string, opacity: number = 1): string {
-  // Remove possible # prefix
   hex = hex.replace("#", "");
 
-  // Handle shorthand hex values (e.g., #FFF)
   if (hex.length === 3) {
     hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
   }
 
-  // Convert hex to RGB values
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
-
-  // Ensure opacity is in the 0-1 range
   const validOpacity = Math.min(Math.max(opacity, 0), 1);
 
   return `rgba(${r}, ${g}, ${b}, ${validOpacity})`;
 }
 
 /**
- * Convert color from RGBA to { hex, opacity }
- *
- * @param color - The color to convert, including alpha channel
- * @param opacity - The opacity of the color, if not included in alpha channel
- * @returns The converted color
- **/
+ * 将 Figma RGBA 颜色转换为 { hex, opacity }
+ */
 export function convertColor(color: RGBA, opacity = 1): ColorValue {
   const r = Math.round(color.r * 255);
   const g = Math.round(color.g * 255);
   const b = Math.round(color.b * 255);
-
-  // Alpha channel defaults to 1. If opacity and alpha are both and < 1, their effects are multiplicative
   const a = Math.round(opacity * color.a * 100) / 100;
 
   const hex = ("#" +
@@ -176,26 +97,63 @@ export function convertColor(color: RGBA, opacity = 1): ColorValue {
 }
 
 /**
- * Convert color from Figma RGBA to rgba(#, #, #, #) CSS format
- *
- * @param color - The color to convert, including alpha channel
- * @param opacity - The opacity of the color, if not included in alpha channel
- * @returns The converted color
- **/
+ * 将 Figma RGBA 转换为 CSS rgba() 格式
+ */
 export function formatRGBAColor(color: RGBA, opacity = 1): CSSRGBAColor {
   const r = Math.round(color.r * 255);
   const g = Math.round(color.g * 255);
   const b = Math.round(color.b * 255);
-  // Alpha channel defaults to 1. If opacity and alpha are both and < 1, their effects are multiplicative
   const a = Math.round(opacity * color.a * 100) / 100;
 
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+// ==================== CSS 生成 ====================
+
 /**
- * Generate a 6-character random variable ID
- * @param prefix - ID prefix
- * @returns A 6-character random ID string with prefix
+ * 生成 CSS 简写属性（如 padding, margin, border-radius）
+ *
+ * @example
+ * generateCSSShorthand({ top: 10, right: 10, bottom: 10, left: 10 }) // "10px"
+ * generateCSSShorthand({ top: 10, right: 20, bottom: 10, left: 20 }) // "10px 20px"
+ */
+export function generateCSSShorthand(
+  values: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  },
+  options: {
+    ignoreZero?: boolean;
+    suffix?: string;
+  } = {},
+): string | undefined {
+  const { ignoreZero = true, suffix = "px" } = options;
+  const { top, right, bottom, left } = values;
+
+  if (ignoreZero && top === 0 && right === 0 && bottom === 0 && left === 0) {
+    return undefined;
+  }
+
+  if (top === right && right === bottom && bottom === left) {
+    return `${top}${suffix}`;
+  }
+
+  if (right === left) {
+    if (top === bottom) {
+      return `${top}${suffix} ${right}${suffix}`;
+    }
+    return `${top}${suffix} ${right}${suffix} ${bottom}${suffix}`;
+  }
+
+  return `${top}${suffix} ${right}${suffix} ${bottom}${suffix} ${left}${suffix}`;
+}
+
+// ==================== ID 生成 ====================
+
+/**
+ * 生成唯一的变量 ID
  */
 export function generateVarId(prefix: string = "var"): StyleId {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -209,62 +167,10 @@ export function generateVarId(prefix: string = "var"): StyleId {
   return `${prefix}_${result}` as StyleId;
 }
 
-/**
- * Generate a CSS shorthand for values that come with top, right, bottom, and left
- *
- * input: { top: 10, right: 10, bottom: 10, left: 10 }
- * output: "10px"
- *
- * input: { top: 10, right: 20, bottom: 10, left: 20 }
- * output: "10px 20px"
- *
- * input: { top: 10, right: 20, bottom: 30, left: 40 }
- * output: "10px 20px 30px 40px"
- *
- * @param values - The values to generate the shorthand for
- * @returns The generated shorthand
- */
-export function generateCSSShorthand(
-  values: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  },
-  {
-    ignoreZero = true,
-    suffix = "px",
-  }: {
-    /**
-     * If true and all values are 0, return undefined. Defaults to true.
-     */
-    ignoreZero?: boolean;
-    /**
-     * The suffix to add to the shorthand. Defaults to "px".
-     */
-    suffix?: string;
-  } = {},
-) {
-  const { top, right, bottom, left } = values;
-  if (ignoreZero && top === 0 && right === 0 && bottom === 0 && left === 0) {
-    return undefined;
-  }
-  if (top === right && right === bottom && bottom === left) {
-    return `${top}${suffix}`;
-  }
-  if (right === left) {
-    if (top === bottom) {
-      return `${top}${suffix} ${right}${suffix}`;
-    }
-    return `${top}${suffix} ${right}${suffix} ${bottom}${suffix}`;
-  }
-  return `${top}${suffix} ${right}${suffix} ${bottom}${suffix} ${left}${suffix}`;
-}
+// ==================== 填充解析 ====================
 
 /**
- * Convert a Figma paint (solid, image, gradient) to a SimplifiedFill
- * @param raw - The Figma paint to convert
- * @returns The converted SimplifiedFill
+ * 将 Figma Paint 转换为简化的填充格式
  */
 export function parsePaint(raw: Paint): SimplifiedFill {
   if (raw.type === "IMAGE") {
@@ -273,20 +179,21 @@ export function parsePaint(raw: Paint): SimplifiedFill {
       imageRef: raw.imageRef,
       scaleMode: raw.scaleMode,
     };
-  } else if (raw.type === "SOLID") {
-    // treat as SOLID
+  }
+
+  if (raw.type === "SOLID") {
     const { hex, opacity } = convertColor(raw.color!, raw.opacity);
     if (opacity === 1) {
       return hex;
-    } else {
-      return formatRGBAColor(raw.color!, opacity);
     }
-  } else if (
+    return formatRGBAColor(raw.color!, opacity);
+  }
+
+  if (
     ["GRADIENT_LINEAR", "GRADIENT_RADIAL", "GRADIENT_ANGULAR", "GRADIENT_DIAMOND"].includes(
       raw.type,
     )
   ) {
-    // treat as GRADIENT_LINEAR
     return {
       type: raw.type,
       gradientHandlePositions: raw.gradientHandlePositions,
@@ -295,85 +202,62 @@ export function parsePaint(raw: Paint): SimplifiedFill {
         color: convertColor(color),
       })),
     };
-  } else {
-    throw new Error(`Unknown paint type: ${raw.type}`);
   }
+
+  throw new Error(`Unknown paint type: ${raw.type}`);
 }
+
+// ==================== 可见性检查 ====================
 
 /**
  * 检查元素是否可见
- * @param element - 要检查的元素
- * @returns 如果元素可见则返回true，否则返回false
  */
-export function isVisible(element: {
-  visible?: boolean;
-  opacity?: number;
-  absoluteBoundingBox?: { x: number; y: number; width: number; height: number };
-  absoluteRenderBounds?: { x: number; y: number; width: number; height: number } | null;
-}): boolean {
-  // 1. 显式可见性检查
+export function isVisible(element: VisibilityProperties): boolean {
   if (element.visible === false) {
     return false;
   }
 
-  // 2. 透明度检查
   if (element.opacity === 0) {
     return false;
   }
 
-  // 3. 渲染边界检查 - 如果明确没有渲染边界，则不可见
   if (element.absoluteRenderBounds === null) {
     return false;
   }
 
-  // 默认为可见
   return true;
 }
 
 /**
- * 检查元素在父容器中是否可见
- * @param element - 要检查的元素
- * @param parent - 父元素信息
- * @returns 如果元素可见则返回true，否则返回false
+ * 检查元素在父容器中是否可见（考虑裁剪）
  */
 export function isVisibleInParent(
-  element: {
-    visible?: boolean;
-    opacity?: number;
-    absoluteBoundingBox?: { x: number; y: number; width: number; height: number };
-    absoluteRenderBounds?: { x: number; y: number; width: number; height: number } | null;
-  },
-  parent: {
-    clipsContent?: boolean;
-    absoluteBoundingBox?: { x: number; y: number; width: number; height: number };
-  }
+  element: VisibilityProperties,
+  parent: ParentClipProperties,
 ): boolean {
-  // 先检查元素本身是否可见
   if (!isVisible(element)) {
     return false;
   }
 
-  // 父容器裁剪检查
-  if (parent &&
-      parent.clipsContent === true &&
-      element.absoluteBoundingBox &&
-      parent.absoluteBoundingBox) {
-
+  if (
+    parent &&
+    parent.clipsContent === true &&
+    element.absoluteBoundingBox &&
+    parent.absoluteBoundingBox
+  ) {
     const elementBox = element.absoluteBoundingBox;
     const parentBox = parent.absoluteBoundingBox;
 
-    // 检查元素是否完全在父容器外部
     const outsideParent =
-      elementBox.x >= parentBox.x + parentBox.width || // 右侧超出
-      elementBox.x + elementBox.width <= parentBox.x || // 左侧超出
-      elementBox.y >= parentBox.y + parentBox.height || // 底部超出
-      elementBox.y + elementBox.height <= parentBox.y;  // 顶部超出
+      elementBox.x >= parentBox.x + parentBox.width ||
+      elementBox.x + elementBox.width <= parentBox.x ||
+      elementBox.y >= parentBox.y + parentBox.height ||
+      elementBox.y + elementBox.height <= parentBox.y;
 
     if (outsideParent) {
       return false;
     }
   }
 
-  // 通过所有检查，认为元素可见
   return true;
 }

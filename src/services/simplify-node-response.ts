@@ -422,31 +422,39 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
   }
 }
 
+/**
+ * 处理渐变填充，转换为 CSS linear-gradient
+ *
+ * Figma 渐变坐标系：
+ * - 原点 (0,0) 在左上角
+ * - x 轴向右为正
+ * - y 轴向下为正
+ *
+ * CSS 渐变角度：
+ * - 0deg 从下到上
+ * - 90deg 从左到右
+ * - 180deg 从上到下
+ * - 270deg 从右到左
+ */
 function processGradient(gradient: Paint): string {
   if (!gradient.gradientHandlePositions || !gradient.gradientStops) return '';
 
   const stops = gradient.gradientStops.map(stop => {
     const color = convertColor(stop.color, stop.color.a);
-    return `${color.hex} ${stop.position * 100}%`;
+    return `${color.hex} ${Math.round(stop.position * 100)}%`;
   }).join(', ');
 
-  // 获取起点和终点
   const [start, end] = gradient.gradientHandlePositions;
 
-  // 计算角度
-  // 在Figma中，渐变方向是从起点到终点
-  // 而在CSS中，0度是从下到上，顺时针旋转
-  let angle = Math.atan2(end.y - start.y, end.x - start.x) * (180 / Math.PI);
+  // 计算 Figma 中的角度（以 x 轴正方向为 0 度，逆时针为正）
+  const figmaAngle = Math.atan2(end.y - start.y, end.x - start.x) * (180 / Math.PI);
 
-  // 将Figma的角度转换为CSS角度
-  // 1. 首先将角度转为以上方为0度的系统
-  angle = angle - 90;
-  // 2. 因为CSS中0度是从下到上，所以我们需要翻转角度
-  angle = 180 - angle;
-  // 3. 确保角度在0-360度之间
-  angle = ((angle % 360) + 360) % 360;
+  // 转换为 CSS 角度：
+  // CSS 中 0deg 是向上，顺时针旋转
+  // Figma 中的角度需要加上 90 度（因为 Figma 0 度是向右，CSS 0 度是向上）
+  const cssAngle = Math.round((figmaAngle + 90 + 360) % 360);
 
-  return `linear-gradient(${angle}deg, ${stops})`;
+  return `linear-gradient(${cssAngle}deg, ${stops})`;
 }
 
 /**

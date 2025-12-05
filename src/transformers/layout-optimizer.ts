@@ -1,11 +1,22 @@
 import { SimplifiedNode, SimplifiedDesign } from "~/services/simplify-node-response.js";
 import { SpatialProjectionAnalyzer, Rect } from "~/utils/spatial-projection.js";
+import { sanitizeNameForId } from "~/utils/file.js";
 
 /**
  * 布局优化器 - 优化UI设计的布局结构
  */
 export class LayoutOptimizer {
-  private static containerIdCounter = 1;
+  /** 容器 ID 计数器，每次 optimizeDesign 调用时重置 */
+  private static containerIdCounter = 0;
+
+  /**
+   * 生成唯一的容器 ID
+   */
+  private static generateContainerId(name: string): string {
+    this.containerIdCounter++;
+    const sanitizedName = sanitizeNameForId(name);
+    return `layout-container-${this.containerIdCounter}-${sanitizedName}`;
+  }
 
   /**
    * 优化设计的布局结构
@@ -14,6 +25,9 @@ export class LayoutOptimizer {
    * @returns 优化后的设计
    */
   static optimizeDesign(design: SimplifiedDesign): SimplifiedDesign {
+    // 重置计数器，避免跨调用累积
+    this.containerIdCounter = 0;
+
     // 如果没有节点数据，直接返回
     if (!design.nodes) {
       return design;
@@ -536,7 +550,7 @@ export class LayoutOptimizer {
     // 如果没有有效的子节点，返回空容器
     if (minLeft === Infinity || minTop === Infinity || maxRight === -Infinity || maxBottom === -Infinity) {
       return {
-        id: `container-${this.containerIdCounter++}-${name}`,
+        id: this.generateContainerId(name),
         name: `Layout Container ${name}`,
         type: 'FRAME',
         cssStyles: {
@@ -551,7 +565,7 @@ export class LayoutOptimizer {
 
     // 设置容器样式和位置
     return {
-      id: `container-${this.containerIdCounter++}-${name}`,
+      id: this.generateContainerId(name),
       name: `Layout Container ${name}`,
       type: 'FRAME',
       cssStyles: {

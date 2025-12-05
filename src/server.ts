@@ -1,16 +1,60 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { FigmaService } from "./services/figma.js";
+import { FigmaService, FigmaError } from "./services/figma.js";
 import express, { Request, Response } from "express";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { IncomingMessage, ServerResponse } from "http";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SimplifiedDesign } from "./services/simplify-node-response.js";
 
+// ==================== 日志工具 ====================
+
 export const Logger = {
-  log: (...args: any[]) => {},
-  error: (...args: any[]) => {},
+  log: (...args: unknown[]) => {},
+  error: (...args: unknown[]) => {},
 };
+
+// ==================== 错误格式化 ====================
+
+/**
+ * 检查错误是否为 Figma API 错误
+ */
+function isFigmaError(error: unknown): error is FigmaError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof (error as FigmaError).status === "number"
+  );
+}
+
+/**
+ * 格式化错误信息供 AI 理解
+ */
+function formatErrorForAI(error: unknown, context: string): string {
+  if (isFigmaError(error)) {
+    const parts: string[] = [`[Figma API Error] ${context}`];
+    parts.push(`Status: ${error.status}`);
+    parts.push(`Message: ${error.err}`);
+
+    if (error.rateLimitInfo) {
+      const { remaining, resetAfter, retryAfter } = error.rateLimitInfo;
+      if (remaining !== null) parts.push(`Rate Limit Remaining: ${remaining}`);
+      if (retryAfter !== null) parts.push(`Retry After: ${retryAfter} seconds`);
+      if (resetAfter !== null) parts.push(`Reset After: ${resetAfter} seconds`);
+    }
+
+    return parts.join("\n");
+  }
+
+  if (error instanceof Error) {
+    return `[Error] ${context}: ${error.message}`;
+  }
+
+  return `[Error] ${context}: ${String(error)}`;
+}
+
+// ==================== MCP 服务器 ====================
 
 export class FigmaMcpServer {
   private readonly server: McpServer;
@@ -22,7 +66,7 @@ export class FigmaMcpServer {
     this.server = new McpServer(
       {
         name: "Figma MCP Server",
-        version: "0.1.12",
+        version: "1.0.2",
       },
       {
         capabilities: {
@@ -36,35 +80,37 @@ export class FigmaMcpServer {
   }
 
   private registerTools(): void {
-    // Tool to get file information
+    // Tool: 获取 Figma 数据
     this.server.tool(
       "get_figma_data",
-      "When the nodeId cannot be obtained, obtain the layout information about the entire Figma file",
+      "Get layout and style information from a Figma file or specific node. " +
+        "Returns simplified design data including CSS styles, text content, and export info. " +
+        "Results are cached for 24 hours to reduce API calls.",
       {
         fileKey: z
           .string()
           .describe(
-            "The key of the Figma file to fetch, often found in a provided URL like figma.com/(file|design)/<fileKey>/...",
+            "The key of the Figma file to fetch, found in URL like figma.com/(file|design)/<fileKey>/...",
           ),
         nodeId: z
           .string()
           .optional()
           .describe(
-            "The ID of the node to fetch, often found as URL parameter node-id=<nodeId>, always use if provided",
+            "The ID of a specific node to fetch (e.g., '1234:5678'), found as URL parameter node-id=<nodeId>. Use this for better performance with large files.",
           ),
         depth: z
           .number()
           .optional()
           .describe(
-            "How many levels deep to traverse the node tree, only use if explicitly requested by the user",
+            "How many levels deep to traverse the node tree (1-100). Only use if explicitly needed.",
           ),
       },
       async ({ fileKey, nodeId, depth }) => {
         try {
           Logger.log(
-            `Fetching ${
-              depth ? `${depth} layers deep` : "all layers"
-            } of ${nodeId ? `node ${nodeId} from file` : `full file`} ${fileKey}`,
+            `Fetching ${depth ? `${depth} layers deep` : "all layers"} of ${
+              nodeId ? `node ${nodeId} from file` : `full file`
+            } ${fileKey}`,
           );
 
           let file: SimplifiedDesign;
@@ -75,94 +121,106 @@ export class FigmaMcpServer {
           }
 
           Logger.log(`Successfully fetched file: ${file.name}`);
-          const { nodes,  ...metadata } = file;
+          const { nodes, ...metadata } = file;
 
-          // Stringify each node individually to try to avoid max string length error with big files
+          // 分段序列化以处理大文件
           const nodesJson = `[${nodes.map((node) => JSON.stringify(node, null, 2)).join(",")}]`;
           const metadataJson = JSON.stringify(metadata, null, 2);
           const resultJson = `{ "metadata": ${metadataJson}, "nodes": ${nodesJson} }`;
 
+          // 添加缓存状态信息
+          const rateLimitInfo = this.figmaService.getRateLimitInfo();
+          let statusNote = "";
+          if (rateLimitInfo && rateLimitInfo.remaining !== null) {
+            statusNote = `\n\n[API Status] Rate limit remaining: ${rateLimitInfo.remaining}`;
+          }
+
           return {
-            content: [{ type: "text", text: resultJson }],
+            content: [{ type: "text", text: resultJson + statusNote }],
           };
         } catch (error) {
           Logger.error(`Error fetching file ${fileKey}:`, error);
+          const errorMessage = formatErrorForAI(error, `Failed to fetch Figma data for file ${fileKey}`);
           return {
             isError: true,
-            content: [{ type: "text", text: `Error fetching file: ${error}` }],
+            content: [{ type: "text", text: errorMessage }],
           };
         }
       },
     );
 
-    // TODO: Clean up all image download related code, particularly getImages in Figma service
-    // Tool to download images
+    // Tool: 下载图片
     this.server.tool(
       "download_figma_images",
-      "Download SVG and PNG images used in a Figma file based on the IDs of image or icon nodes",
+      "Download SVG and PNG images from a Figma file. " +
+        "Supports both rendered node images and image fills. " +
+        "Images are cached locally to avoid repeated downloads.",
       {
-        fileKey: z.string().describe("The key of the Figma file containing the node"),
+        fileKey: z.string().describe("The key of the Figma file containing the images"),
         nodes: z
           .object({
             nodeId: z
               .string()
-              .describe("The ID of the Figma image node to fetch, formatted as 1234:5678"),
+              .describe("The ID of the Figma image node to fetch (e.g., '1234:5678')"),
             imageRef: z
               .string()
               .optional()
               .describe(
-                "If a node has an imageRef fill, you must include this variable. Leave blank when downloading Vector SVG images.",
+                "Required for image fills (background images). Leave blank for vector/icon SVGs.",
               ),
-            fileName: z.string().describe("The local name for saving the fetched file"),
+            fileName: z.string().describe("The local filename to save as (e.g., 'icon.svg', 'photo.png')"),
           })
           .array()
-          .describe("The nodes to fetch as images"),
+          .describe("Array of image nodes to download"),
         localPath: z
           .string()
           .describe(
-            "The absolute path to the directory where images are stored in the project. Automatically creates directories if needed.",
+            "Absolute path to the directory where images should be saved. Directories will be created if needed.",
           ),
       },
       async ({ fileKey, nodes, localPath }) => {
         try {
+          // 分类处理：图片填充 vs 渲染节点
           const imageFills = nodes.filter(({ imageRef }) => !!imageRef) as {
             nodeId: string;
             imageRef: string;
             fileName: string;
           }[];
-          const fillDownloads = this.figmaService.getImageFills(fileKey, imageFills, localPath);
+
           const renderRequests = nodes
             .filter(({ imageRef }) => !imageRef)
             .map(({ nodeId, fileName }) => ({
               nodeId,
               fileName,
-              fileType: fileName.endsWith(".svg") ? ("svg" as const) : ("png" as const),
+              fileType: fileName.toLowerCase().endsWith(".svg") ? ("svg" as const) : ("png" as const),
             }));
 
-          const renderDownloads = this.figmaService.getImages(fileKey, renderRequests, localPath);
+          // 顺序执行以减少 Rate Limit 风险
+          const fillResults = await this.figmaService.getImageFills(fileKey, imageFills, localPath);
+          const renderResults = await this.figmaService.getImages(fileKey, renderRequests, localPath);
 
-          const downloads = await Promise.all([fillDownloads, renderDownloads]).then(([f, r]) => [
-            ...f,
-            ...r,
-          ]);
+          const allDownloads = [...fillResults, ...renderResults];
+          const successfulDownloads = allDownloads.filter((path) => path && path.length > 0);
+          const failedCount = allDownloads.length - successfulDownloads.length;
 
-          // If any download fails, return false
-          const saveSuccess = !downloads.find((success) => !success);
+          let resultMessage: string;
+          if (successfulDownloads.length === allDownloads.length) {
+            resultMessage = `Successfully downloaded ${successfulDownloads.length} images:\n${successfulDownloads.join("\n")}`;
+          } else if (successfulDownloads.length > 0) {
+            resultMessage = `Downloaded ${successfulDownloads.length}/${allDownloads.length} images (${failedCount} failed):\n${successfulDownloads.join("\n")}`;
+          } else {
+            resultMessage = `Failed to download any images. Please check the node IDs and try again.`;
+          }
+
           return {
-            content: [
-              {
-                type: "text",
-                text: saveSuccess
-                  ? `Success, ${downloads.length} images downloaded: ${downloads.join(", ")}`
-                  : "Failed",
-              },
-            ],
+            content: [{ type: "text", text: resultMessage }],
           };
         } catch (error) {
           Logger.error(`Error downloading images from file ${fileKey}:`, error);
+          const errorMessage = formatErrorForAI(error, `Failed to download images from file ${fileKey}`);
           return {
             isError: true,
-            content: [{ type: "text", text: `Error downloading images: ${error}` }],
+            content: [{ type: "text", text: errorMessage }],
           };
         }
       },
@@ -170,16 +228,15 @@ export class FigmaMcpServer {
   }
 
   async connect(transport: Transport): Promise<void> {
-    // Logger.log("Connecting to transport...");
     await this.server.connect(transport);
 
-    Logger.log = (...args: any[]) => {
+    Logger.log = (...args: unknown[]) => {
       this.server.server.sendLoggingMessage({
         level: "info",
         data: args,
       });
     };
-    Logger.error = (...args: any[]) => {
+    Logger.error = (...args: unknown[]) => {
       this.server.server.sendLoggingMessage({
         level: "error",
         data: args,

@@ -1,16 +1,37 @@
+import type { SimplifiedNode, ExportInfo } from "~/services/simplify-node-response.js";
+
+// ==================== 类型定义 ====================
+
+/** 带有填充属性的节点 */
+interface NodeWithFills {
+  fills?: Array<{ type: string; imageRef?: string }>;
+}
+
+/** 带有样式和子节点的节点 */
+interface NodeWithChildren {
+  id: string;
+  name: string;
+  type: string;
+  cssStyles?: { backgroundImage?: string; top?: string; left?: string };
+  children?: NodeWithChildren[];
+  exportInfo?: ExportInfo;
+}
+
+// ==================== 图片检测 ====================
+
 /**
  * 检查节点是否有图片填充
  */
-export function hasImageFill(node: any): boolean {
-  return node.fills?.some((fill: any) => fill.type === 'IMAGE' && fill.imageRef) || false;
+export function hasImageFill(node: NodeWithFills): boolean {
+  return node.fills?.some((fill) => fill.type === 'IMAGE' && fill.imageRef) || false;
 }
 
 /**
  * 检测并标记图片组
  */
 export function detectAndMarkImageGroup(
-  node: any,
-  suggestExportFormat: (node: any) => string,
+  node: NodeWithChildren,
+  suggestExportFormat: (node: NodeWithChildren) => string,
   generateFileName: (name: string, format: string) => string
 ): void {
   // 只处理组和框架
@@ -20,11 +41,11 @@ export function detectAndMarkImageGroup(
   if (!node.children || node.children.length === 0) return;
 
   // 检查是否所有子元素都是图片类型
-  const allChildrenAreImages = node.children.every((child: any) =>
+  const allChildrenAreImages = node.children.every((child) =>
     (child.type === 'IMAGE') ||
-    (child.type === 'RECTANGLE' && hasImageFill(child)) ||
-    (child.type === 'ELLIPSE' && hasImageFill(child)) ||
-    (child.type === 'VECTOR' && hasImageFill(child)) ||
+    (child.type === 'RECTANGLE' && hasImageFill(child as NodeWithFills)) ||
+    (child.type === 'ELLIPSE' && hasImageFill(child as NodeWithFills)) ||
+    (child.type === 'VECTOR' && hasImageFill(child as NodeWithFills)) ||
     (child.type === 'FRAME' && child.cssStyles?.backgroundImage)
   );
 
@@ -33,7 +54,7 @@ export function detectAndMarkImageGroup(
     const format = suggestExportFormat(node);
     node.exportInfo = {
       type: 'IMAGE_GROUP',
-      format,
+      format: format as 'PNG' | 'JPG' | 'SVG',
       nodeId: node.id,
       fileName: generateFileName(node.name, format),
     };
@@ -43,10 +64,14 @@ export function detectAndMarkImageGroup(
   }
 }
 
+// ==================== 节点排序 ====================
+
 /**
- * 对节点按照位置排序
+ * 对节点按照位置排序（从上到下，从左到右）
  */
-export function sortNodesByPosition(nodes: any[]): any[] {
+export function sortNodesByPosition<T extends { cssStyles?: { top?: string; left?: string } }>(
+  nodes: T[]
+): T[] {
   return [...nodes].sort((a, b) => {
     // 按top值排序（从上到下）
     const aTop = a.cssStyles?.top ? parseFloat(a.cssStyles.top) : 0;
@@ -63,10 +88,12 @@ export function sortNodesByPosition(nodes: any[]): any[] {
   });
 }
 
+// ==================== 临时属性清理 ====================
+
 /**
  * 清理临时计算属性
  */
-export function cleanupTemporaryProperties(node: any): void {
+export function cleanupTemporaryProperties(node: SimplifiedNode): void {
   // 删除绝对坐标
   delete node._absoluteX;
   delete node._absoluteY;
