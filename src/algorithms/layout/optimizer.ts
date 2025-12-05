@@ -34,12 +34,12 @@ export class LayoutOptimizer {
     }
 
     // Recursively optimize the node tree
-    const optimizedNodes = design.nodes.map(node => this.optimizeNodeTree(node));
+    const optimizedNodes = design.nodes.map((node) => this.optimizeNodeTree(node));
 
     // Update the design
     return {
       ...design,
-      nodes: optimizedNodes
+      nodes: optimizedNodes,
     };
   }
 
@@ -56,12 +56,12 @@ export class LayoutOptimizer {
     }
 
     // Recursively process each child node
-    const optimizedChildren = node.children.map(child => this.optimizeNodeTree(child));
+    const optimizedChildren = node.children.map((child) => this.optimizeNodeTree(child));
 
     // Analyze row/column layout for container nodes
     return this.optimizeContainer({
       ...node,
-      children: optimizedChildren
+      children: optimizedChildren,
     });
   }
 
@@ -78,25 +78,25 @@ export class LayoutOptimizer {
     }
 
     // Check whether this is a FRAME or GROUP container
-    const isContainer = node.type === 'FRAME' || node.type === 'GROUP';
+    const isContainer = node.type === "FRAME" || node.type === "GROUP";
 
     // Analyze child spatial relationships to determine row or column layout
-    const { isRow, isColumn, rowGap, columnGap, isGapConsistent,
-            justifyContent, alignItems } = this.analyzeLayoutDirection(node.children);
+    const { isRow, isColumn, rowGap, columnGap, isGapConsistent, justifyContent, alignItems } =
+      this.analyzeLayoutDirection(node.children);
 
     // When layout is a valid row or column
     if (isRow || isColumn) {
       // If already a container node, add flex styles directly instead of creating another wrapper
       if (isContainer) {
-        const direction = isRow ? 'row' : 'column';
+        const direction = isRow ? "row" : "column";
         const gap = isRow ? rowGap : columnGap;
 
         // Build flex styles (omit defaults)
         const flexStyles: Record<string, string> = {
-          display: 'flex',
+          display: "flex",
         };
         // Only set the direction explicitly for column (row is the default)
-        if (direction === 'column') {
+        if (direction === "column") {
           flexStyles.flexDirection = direction;
         }
         // Only add gap when spacing is consistent and greater than zero
@@ -110,9 +110,9 @@ export class LayoutOptimizer {
           ...node,
           cssStyles: {
             ...node.cssStyles,
-            ...flexStyles
+            ...flexStyles,
           },
-          children: node.children
+          children: node.children,
         };
       }
       // If not a container but children share a clear layout, create a new layout container
@@ -122,13 +122,13 @@ export class LayoutOptimizer {
 
         // If grouping yields one group containing all children, return the original node with flex styles
         if (groups.length === 1 && groups[0].length === node.children.length) {
-          const direction = isRow ? 'row' : 'column';
+          const direction = isRow ? "row" : "column";
           const gap = isRow ? rowGap : columnGap;
 
           const flexStyles: Record<string, string> = {
-            display: 'flex',
+            display: "flex",
           };
-          if (direction === 'column') {
+          if (direction === "column") {
             flexStyles.flexDirection = direction;
           }
           if (gap > 0 && isGapConsistent) {
@@ -141,9 +141,9 @@ export class LayoutOptimizer {
             ...node,
             cssStyles: {
               ...node.cssStyles,
-              ...flexStyles
+              ...flexStyles,
             },
-            children: node.children
+            children: node.children,
           };
         }
 
@@ -155,16 +155,16 @@ export class LayoutOptimizer {
           }
 
           // Create a container for groups with multiple elements
-          const direction = isRow ? 'column' : 'row';
+          const direction = isRow ? "column" : "row";
           return this.createLayoutContainer(`group-${index}`, direction, group);
         });
 
         // Return the parent containing the grouped containers
-        const direction = isRow ? 'row' : 'column';
+        const direction = isRow ? "row" : "column";
         const flexStyles: Record<string, string> = {
-          display: 'flex',
+          display: "flex",
         };
-        if (direction === 'column') {
+        if (direction === "column") {
           flexStyles.flexDirection = direction;
         }
         if (justifyContent) flexStyles.justifyContent = justifyContent;
@@ -174,9 +174,9 @@ export class LayoutOptimizer {
           ...node,
           cssStyles: {
             ...node.cssStyles,
-            ...flexStyles
+            ...flexStyles,
           },
-          children: groupContainers
+          children: groupContainers,
         };
       }
     }
@@ -198,17 +198,20 @@ export class LayoutOptimizer {
     alignItems: string | null;
   } {
     const rects = nodes
-      .map(node => {
+      .map((node) => {
         if (!node.cssStyles) return null;
 
-        const left = parseFloat(node.cssStyles.left as string || '0');
-        const top = parseFloat(node.cssStyles.top as string || '0');
-        const width = parseFloat(node.cssStyles.width as string || '0');
-        const height = parseFloat(node.cssStyles.height as string || '0');
+        const left = parseFloat((node.cssStyles.left as string) || "0");
+        const top = parseFloat((node.cssStyles.top as string) || "0");
+        const width = parseFloat((node.cssStyles.width as string) || "0");
+        const height = parseFloat((node.cssStyles.height as string) || "0");
 
         return { left, top, width, height };
       })
-      .filter((rect): rect is { left: number; top: number; width: number; height: number } => rect !== null);
+      .filter(
+        (rect): rect is { left: number; top: number; width: number; height: number } =>
+          rect !== null,
+      );
 
     if (rects.length < 2) {
       return {
@@ -218,17 +221,13 @@ export class LayoutOptimizer {
         columnGap: 0,
         isGapConsistent: true,
         justifyContent: null,
-        alignItems: null
+        alignItems: null,
       };
     }
 
     // Analyze horizontal and vertical alignment
-    const {
-      horizontalAlignment,
-      verticalAlignment,
-      horizontalGap,
-      verticalGap
-    } = this.analyzeAlignment(rects);
+    const { horizontalAlignment, verticalAlignment, horizontalGap, verticalGap } =
+      this.analyzeAlignment(rects);
 
     // Calculate confidence scores for row and column layouts
     const rowScore = this.calculateRowScore(rects, horizontalAlignment, verticalAlignment);
@@ -244,14 +243,14 @@ export class LayoutOptimizer {
 
     if (isRow) {
       const jc = this.getJustifyContent(horizontalAlignment);
-      justifyContent = jc !== 'flex-start' ? jc : null;  // Skip default values
+      justifyContent = jc !== "flex-start" ? jc : null; // Skip default values
       const ai = this.getAlignItems(verticalAlignment);
-      alignItems = ai !== 'stretch' ? ai : null;  // Skip default values
+      alignItems = ai !== "stretch" ? ai : null; // Skip default values
     } else if (isColumn) {
       const jc = this.getJustifyContent(verticalAlignment);
-      justifyContent = jc !== 'flex-start' ? jc : null;
+      justifyContent = jc !== "flex-start" ? jc : null;
       const ai = this.getAlignItems(horizontalAlignment);
-      alignItems = ai !== 'stretch' ? ai : null;
+      alignItems = ai !== "stretch" ? ai : null;
     }
 
     // Select the gap metrics and consistency for the chosen direction
@@ -264,7 +263,7 @@ export class LayoutOptimizer {
       columnGap: verticalGap.gap,
       isGapConsistent: selectedGap.isConsistent,
       justifyContent,
-      alignItems
+      alignItems,
     };
   }
 
@@ -278,44 +277,44 @@ export class LayoutOptimizer {
     verticalGap: { gap: number; isConsistent: boolean };
   } {
     // Calculate positions and spacing on the horizontal axis
-    const lefts = rects.map(rect => rect.left);
-    const rights = rects.map(rect => rect.left + rect.width);
+    const lefts = rects.map((rect) => rect.left);
+    const rights = rects.map((rect) => rect.left + rect.width);
 
     // Calculate positions and spacing on the vertical axis
-    const tops = rects.map(rect => rect.top);
-    const bottoms = rects.map(rect => rect.top + rect.height);
+    const tops = rects.map((rect) => rect.top);
+    const bottoms = rects.map((rect) => rect.top + rect.height);
 
     // Evaluate horizontal alignment
     const leftAligned = this.areValuesAligned(lefts);
     const rightAligned = this.areValuesAligned(rights);
-    const centerHAligned = this.areValuesAligned(rects.map(rect => rect.left + rect.width / 2));
+    const centerHAligned = this.areValuesAligned(rects.map((rect) => rect.left + rect.width / 2));
 
     // Evaluate vertical alignment
     const topAligned = this.areValuesAligned(tops);
     const bottomAligned = this.areValuesAligned(bottoms);
-    const centerVAligned = this.areValuesAligned(rects.map(rect => rect.top + rect.height / 2));
+    const centerVAligned = this.areValuesAligned(rects.map((rect) => rect.top + rect.height / 2));
 
     // Determine the horizontal alignment label
-    let horizontalAlignment = 'none';
-    if (leftAligned) horizontalAlignment = 'left';
-    else if (rightAligned) horizontalAlignment = 'right';
-    else if (centerHAligned) horizontalAlignment = 'center';
+    let horizontalAlignment = "none";
+    if (leftAligned) horizontalAlignment = "left";
+    else if (rightAligned) horizontalAlignment = "right";
+    else if (centerHAligned) horizontalAlignment = "center";
 
     // Determine the vertical alignment label
-    let verticalAlignment = 'none';
-    if (topAligned) verticalAlignment = 'top';
-    else if (bottomAligned) verticalAlignment = 'bottom';
-    else if (centerVAligned) verticalAlignment = 'center';
+    let verticalAlignment = "none";
+    if (topAligned) verticalAlignment = "top";
+    else if (bottomAligned) verticalAlignment = "bottom";
+    else if (centerVAligned) verticalAlignment = "center";
 
     // Compute the average gap (with consistency checks)
-    const horizontalGap = this.calculateAverageGap(rects, 'horizontal');
-    const verticalGap = this.calculateAverageGap(rects, 'vertical');
+    const horizontalGap = this.calculateAverageGap(rects, "horizontal");
+    const verticalGap = this.calculateAverageGap(rects, "vertical");
 
     return {
       horizontalAlignment,
       verticalAlignment,
       horizontalGap,
-      verticalGap
+      verticalGap,
     };
   }
 
@@ -326,7 +325,7 @@ export class LayoutOptimizer {
     if (values.length < 2) return true;
 
     const firstValue = values[0];
-    return values.every(value => Math.abs(value - firstValue) <= tolerance);
+    return values.every((value) => Math.abs(value - firstValue) <= tolerance);
   }
 
   /**
@@ -335,13 +334,13 @@ export class LayoutOptimizer {
    */
   static calculateAverageGap(
     rects: { left: number; top: number; width: number; height: number }[],
-    direction: 'horizontal' | 'vertical'
+    direction: "horizontal" | "vertical",
   ): { gap: number; isConsistent: boolean } {
     if (rects.length < 2) return { gap: 0, isConsistent: true };
 
     // Sort nodes
     const sortedRects = [...rects].sort((a, b) => {
-      if (direction === 'horizontal') {
+      if (direction === "horizontal") {
         return a.left - b.left;
       } else {
         return a.top - b.top;
@@ -354,7 +353,7 @@ export class LayoutOptimizer {
       const current = sortedRects[i];
       const next = sortedRects[i + 1];
 
-      if (direction === 'horizontal') {
+      if (direction === "horizontal") {
         const gap = next.left - (current.left + current.width);
         if (gap > 0) gaps.push(gap);
       } else {
@@ -372,7 +371,7 @@ export class LayoutOptimizer {
 
     return {
       gap: roundedGap,
-      isConsistent: analysis.isConsistent
+      isConsistent: analysis.isConsistent,
     };
   }
 
@@ -382,7 +381,7 @@ export class LayoutOptimizer {
   static calculateRowScore(
     rects: { left: number; top: number; width: number; height: number }[],
     horizontalAlignment: string,
-    verticalAlignment: string
+    verticalAlignment: string,
   ): number {
     if (rects.length < 2) return 0;
 
@@ -403,7 +402,7 @@ export class LayoutOptimizer {
     const horizontalDistribution = consecutiveHorizontalGaps / (sortedByLeft.length - 1);
 
     // Vertical alignment increases the score
-    const verticalAlignmentScore = (verticalAlignment !== 'none') ? 0.3 : 0;
+    const verticalAlignmentScore = verticalAlignment !== "none" ? 0.3 : 0;
 
     // Combine into a final score
     return horizontalDistribution * 0.7 + verticalAlignmentScore;
@@ -415,7 +414,7 @@ export class LayoutOptimizer {
   static calculateColumnScore(
     rects: { left: number; top: number; width: number; height: number }[],
     horizontalAlignment: string,
-    verticalAlignment: string
+    _verticalAlignment: string,
   ): number {
     if (rects.length < 2) return 0;
 
@@ -436,7 +435,7 @@ export class LayoutOptimizer {
     const verticalDistribution = consecutiveVerticalGaps / (sortedByTop.length - 1);
 
     // Horizontal alignment increases the score
-    const horizontalAlignmentScore = (horizontalAlignment !== 'none') ? 0.3 : 0;
+    const horizontalAlignmentScore = horizontalAlignment !== "none" ? 0.3 : 0;
 
     // Combine into a final score
     return verticalDistribution * 0.7 + horizontalAlignmentScore;
@@ -445,23 +444,27 @@ export class LayoutOptimizer {
   /**
    * Group child nodes based on layout characteristics
    */
-  static groupChildrenByLayout(
-    nodes: SimplifiedNode[],
-    isRow: boolean
-  ): SimplifiedNode[][] {
+  static groupChildrenByLayout(nodes: SimplifiedNode[], isRow: boolean): SimplifiedNode[][] {
     if (nodes.length <= 1) return [nodes];
 
     // Extract positional information for nodes
-    const rects = nodes.map((node, index) => {
-      if (!node.cssStyles) return null;
+    const rects = nodes
+      .map((node, index) => {
+        if (!node.cssStyles) return null;
 
-      const left = parseFloat(node.cssStyles.left as string || '0');
-      const top = parseFloat(node.cssStyles.top as string || '0');
-      const width = parseFloat(node.cssStyles.width as string || '0');
-      const height = parseFloat(node.cssStyles.height as string || '0');
+        const left = parseFloat((node.cssStyles.left as string) || "0");
+        const top = parseFloat((node.cssStyles.top as string) || "0");
+        const width = parseFloat((node.cssStyles.width as string) || "0");
+        const height = parseFloat((node.cssStyles.height as string) || "0");
 
-      return { index, left, top, width, height };
-    }).filter((rect): rect is { index: number; left: number; top: number; width: number; height: number } => rect !== null);
+        return { index, left, top, width, height };
+      })
+      .filter(
+        (
+          rect,
+        ): rect is { index: number; left: number; top: number; width: number; height: number } =>
+          rect !== null,
+      );
 
     // Sort according to the layout direction
     const sortedRects = [...rects].sort((a, b) => {
@@ -517,16 +520,16 @@ export class LayoutOptimizer {
    */
   static getJustifyContent(alignment: string): string | null {
     switch (alignment) {
-      case 'left':
-      case 'top':
-        return 'flex-start';
-      case 'right':
-      case 'bottom':
-        return 'flex-end';
-      case 'center':
-        return 'center';
+      case "left":
+      case "top":
+        return "flex-start";
+      case "right":
+      case "bottom":
+        return "flex-end";
+      case "center":
+        return "center";
       default:
-        return 'space-between';
+        return "space-between";
     }
   }
 
@@ -535,14 +538,14 @@ export class LayoutOptimizer {
    */
   static getAlignItems(alignment: string): string | null {
     switch (alignment) {
-      case 'left':
-      case 'top':
-        return 'flex-start';
-      case 'right':
-      case 'bottom':
-        return 'flex-end';
-      case 'center':
-        return 'center';
+      case "left":
+      case "top":
+        return "flex-start";
+      case "right":
+      case "bottom":
+        return "flex-end";
+      case "center":
+        return "center";
       default:
         return null;
     }
@@ -553,8 +556,8 @@ export class LayoutOptimizer {
    */
   static createLayoutContainer(
     name: string,
-    direction: 'row' | 'column',
-    children: SimplifiedNode[]
+    direction: "row" | "column",
+    children: SimplifiedNode[],
   ): SimplifiedNode {
     // Calculate the container bounding box
     let minLeft = Infinity;
@@ -563,13 +566,13 @@ export class LayoutOptimizer {
     let maxBottom = -Infinity;
 
     // Find the minimal bounding rectangle of all children
-    children.forEach(child => {
+    children.forEach((child) => {
       if (!child.cssStyles) return;
 
-      const left = parseFloat(child.cssStyles.left as string || '0');
-      const top = parseFloat(child.cssStyles.top as string || '0');
-      const width = parseFloat(child.cssStyles.width as string || '0');
-      const height = parseFloat(child.cssStyles.height as string || '0');
+      const left = parseFloat((child.cssStyles.left as string) || "0");
+      const top = parseFloat((child.cssStyles.top as string) || "0");
+      const width = parseFloat((child.cssStyles.width as string) || "0");
+      const height = parseFloat((child.cssStyles.height as string) || "0");
 
       minLeft = Math.min(minLeft, left);
       minTop = Math.min(minTop, top);
@@ -581,18 +584,23 @@ export class LayoutOptimizer {
     const { justifyContent, alignItems } = this.analyzeLayoutDirection(children);
 
     // Return an empty container if no valid child nodes exist
-    if (minLeft === Infinity || minTop === Infinity || maxRight === -Infinity || maxBottom === -Infinity) {
+    if (
+      minLeft === Infinity ||
+      minTop === Infinity ||
+      maxRight === -Infinity ||
+      maxBottom === -Infinity
+    ) {
       return {
         id: this.generateContainerId(name),
         name: `Layout Container ${name}`,
-        type: 'FRAME',
+        type: "FRAME",
         cssStyles: {
-          display: 'flex',
+          display: "flex",
           flexDirection: direction,
-          width: '100%',
-          height: 'auto'
+          width: "100%",
+          height: "auto",
         },
-        children
+        children,
       };
     }
 
@@ -600,19 +608,19 @@ export class LayoutOptimizer {
     return {
       id: this.generateContainerId(name),
       name: `Layout Container ${name}`,
-      type: 'FRAME',
+      type: "FRAME",
       cssStyles: {
-        display: 'flex',
+        display: "flex",
         flexDirection: direction,
-        position: 'absolute',
+        position: "absolute",
         left: `${minLeft}px`,
         top: `${minTop}px`,
         width: `${maxRight - minLeft}px`,
         height: `${maxBottom - minTop}px`,
         ...(justifyContent ? { justifyContent } : {}),
-        ...(alignItems ? { alignItems } : {})
+        ...(alignItems ? { alignItems } : {}),
       },
-      children
+      children,
     };
   }
 
@@ -623,7 +631,7 @@ export class LayoutOptimizer {
     if (values.length <= 1) return 0;
 
     const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-    const squaredDiffs = values.map(v => Math.pow(v - mean, 2));
+    const squaredDiffs = values.map((v) => Math.pow(v - mean, 2));
     return squaredDiffs.reduce((sum, sq) => sum + sq, 0) / values.length;
   }
 
@@ -648,10 +656,10 @@ export class LayoutOptimizer {
       .map((element, index) => {
         if (!element.cssStyles) return null;
 
-        const left = parseFloat(element.cssStyles.left as string || '0');
-        const top = parseFloat(element.cssStyles.top as string || '0');
-        const width = parseFloat(element.cssStyles.width as string || '0');
-        const height = parseFloat(element.cssStyles.height as string || '0');
+        const left = parseFloat((element.cssStyles.left as string) || "0");
+        const top = parseFloat((element.cssStyles.top as string) || "0");
+        const width = parseFloat((element.cssStyles.width as string) || "0");
+        const height = parseFloat((element.cssStyles.height as string) || "0");
         const right = left + width;
         const bottom = top + height;
         const centerX = left + width / 2;
@@ -659,17 +667,17 @@ export class LayoutOptimizer {
 
         return { index, left, top, right, bottom, width, height, centerX, centerY };
       })
-      .filter(rect => rect !== null) as Array<{
-        index: number;
-        left: number;
-        top: number;
-        right: number;
-        bottom: number;
-        width: number;
-        height: number;
-        centerX: number;
-        centerY: number;
-      }>;
+      .filter((rect) => rect !== null) as Array<{
+      index: number;
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+      width: number;
+      height: number;
+      centerX: number;
+      centerY: number;
+    }>;
   }
 
   /**
@@ -677,7 +685,14 @@ export class LayoutOptimizer {
    */
   static analyzeHorizontalLayout(
     rects: ReturnType<typeof LayoutOptimizer.extractElementRects>,
-    bounds: { left: number; top: number; right: number; bottom: number; width: number; height: number }
+    bounds: {
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+      width: number;
+      height: number;
+    },
   ): {
     distributionScore: number;
     alignmentScore: number;
@@ -712,9 +727,9 @@ export class LayoutOptimizer {
     const distributionScore = consecutiveGaps / (sortedByLeft.length - 1);
 
     // Analyze horizontal alignment
-    const lefts = sortedByLeft.map(r => r.left);
-    const rights = sortedByLeft.map(r => r.right);
-    const centers = sortedByLeft.map(r => r.centerX);
+    const lefts = sortedByLeft.map((r) => r.left);
+    const rights = sortedByLeft.map((r) => r.right);
+    const centers = sortedByLeft.map((r) => r.centerX);
 
     // Calculate alignment tolerance relative to the container width
     const relativeTolerance = Math.max(5, bounds.width * 0.01); // At least 5px or 1% of the container width
@@ -724,14 +739,14 @@ export class LayoutOptimizer {
     const centerAligned = this.areValuesAligned(centers, relativeTolerance);
 
     // Calculate the alignment score
-    const alignmentScore = (leftAligned || rightAligned || centerAligned) ? 0.5 : 0;
+    const alignmentScore = leftAligned || rightAligned || centerAligned ? 0.5 : 0;
 
     // Calculate the average gap
     const averageGap = gaps.length > 0 ? totalGapWidth / gaps.length : 0;
 
     // Calculate gap consistency: the smaller the variance, the higher the consistency
-    const gapConsistency = gaps.length > 1 ?
-      1 - this.calculateVariance(gaps) / (averageGap * averageGap + 0.1) : 0;
+    const gapConsistency =
+      gaps.length > 1 ? 1 - this.calculateVariance(gaps) / (averageGap * averageGap + 0.1) : 0;
 
     return {
       distributionScore,
@@ -741,7 +756,7 @@ export class LayoutOptimizer {
       centerAligned,
       averageGap,
       gapConsistency,
-      gaps
+      gaps,
     };
   }
 
@@ -750,7 +765,14 @@ export class LayoutOptimizer {
    */
   static analyzeVerticalLayout(
     rects: ReturnType<typeof LayoutOptimizer.extractElementRects>,
-    bounds: { left: number; top: number; right: number; bottom: number; width: number; height: number }
+    bounds: {
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+      width: number;
+      height: number;
+    },
   ): {
     distributionScore: number;
     alignmentScore: number;
@@ -785,9 +807,9 @@ export class LayoutOptimizer {
     const distributionScore = consecutiveGaps / (sortedByTop.length - 1);
 
     // Analyze vertical alignment
-    const tops = sortedByTop.map(r => r.top);
-    const bottoms = sortedByTop.map(r => r.bottom);
-    const centers = sortedByTop.map(r => r.centerY);
+    const tops = sortedByTop.map((r) => r.top);
+    const bottoms = sortedByTop.map((r) => r.bottom);
+    const centers = sortedByTop.map((r) => r.centerY);
 
     // Calculate alignment tolerance relative to the container height
     const relativeTolerance = Math.max(5, bounds.height * 0.01); // At least 5px or 1% of the container height
@@ -797,14 +819,14 @@ export class LayoutOptimizer {
     const centerAligned = this.areValuesAligned(centers, relativeTolerance);
 
     // Calculate the alignment score
-    const alignmentScore = (topAligned || bottomAligned || centerAligned) ? 0.5 : 0;
+    const alignmentScore = topAligned || bottomAligned || centerAligned ? 0.5 : 0;
 
     // Calculate the average gap
     const averageGap = gaps.length > 0 ? totalGapHeight / gaps.length : 0;
 
     // Calculate gap consistency
-    const gapConsistency = gaps.length > 1 ?
-      1 - this.calculateVariance(gaps) / (averageGap * averageGap + 0.1) : 0;
+    const gapConsistency =
+      gaps.length > 1 ? 1 - this.calculateVariance(gaps) / (averageGap * averageGap + 0.1) : 0;
 
     return {
       distributionScore,
@@ -814,7 +836,7 @@ export class LayoutOptimizer {
       centerAligned,
       averageGap,
       gapConsistency,
-      gaps
+      gaps,
     };
   }
 
@@ -822,10 +844,10 @@ export class LayoutOptimizer {
    * Calculate bounds
    */
   static calculateBounds(rects: ReturnType<typeof LayoutOptimizer.extractElementRects>) {
-    const left = Math.min(...rects.map(r => r.left));
-    const top = Math.min(...rects.map(r => r.top));
-    const right = Math.max(...rects.map(r => r.right));
-    const bottom = Math.max(...rects.map(r => r.bottom));
+    const left = Math.min(...rects.map((r) => r.left));
+    const top = Math.min(...rects.map((r) => r.top));
+    const right = Math.max(...rects.map((r) => r.right));
+    const bottom = Math.max(...rects.map((r) => r.bottom));
 
     return {
       left,
@@ -833,7 +855,7 @@ export class LayoutOptimizer {
       right,
       bottom,
       width: right - left,
-      height: bottom - top
+      height: bottom - top,
     };
   }
 
@@ -842,11 +864,15 @@ export class LayoutOptimizer {
    */
   static generateFlexProperties(
     isRow: boolean,
-    mainAxisInfo: ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout> | ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>,
-    crossAxisInfo: ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout> | ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>
+    mainAxisInfo:
+      | ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>
+      | ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>,
+    crossAxisInfo:
+      | ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>
+      | ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>,
   ): Record<string, any> {
     const properties: Record<string, any> = {
-      flexDirection: isRow ? 'row' : 'column'
+      flexDirection: isRow ? "row" : "column",
     };
 
     // Set gap values
@@ -855,50 +881,56 @@ export class LayoutOptimizer {
     }
 
     // Set main-axis alignment
-    let justifyContent = 'flex-start';
+    let justifyContent = "flex-start";
 
     if (isRow) {
       // For row layouts, handle horizontal alignment
-      const horizontalInfo = mainAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>;
+      const horizontalInfo = mainAxisInfo as ReturnType<
+        typeof LayoutOptimizer.analyzeHorizontalLayout
+      >;
       if (horizontalInfo.rightAligned) {
-        justifyContent = 'flex-end';
+        justifyContent = "flex-end";
       } else if (horizontalInfo.centerAligned) {
-        justifyContent = 'center';
+        justifyContent = "center";
       } else if (horizontalInfo.gaps.length > 0 && horizontalInfo.gapConsistency > 0.7) {
-        justifyContent = 'space-between';
+        justifyContent = "space-between";
       }
     } else {
       // For column layouts, handle vertical alignment
       const verticalInfo = mainAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>;
       if (verticalInfo.bottomAligned) {
-        justifyContent = 'flex-end';
+        justifyContent = "flex-end";
       } else if (verticalInfo.centerAligned) {
-        justifyContent = 'center';
+        justifyContent = "center";
       } else if (verticalInfo.gaps.length > 0 && verticalInfo.gapConsistency > 0.7) {
-        justifyContent = 'space-between';
+        justifyContent = "space-between";
       }
     }
 
     properties.justifyContent = justifyContent;
 
     // Set cross-axis alignment
-    let alignItems = 'flex-start';
+    let alignItems = "flex-start";
 
     if (isRow) {
       // For row layouts, handle vertical alignment
-      const verticalInfo = crossAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>;
+      const verticalInfo = crossAxisInfo as ReturnType<
+        typeof LayoutOptimizer.analyzeVerticalLayout
+      >;
       if (verticalInfo.bottomAligned) {
-        alignItems = 'flex-end';
+        alignItems = "flex-end";
       } else if (verticalInfo.centerAligned) {
-        alignItems = 'center';
+        alignItems = "center";
       }
     } else {
       // For column layouts, handle horizontal alignment
-      const horizontalInfo = crossAxisInfo as ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>;
+      const horizontalInfo = crossAxisInfo as ReturnType<
+        typeof LayoutOptimizer.analyzeHorizontalLayout
+      >;
       if (horizontalInfo.rightAligned) {
-        alignItems = 'flex-end';
+        alignItems = "flex-end";
       } else if (horizontalInfo.centerAligned) {
-        alignItems = 'center';
+        alignItems = "center";
       }
     }
 

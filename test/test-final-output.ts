@@ -52,7 +52,7 @@ interface SimplifiedOutput {
 
 function generateSimplifiedOutput(
   node: FigmaNode,
-  exportableIcons: IconDetectionResult[]
+  exportableIcons: IconDetectionResult[],
 ): SimplifiedOutput {
   const exportableNodes: SimplifiedExportNode[] = exportableIcons.map((icon) => ({
     id: icon.nodeId,
@@ -114,10 +114,7 @@ function generateSimplifiedOutput(
 
 // ==================== 对比输出 ====================
 
-function printComparison(
-  originalNodeCount: number,
-  optimizedOutput: SimplifiedOutput
-): void {
+function printComparison(originalNodeCount: number, optimizedOutput: SimplifiedOutput): void {
   console.log("\n" + "=".repeat(60));
   console.log("优化前 vs 优化后 对比");
   console.log("=".repeat(60) + "\n");
@@ -137,7 +134,7 @@ function printComparison(
   console.log("导出的图标:");
   optimizedOutput.exportableNodes.forEach((node, index) => {
     console.log(
-      `  ${index + 1}. ${node.name} (${node.size.width}x${node.size.height}) [${node.exportFormat}]`
+      `  ${index + 1}. ${node.name} (${node.size.width}x${node.size.height}) [${node.exportFormat}]`,
     );
     console.log(`     ID: ${node.id}`);
     console.log(`     原因: ${node.reason}`);
@@ -153,17 +150,14 @@ function printComparison(
   }
 
   const reduction = Math.round(
-    ((originalNodeCount - optimizedOutput.summary.totalExportable) / originalNodeCount) * 100
+    ((originalNodeCount - optimizedOutput.summary.totalExportable) / originalNodeCount) * 100,
   );
   console.log(`📉 减少导出数量: ${reduction}%`);
 }
 
 // ==================== 生成最终 JSON ====================
 
-function generateFinalJson(
-  node: FigmaNode,
-  exportableIcons: IconDetectionResult[]
-): object {
+function generateFinalJson(node: FigmaNode, exportableIcons: IconDetectionResult[]): object {
   const exportableIds = new Set(exportableIcons.map((i) => i.nodeId));
   const iconMap = new Map(exportableIcons.map((i) => [i.nodeId, i]));
 

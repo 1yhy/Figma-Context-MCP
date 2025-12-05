@@ -181,7 +181,7 @@ export class CacheManager {
       }
 
       return imagePath;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -242,7 +242,7 @@ export class CacheManager {
 
       fs.copyFileSync(cachedPath, targetPath);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -257,7 +257,7 @@ export class CacheManager {
 
       if (fs.existsSync(dataPath)) fs.unlinkSync(dataPath);
       if (fs.existsSync(metadataPath)) fs.unlinkSync(metadataPath);
-    } catch (error) {
+    } catch {
       // Ignore deletion errors
     }
   }
@@ -272,7 +272,7 @@ export class CacheManager {
 
       if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
       if (fs.existsSync(metadataPath)) fs.unlinkSync(metadataPath);
-    } catch (error) {
+    } catch {
       // Ignore deletion errors
     }
   }

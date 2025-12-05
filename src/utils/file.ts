@@ -7,11 +7,11 @@
  * @param separator Separator, defaults to '_'
  * @returns Sanitized name
  */
-export function sanitizeName(name: string, separator: string = '_'): string {
+export function sanitizeName(name: string, separator: string = "_"): string {
   return name
-    .replace(/[/\\?%*:|"<>]/g, separator)  // Replace illegal filesystem characters
-    .replace(/\s+/g, separator)             // Replace whitespace characters
-    .replace(new RegExp(`${separator}+`, 'g'), separator)  // Merge consecutive separators
+    .replace(/[/\\?%*:|"<>]/g, separator) // Replace illegal filesystem characters
+    .replace(/\s+/g, separator) // Replace whitespace characters
+    .replace(new RegExp(`${separator}+`, "g"), separator) // Merge consecutive separators
     .toLowerCase();
 }
 
@@ -23,8 +23,8 @@ export function sanitizeName(name: string, separator: string = '_'): string {
  */
 export function sanitizeNameForId(name: string): string {
   return name
-    .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9-]/g, '')
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9-]/g, "")
     .toLowerCase();
 }
 
@@ -32,7 +32,7 @@ export function sanitizeNameForId(name: string): string {
  * Generate file name based on node name
  */
 export function generateFileName(name: string, format: string): string {
-  const sanitizedName = sanitizeName(name, '_');
+  const sanitizedName = sanitizeName(name, "_");
   const lowerFormat = format.toLowerCase();
 
   // If the name already includes the extension, keep the original name
@@ -66,9 +66,9 @@ export interface FormatDetectionNode {
 export function suggestExportFormat(
   node: FormatDetectionNode,
   isSVGNode: (node: FormatDetectionNode) => boolean,
-): 'PNG' | 'JPG' | 'SVG' {
+): "PNG" | "JPG" | "SVG" {
   if (isSVGNode(node)) {
-    return 'SVG';
+    return "SVG";
   }
-  return 'PNG';
+  return "PNG";
 }

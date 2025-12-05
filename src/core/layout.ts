@@ -130,6 +130,7 @@ function getDirection(
         case "column":
           return "vertical";
       }
+      break;
     case "counter":
       switch (mode) {
         case "row":
@@ -226,15 +227,15 @@ function buildSimplifiedLayoutValues(
 
     // Only include dimensions that aren't meant to stretch
     if (mode === "row") {
-      if (!n.layoutGrow && n.layoutSizingHorizontal == "FIXED")
+      if (!n.layoutGrow && n.layoutSizingHorizontal === "FIXED")
         dimensions.width = n.absoluteBoundingBox.width;
-      if (n.layoutAlign !== "STRETCH" && n.layoutSizingVertical == "FIXED")
+      if (n.layoutAlign !== "STRETCH" && n.layoutSizingVertical === "FIXED")
         dimensions.height = n.absoluteBoundingBox.height;
     } else if (mode === "column") {
       // column
-      if (n.layoutAlign !== "STRETCH" && n.layoutSizingHorizontal == "FIXED")
+      if (n.layoutAlign !== "STRETCH" && n.layoutSizingHorizontal === "FIXED")
         dimensions.width = n.absoluteBoundingBox.width;
-      if (!n.layoutGrow && n.layoutSizingVertical == "FIXED")
+      if (!n.layoutGrow && n.layoutSizingVertical === "FIXED")
         dimensions.height = n.absoluteBoundingBox.height;
 
       if (n.preserveRatio) {

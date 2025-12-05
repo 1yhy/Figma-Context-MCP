@@ -1,4 +1,4 @@
-import { Node as FigmaDocumentNode } from "@figma/rest-api-spec";
+import { type Node as FigmaDocumentNode } from "@figma/rest-api-spec";
 import type { SimplifiedFill } from "~/types/index.js";
 import { generateCSSShorthand } from "~/utils/css.js";
 import { isVisible } from "~/utils/validation.js";
@@ -11,7 +11,7 @@ export type SimplifiedStroke = {
   strokeWeights?: string;
 };
 export function buildSimplifiedStrokes(n: FigmaDocumentNode): SimplifiedStroke {
-  let strokes: SimplifiedStroke = { colors: [] };
+  const strokes: SimplifiedStroke = { colors: [] };
   if (hasValue("strokes", n) && Array.isArray(n.strokes) && n.strokes.length) {
     strokes.colors = n.strokes.filter(isVisible).map(parsePaint);
   }

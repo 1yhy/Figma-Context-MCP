@@ -1,8 +1,8 @@
 import {
-  DropShadowEffect,
-  InnerShadowEffect,
-  BlurEffect,
-  Node as FigmaDocumentNode,
+  type DropShadowEffect,
+  type InnerShadowEffect,
+  type BlurEffect,
+  type Node as FigmaDocumentNode,
 } from "@figma/rest-api-spec";
 import { formatRGBAColor } from "~/utils/color.js";
 import { hasValue } from "~/utils/validation.js";

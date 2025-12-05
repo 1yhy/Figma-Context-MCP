@@ -2,9 +2,9 @@
  * 从简化的 Figma JSON 生成 HTML 预览
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,12 +33,8 @@ interface SimplifiedDesign {
  * 获取节点的位置值
  */
 function getPosition(node: SimplifiedNode): { left: number; top: number } {
-  const left = node.cssStyles?.left
-    ? parseFloat(String(node.cssStyles.left).replace('px', ''))
-    : 0;
-  const top = node.cssStyles?.top
-    ? parseFloat(String(node.cssStyles.top).replace('px', ''))
-    : 0;
+  const left = node.cssStyles?.left ? parseFloat(String(node.cssStyles.left).replace("px", "")) : 0;
+  const top = node.cssStyles?.top ? parseFloat(String(node.cssStyles.top).replace("px", "")) : 0;
   return { left, top };
 }
 
@@ -48,9 +44,9 @@ function getPosition(node: SimplifiedNode): { left: number; top: number } {
 function cssToInlineStyle(
   cssStyles: Record<string, string | number> | undefined,
   offsetX: number = 0,
-  offsetY: number = 0
+  offsetY: number = 0,
 ): string {
-  if (!cssStyles) return '';
+  if (!cssStyles) return "";
 
   const styles: string[] = [];
 
@@ -58,20 +54,20 @@ function cssToInlineStyle(
     let finalValue = value;
 
     // 调整 left 和 top 的偏移
-    if (key === 'left' && typeof value === 'string') {
-      const numValue = parseFloat(value.replace('px', ''));
+    if (key === "left" && typeof value === "string") {
+      const numValue = parseFloat(value.replace("px", ""));
       finalValue = `${numValue - offsetX}px`;
-    } else if (key === 'top' && typeof value === 'string') {
-      const numValue = parseFloat(value.replace('px', ''));
+    } else if (key === "top" && typeof value === "string") {
+      const numValue = parseFloat(value.replace("px", ""));
       finalValue = `${numValue - offsetY}px`;
     }
 
     // 驼峰转连字符
-    const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
     styles.push(`${cssKey}: ${finalValue}`);
   }
 
-  return styles.join('; ');
+  return styles.join("; ");
 }
 
 /**
@@ -82,9 +78,9 @@ function renderNode(
   depth: number = 0,
   isRoot: boolean = false,
   rootOffsetX: number = 0,
-  rootOffsetY: number = 0
+  rootOffsetY: number = 0,
 ): string {
-  const indent = '  '.repeat(depth);
+  const indent = "  ".repeat(depth);
 
   // 只有根节点需要减去偏移量，子节点已经是相对坐标
   const offsetX = isRoot ? rootOffsetX : 0;
@@ -94,14 +90,14 @@ function renderNode(
   const style = cssToInlineStyle(node.cssStyles, offsetX, offsetY);
 
   // 根据节点类型添加额外样式
-  if (node.type === 'TEXT') {
+  if (node.type === "TEXT") {
     // 文本节点
-    return `${indent}<div class="node node-text" data-name="${escapeHtml(node.name)}" style="${style}">${escapeHtml(node.text || '')}</div>\n`;
+    return `${indent}<div class="node node-text" data-name="${escapeHtml(node.name)}" style="${style}">${escapeHtml(node.text || "")}</div>\n`;
   }
 
-  if (node.type === 'VECTOR' || (node.exportInfo && !node.children)) {
+  if (node.type === "VECTOR" || (node.exportInfo && !node.children)) {
     // 向量/图片节点 - 显示占位符
-    const bgColor = node.cssStyles?.backgroundColor || 'rgba(139,92,246,0.5)';
+    const bgColor = node.cssStyles?.backgroundColor || "rgba(139,92,246,0.5)";
     return `${indent}<div class="node node-vector" data-name="${escapeHtml(node.name)}" style="${style}">
 ${indent}  <div class="vector-placeholder" style="background: ${bgColor};"></div>
 ${indent}</div>\n`;
@@ -127,10 +123,10 @@ ${indent}</div>\n`;
  */
 function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /**
@@ -154,21 +150,21 @@ function generateHTML(design: SimplifiedDesign): string {
   const rootNode = design.nodes[0];
 
   if (!rootNode) {
-    return '<html><body>No nodes found</body></html>';
+    return "<html><body>No nodes found</body></html>";
   }
 
   // 根节点的原始位置作为偏移基准
   const rootPos = getPosition(rootNode);
 
   // 渲染所有节点（根节点使用自己的位置作为偏移基准）
-  let nodesHtml = '';
+  let nodesHtml = "";
   for (const node of design.nodes) {
     // 根节点需要减去画布偏移
     nodesHtml += renderNode(node, 3, true, rootPos.left, rootPos.top);
   }
 
-  const width = rootNode.cssStyles?.width || '322px';
-  const height = rootNode.cssStyles?.height || '523px';
+  const width = rootNode.cssStyles?.width || "322px";
+  const height = rootNode.cssStyles?.height || "523px";
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -335,7 +331,7 @@ ${nodesHtml}
     <div class="stats">
       <div class="stat">尺寸: <strong>${width} × ${height}</strong></div>
       <div class="stat">节点数: <strong>${countNodes(design.nodes)}</strong></div>
-      <div class="stat">最后修改: <strong>${design.lastModified || 'N/A'}</strong></div>
+      <div class="stat">最后修改: <strong>${design.lastModified || "N/A"}</strong></div>
     </div>
   </div>
 </body>
@@ -344,23 +340,23 @@ ${nodesHtml}
 
 // 主程序
 async function main() {
-  const inputPath = path.join(__dirname, 'test-output', 'new-simplified-data.json');
-  const outputPath = path.join(__dirname, 'test-output', 'auto-generated-preview.html');
+  const inputPath = path.join(__dirname, "test-output", "new-simplified-data.json");
+  const outputPath = path.join(__dirname, "test-output", "auto-generated-preview.html");
 
-  console.log('读取简化数据...');
-  const data = JSON.parse(fs.readFileSync(inputPath, 'utf-8')) as SimplifiedDesign;
+  console.log("读取简化数据...");
+  const data = JSON.parse(fs.readFileSync(inputPath, "utf-8")) as SimplifiedDesign;
 
-  console.log('生成 HTML...');
+  console.log("生成 HTML...");
   const html = generateHTML(data);
 
-  console.log('保存文件...');
+  console.log("保存文件...");
   fs.writeFileSync(outputPath, html);
 
   console.log();
-  console.log('✅ HTML 预览已生成!');
+  console.log("✅ HTML 预览已生成!");
   console.log(`📄 文件路径: ${outputPath}`);
   console.log();
-  console.log('打开预览:');
+  console.log("打开预览:");
   console.log(`  open "${outputPath}"`);
 }
 

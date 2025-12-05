@@ -132,7 +132,7 @@ export function isOverlappingX(a: ElementRect, b: ElementRect, tolerance: number
 export function isFullyOverlapping(
   a: ElementRect,
   b: ElementRect,
-  threshold: number = 0.5
+  threshold: number = 0.5,
 ): boolean {
   const overlapX = Math.max(0, Math.min(a.right, b.right) - Math.max(a.x, b.x));
   const overlapY = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y));
@@ -203,7 +203,7 @@ export function groupIntoColumns(rects: ElementRect[], tolerance: number = 2): E
 
     // Check if overlaps with any element in current column on X-axis
     const overlapsWithColumn = currentColumn.some((colElem) =>
-      isOverlappingX(colElem, elem, tolerance)
+      isOverlappingX(colElem, elem, tolerance),
     );
 
     if (overlapsWithColumn) {
@@ -248,7 +248,7 @@ export function findOverlappingElements(rects: ElementRect[]): ElementRect[] {
  */
 export function calculateGaps(
   rects: ElementRect[],
-  direction: "horizontal" | "vertical"
+  direction: "horizontal" | "vertical",
 ): number[] {
   if (rects.length < 2) return [];
 
@@ -279,7 +279,7 @@ export function calculateGaps(
  */
 export function analyzeGaps(
   gaps: number[],
-  tolerancePercent: number = 20
+  tolerancePercent: number = 20,
 ): {
   isConsistent: boolean;
   average: number;
@@ -353,7 +353,7 @@ export function areValuesAligned(values: number[], tolerance: number = 3): boole
  */
 export function analyzeAlignment(
   rects: ElementRect[],
-  bounds: BoundingBox
+  bounds: BoundingBox,
 ): {
   horizontal: "left" | "center" | "right" | "stretch" | "none";
   vertical: "top" | "center" | "bottom" | "stretch" | "none";
@@ -491,7 +491,7 @@ export function detectLayoutDirection(rects: ElementRect[]): {
 function calculateLayoutScore(
   groups: ElementRect[][],
   direction: "row" | "column",
-  totalElements: number
+  totalElements: number,
 ): { score: number; reason: string } {
   if (groups.length === 0) {
     return { score: 0, reason: "No groups" };
@@ -581,9 +581,7 @@ export function analyzeLayout(rects: ElementRect[]): LayoutAnalysisResult {
   const overlappingElements = findOverlappingElements(rects);
 
   // Analyze layout after filtering out overlapping elements
-  const nonOverlapping = rects.filter(
-    (r) => !overlappingElements.some((o) => o.index === r.index)
-  );
+  const nonOverlapping = rects.filter((r) => !overlappingElements.some((o) => o.index === r.index));
 
   if (nonOverlapping.length < 2) {
     return {
@@ -612,7 +610,7 @@ export function analyzeLayout(rects: ElementRect[]): LayoutAnalysisResult {
     direction === "row"
       ? nonOverlapping.sort((a, b) => a.x - b.x)
       : nonOverlapping.sort((a, b) => a.y - b.y),
-    gapDirection
+    gapDirection,
   );
   const gapAnalysis = analyzeGaps(gaps);
 
@@ -669,7 +667,7 @@ export interface LayoutNode {
 export function buildLayoutTree(
   rects: ElementRect[],
   depth: number = 0,
-  maxDepth: number = 5
+  maxDepth: number = 5,
 ): LayoutNode {
   const bounds = calculateBounds(rects);
 
@@ -709,7 +707,7 @@ export function buildLayoutTree(
 
   // Filter out overlapping elements
   const nonOverlapping = rects.filter(
-    (r) => !analysis.overlappingElements.some((o) => o.index === r.index)
+    (r) => !analysis.overlappingElements.some((o) => o.index === r.index),
   );
 
   if (nonOverlapping.length === 0) {
@@ -805,13 +803,13 @@ export function generateLayoutReport(rects: ElementRect[]): string {
     "",
     `Row groups: ${analysis.rows.length} rows`,
     ...analysis.rows.map(
-      (row, i) => `  Row ${i + 1}: ${row.length} elements [${row.map((r) => r.index).join(", ")}]`
+      (row, i) => `  Row ${i + 1}: ${row.length} elements [${row.map((r) => r.index).join(", ")}]`,
     ),
     "",
     `Column groups: ${analysis.columns.length} columns`,
     ...analysis.columns.map(
       (col, i) =>
-        `  Column ${i + 1}: ${col.length} elements [${col.map((r) => r.index).join(", ")}]`
+        `  Column ${i + 1}: ${col.length} elements [${col.map((r) => r.index).join(", ")}]`,
     ),
     "",
     `Overlapping elements: ${analysis.overlappingElements.length}`,

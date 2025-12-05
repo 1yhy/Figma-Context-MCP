@@ -12,7 +12,6 @@ import type {
   GetFileNodesResponse,
   Node as FigmaDocumentNode,
   GetFileResponse,
-  Paint,
 } from "@figma/rest-api-spec";
 import { generateCSSShorthand } from "~/utils/css.js";
 import { isVisible, isVisibleInParent } from "~/utils/validation.js";
@@ -23,10 +22,7 @@ import { buildSimplifiedStrokes } from "~/core/style.js";
 import { generateFileName } from "~/utils/file.js";
 import { LayoutOptimizer } from "~/algorithms/layout/optimizer.js";
 import { formatPxValue } from "~/utils/css.js";
-import {
-  analyzeNodeTree,
-  type FigmaNode,
-} from "~/algorithms/icon/index.js";
+import { analyzeNodeTree, type FigmaNode } from "~/algorithms/icon/index.js";
 
 import type {
   CSSStyle,
@@ -59,7 +55,7 @@ interface NodeWithChildren {
  * Check whether the node has an image fill
  */
 export function hasImageFill(node: NodeWithFills): boolean {
-  return node.fills?.some((fill) => fill.type === 'IMAGE' && fill.imageRef) || false;
+  return node.fills?.some((fill) => fill.type === "IMAGE" && fill.imageRef) || false;
 }
 
 /**
@@ -68,29 +64,30 @@ export function hasImageFill(node: NodeWithFills): boolean {
 export function detectAndMarkImageGroup(
   node: NodeWithChildren,
   suggestExportFormat: (node: NodeWithChildren) => string,
-  generateFileNameFn: (name: string, format: string) => string
+  generateFileNameFn: (name: string, format: string) => string,
 ): void {
   // Only handle groups and frames
-  if (node.type !== 'GROUP' && node.type !== 'FRAME') return;
+  if (node.type !== "GROUP" && node.type !== "FRAME") return;
 
   // Without children it cannot be an image group
   if (!node.children || node.children.length === 0) return;
 
   // Check whether all children are image types
-  const allChildrenAreImages = node.children.every((child) =>
-    (child.type === 'IMAGE') ||
-    (child.type === 'RECTANGLE' && hasImageFill(child as NodeWithFills)) ||
-    (child.type === 'ELLIPSE' && hasImageFill(child as NodeWithFills)) ||
-    (child.type === 'VECTOR' && hasImageFill(child as NodeWithFills)) ||
-    (child.type === 'FRAME' && child.cssStyles?.backgroundImage)
+  const allChildrenAreImages = node.children.every(
+    (child) =>
+      child.type === "IMAGE" ||
+      (child.type === "RECTANGLE" && hasImageFill(child as NodeWithFills)) ||
+      (child.type === "ELLIPSE" && hasImageFill(child as NodeWithFills)) ||
+      (child.type === "VECTOR" && hasImageFill(child as NodeWithFills)) ||
+      (child.type === "FRAME" && child.cssStyles?.backgroundImage),
   );
 
   // Mark the node as an image group
   if (allChildrenAreImages) {
     const format = suggestExportFormat(node);
     node.exportInfo = {
-      type: 'IMAGE_GROUP',
-      format: format as 'PNG' | 'JPG' | 'SVG',
+      type: "IMAGE_GROUP",
+      format: format as "PNG" | "JPG" | "SVG",
       nodeId: node.id,
       fileName: generateFileNameFn(node.name, format),
     };
@@ -104,7 +101,7 @@ export function detectAndMarkImageGroup(
  * Sort nodes by position (top to bottom, left to right)
  */
 export function sortNodesByPosition<T extends { cssStyles?: { top?: string; left?: string } }>(
-  nodes: T[]
+  nodes: T[],
 ): T[] {
   return [...nodes].sort((a, b) => {
     // Sort by the top value (top to bottom)
@@ -147,17 +144,17 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
 
   // Process nodes
   let nodes: FigmaDocumentNode[] = [];
-  if ('document' in data) {
+  if ("document" in data) {
     // If it's a response for the entire file
     nodes = data.document.children;
-  } else if ('nodes' in data) {
+  } else if ("nodes" in data) {
     // If it's a response for specific nodes
     const nodeData = Object.values(data.nodes).filter(
       (node): node is NonNullable<typeof node> =>
-        node !== null && typeof node === 'object' && 'document' in node
+        node !== null && typeof node === "object" && "document" in node,
     );
 
-    nodes = nodeData.map(n => (n as { document: FigmaDocumentNode }).document);
+    nodes = nodeData.map((n) => (n as { document: FigmaDocumentNode }).document);
   }
 
   // Use the new icon detection algorithm to analyze the node tree
@@ -180,8 +177,8 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
   const optimizedDesign = LayoutOptimizer.optimizeDesign({
     name,
     lastModified,
-    thumbnailUrl: thumbnailUrl || '',
-    nodes: simplifiedNodes
+    thumbnailUrl: thumbnailUrl || "",
+    nodes: simplifiedNodes,
   });
 
   return optimizedDesign;
@@ -195,20 +192,25 @@ export function parseFigmaResponse(data: GetFileResponse | GetFileNodesResponse)
 function extractNodes(
   children: FigmaDocumentNode[],
   parentNode?: SimplifiedNode,
-  iconMap?: Map<string, IconDetectionResult>
+  iconMap?: Map<string, IconDetectionResult>,
 ): SimplifiedNode[] {
   if (!Array.isArray(children)) return [];
 
   // Create a corresponding original parent node object for visibility judgment
-  const parentForVisibility = parentNode ? {
-    clipsContent: (parentNode as any).clipsContent,
-    absoluteBoundingBox: parentNode._absoluteX !== undefined && parentNode._absoluteY !== undefined ? {
-      x: parentNode._absoluteX,
-      y: parentNode._absoluteY,
-      width: parseFloat(parentNode.cssStyles?.width || '0'),
-      height: parseFloat(parentNode.cssStyles?.height || '0')
-    } : undefined
-  } : undefined;
+  const parentForVisibility = parentNode
+    ? {
+        clipsContent: (parentNode as any).clipsContent,
+        absoluteBoundingBox:
+          parentNode._absoluteX !== undefined && parentNode._absoluteY !== undefined
+            ? {
+                x: parentNode._absoluteX,
+                y: parentNode._absoluteY,
+                width: parseFloat(parentNode.cssStyles?.width || "0"),
+                height: parseFloat(parentNode.cssStyles?.height || "0"),
+              }
+            : undefined,
+      }
+    : undefined;
 
   const visibilityFilter = (node: FigmaDocumentNode) => {
     // Use type guard to ensure only checking nodes with necessary properties
@@ -216,7 +218,7 @@ function extractNodes(
       visible: (node as any).visible,
       opacity: (node as any).opacity,
       absoluteBoundingBox: (node as any).absoluteBoundingBox,
-      absoluteRenderBounds: (node as any).absoluteRenderBounds
+      absoluteRenderBounds: (node as any).absoluteRenderBounds,
     };
 
     // If there's no parent node information, only check the node's own visibility
@@ -230,7 +232,7 @@ function extractNodes(
 
   const nodes = children
     .filter(visibilityFilter)
-    .map(node => extractNode(node, parentNode, iconMap))
+    .map((node) => extractNode(node, parentNode, iconMap))
     .filter((node): node is SimplifiedNode => node !== null);
 
   // Sort sibling elements by top value (from top to bottom)
@@ -244,7 +246,7 @@ function extractNodes(
 function extractNode(
   node: FigmaDocumentNode,
   parentNode?: SimplifiedNode,
-  iconMap?: Map<string, IconDetectionResult>
+  iconMap?: Map<string, IconDetectionResult>,
 ): SimplifiedNode | null {
   if (!node) return null;
 
@@ -257,24 +259,26 @@ function extractNode(
     const result: SimplifiedNode = {
       id,
       name,
-      type
+      type,
     };
 
     result.cssStyles = {};
 
     // Add size information
-    if (hasValue('absoluteBoundingBox', node) && node.absoluteBoundingBox) {
+    if (hasValue("absoluteBoundingBox", node) && node.absoluteBoundingBox) {
       result.cssStyles.width = formatPxValue(node.absoluteBoundingBox.width);
       result.cssStyles.height = formatPxValue(node.absoluteBoundingBox.height);
 
-      if ((node.type as string) !== 'DOCUMENT' && (node.type as string) !== 'CANVAS') {
-        result.cssStyles.position = 'absolute';
+      if ((node.type as string) !== "DOCUMENT" && (node.type as string) !== "CANVAS") {
+        result.cssStyles.position = "absolute";
         result._absoluteX = node.absoluteBoundingBox.x;
         result._absoluteY = node.absoluteBoundingBox.y;
 
-        if (parentNode &&
-            parentNode._absoluteX !== undefined &&
-            parentNode._absoluteY !== undefined) {
+        if (
+          parentNode &&
+          parentNode._absoluteX !== undefined &&
+          parentNode._absoluteY !== undefined
+        ) {
           result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x - parentNode._absoluteX);
           result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y - parentNode._absoluteY);
         } else {
@@ -286,9 +290,9 @@ function extractNode(
 
     // Set export information
     result.exportInfo = {
-      type: 'IMAGE',
+      type: "IMAGE",
       format: iconInfo.exportFormat,
-      fileName: generateFileName(name, iconInfo.exportFormat)
+      fileName: generateFileName(name, iconInfo.exportFormat),
     };
 
     // Don't process child nodes, export as a whole image
@@ -299,32 +303,32 @@ function extractNode(
   const result: SimplifiedNode = {
     id,
     name,
-    type
+    type,
   };
 
   // Set CSS styles
   result.cssStyles = {};
 
-
   // Add CSS conversion logic for size and position
-  if (hasValue('absoluteBoundingBox', node) && node.absoluteBoundingBox) {
-
+  if (hasValue("absoluteBoundingBox", node) && node.absoluteBoundingBox) {
     // Add to CSS styles (using optimized precision)
     result.cssStyles.width = formatPxValue(node.absoluteBoundingBox.width);
     result.cssStyles.height = formatPxValue(node.absoluteBoundingBox.height);
 
     // Add positioning information for non-root nodes
-    if ((node.type as string) !== 'DOCUMENT' && (node.type as string) !== 'CANVAS') {
-      result.cssStyles.position = 'absolute';
+    if ((node.type as string) !== "DOCUMENT" && (node.type as string) !== "CANVAS") {
+      result.cssStyles.position = "absolute";
 
       // Store original coordinates for child nodes to calculate relative positions
       result._absoluteX = node.absoluteBoundingBox.x;
       result._absoluteY = node.absoluteBoundingBox.y;
 
       // If there's a parent node, calculate relative position
-      if (parentNode &&
-          parentNode._absoluteX !== undefined &&
-          parentNode._absoluteY !== undefined) {
+      if (
+        parentNode &&
+        parentNode._absoluteX !== undefined &&
+        parentNode._absoluteY !== undefined
+      ) {
         result.cssStyles.left = formatPxValue(node.absoluteBoundingBox.x - parentNode._absoluteX);
         result.cssStyles.top = formatPxValue(node.absoluteBoundingBox.y - parentNode._absoluteY);
       } else {
@@ -336,13 +340,13 @@ function extractNode(
   }
 
   // Process text - preserve original text content
-  if (hasValue('characters', node) && typeof node.characters === 'string') {
+  if (hasValue("characters", node) && typeof node.characters === "string") {
     result.text = node.characters;
 
     // For text nodes, add text color style
-    if (hasValue('fills', node) && Array.isArray(node.fills) && node.fills.length > 0) {
+    if (hasValue("fills", node) && Array.isArray(node.fills) && node.fills.length > 0) {
       const fill = node.fills[0];
-      if (fill.type === 'SOLID' && fill.color) {
+      if (fill.type === "SOLID" && fill.color) {
         // Use convertColor to get hex format color
         const { hex, opacity } = convertColor(fill.color, fill.opacity ?? 1);
         // If opacity is 1, use hex format, otherwise use rgba format
@@ -362,7 +366,7 @@ function extractNode(
   processCornerRadius(node, result);
 
   // Recursively process child nodes
-  if (hasValue('children', node) && Array.isArray(node.children) && node.children.length) {
+  if (hasValue("children", node) && Array.isArray(node.children) && node.children.length) {
     result.children = extractNodes(node.children, result, iconMap);
 
     // Process image groups (keep original logic for handling image fill cases)
@@ -376,10 +380,7 @@ function extractNode(
  * Wrapper for detectAndMarkImageGroup with default format suggestion
  */
 function markImageGroup(node: SimplifiedNode): void {
-  detectAndMarkImageGroup(node,
-    () => 'PNG',
-    generateFileName
-  );
+  detectAndMarkImageGroup(node, () => "PNG", generateFileName);
 }
 
 // ==================== Style Processing ====================
@@ -391,7 +392,7 @@ function markImageGroup(node: SimplifiedNode): void {
 function processImageResources(
   node: FigmaDocumentNode,
   result: SimplifiedNode,
-  iconMap?: Map<string, IconDetectionResult>
+  iconMap?: Map<string, IconDetectionResult>,
 ): void {
   // If already marked as icon export, skip
   if (iconMap?.has(result.id)) {
@@ -402,23 +403,23 @@ function processImageResources(
   const imageResources: ImageResource[] = [];
 
   // Extract image resources from fills
-  if (hasValue('fills', node) && Array.isArray(node.fills)) {
-    const fillImages = node.fills.filter(fill =>
-      fill.type === 'IMAGE' && (fill as { imageRef?: string }).imageRef
-    ).map(fill => ({
-      imageRef: (fill as { imageRef: string }).imageRef,
-    }));
+  if (hasValue("fills", node) && Array.isArray(node.fills)) {
+    const fillImages = node.fills
+      .filter((fill) => fill.type === "IMAGE" && (fill as { imageRef?: string }).imageRef)
+      .map((fill) => ({
+        imageRef: (fill as { imageRef: string }).imageRef,
+      }));
 
     imageResources.push(...fillImages);
   }
 
   // Extract image resources from background
-  if (hasValue('background', node) && Array.isArray(node.background)) {
-    const bgImages = node.background.filter(bg =>
-      bg.type === 'IMAGE' && (bg as { imageRef?: string }).imageRef
-    ).map(bg => ({
-      imageRef: (bg as { imageRef: string }).imageRef,
-    }));
+  if (hasValue("background", node) && Array.isArray(node.background)) {
+    const bgImages = node.background
+      .filter((bg) => bg.type === "IMAGE" && (bg as { imageRef?: string }).imageRef)
+      .map((bg) => ({
+        imageRef: (bg as { imageRef: string }).imageRef,
+      }));
 
     imageResources.push(...bgImages);
   }
@@ -435,10 +436,10 @@ function processImageResources(
 
     // Add export information (omit nodeId as it's the same as node id)
     result.exportInfo = {
-      type: 'IMAGE',
-      format: 'PNG',
+      type: "IMAGE",
+      format: "PNG",
       // nodeId omitted because it's the same as node id, can be obtained from node id when downloading
-      fileName: generateFileName(result.name, 'PNG')
+      fileName: generateFileName(result.name, "PNG"),
     };
   }
 }
@@ -447,7 +448,7 @@ function processImageResources(
  * Process node's style properties
  */
 function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void {
-  if (!hasValue('style', node)) return;
+  if (!hasValue("style", node)) return;
 
   const style = node.style as any;
 
@@ -457,7 +458,7 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
     fontSize: style?.fontSize,
     fontWeight: style?.fontWeight,
     textAlignHorizontal: style?.textAlignHorizontal,
-    textAlignVertical: style?.textAlignVertical
+    textAlignVertical: style?.textAlignVertical,
   };
 
   // Process line height
@@ -474,7 +475,10 @@ function processNodeStyle(node: FigmaDocumentNode, result: SimplifiedNode): void
 interface GradientPaint {
   type: string;
   gradientHandlePositions?: Array<{ x: number; y: number }>;
-  gradientStops?: Array<{ position: number; color: { r: number; g: number; b: number; a: number } }>;
+  gradientStops?: Array<{
+    position: number;
+    color: { r: number; g: number; b: number; a: number };
+  }>;
 }
 
 /**
@@ -492,12 +496,14 @@ interface GradientPaint {
  * - 270deg from right to left
  */
 function processGradient(gradient: GradientPaint): string {
-  if (!gradient.gradientHandlePositions || !gradient.gradientStops) return '';
+  if (!gradient.gradientHandlePositions || !gradient.gradientStops) return "";
 
-  const stops = gradient.gradientStops.map(stop => {
-    const color = convertColor(stop.color, stop.color.a);
-    return `${color.hex} ${Math.round(stop.position * 100)}%`;
-  }).join(', ');
+  const stops = gradient.gradientStops
+    .map((stop) => {
+      const color = convertColor(stop.color, stop.color.a);
+      return `${color.hex} ${Math.round(stop.position * 100)}%`;
+    })
+    .join(", ");
 
   const [start, end] = gradient.gradientHandlePositions;
 
@@ -516,7 +522,7 @@ function processGradient(gradient: GradientPaint): string {
  * Process node's fill properties
  */
 function processFills(node: FigmaDocumentNode, result: SimplifiedNode): void {
-  if (!hasValue('fills', node) || !Array.isArray(node.fills) || node.fills.length === 0) return;
+  if (!hasValue("fills", node) || !Array.isArray(node.fills) || node.fills.length === 0) return;
 
   // Skip image fills
   if (hasImageFill(node)) {
@@ -528,24 +534,23 @@ function processFills(node: FigmaDocumentNode, result: SimplifiedNode): void {
 
   const fill = fills[0];
 
-  if (fill.type === 'SOLID' && fill.color) {
+  if (fill.type === "SOLID" && fill.color) {
     const { hex, opacity } = convertColor(fill.color, fill.opacity ?? 1);
     const color = opacity === 1 ? hex : formatRGBAColor(fill.color, opacity);
 
-    if (node.type === 'TEXT') {
+    if (node.type === "TEXT") {
       result.cssStyles!.color = color;
     } else {
       result.cssStyles!.backgroundColor = color;
     }
-  }
-  else if (fill.type === 'GRADIENT_LINEAR') {
+  } else if (fill.type === "GRADIENT_LINEAR") {
     const gradient = processGradient(fill as unknown as GradientPaint);
 
-    if (node.type === 'TEXT') {
+    if (node.type === "TEXT") {
       result.cssStyles!.background = gradient;
-      result.cssStyles!.webkitBackgroundClip = 'text';
-      result.cssStyles!.backgroundClip = 'text';
-      result.cssStyles!.webkitTextFillColor = 'transparent';
+      result.cssStyles!.webkitBackgroundClip = "text";
+      result.cssStyles!.backgroundClip = "text";
+      result.cssStyles!.webkitTextFillColor = "transparent";
     } else {
       result.cssStyles!.background = gradient;
     }
@@ -556,7 +561,7 @@ function processFills(node: FigmaDocumentNode, result: SimplifiedNode): void {
  * Process node's stroke properties
  */
 function processStrokes(node: FigmaDocumentNode, result: SimplifiedNode): void {
-  if ((node as any).type === 'TEXT') return;
+  if ((node as any).type === "TEXT") return;
 
   const strokes = buildSimplifiedStrokes(node);
   if (strokes.colors.length === 0) return;
@@ -564,31 +569,32 @@ function processStrokes(node: FigmaDocumentNode, result: SimplifiedNode): void {
   const stroke = strokes.colors[0];
 
   // Handle string colors (hex or rgba) - already converted by parsePaint
-  if (typeof stroke === 'string') {
+  if (typeof stroke === "string") {
     result.cssStyles!.borderColor = stroke;
     if (strokes.strokeWeight) {
       result.cssStyles!.borderWidth = strokes.strokeWeight;
     }
-    result.cssStyles!.borderStyle = 'solid';
+    result.cssStyles!.borderStyle = "solid";
   }
   // Handle object fills
-  else if (typeof stroke === 'object' && 'type' in stroke) {
-    if (stroke.type === 'SOLID' && 'color' in stroke) {
+  else if (typeof stroke === "object" && "type" in stroke) {
+    if (stroke.type === "SOLID" && "color" in stroke) {
       // SimplifiedSolidFill - color is already a string
       result.cssStyles!.borderColor = stroke.color;
       if (strokes.strokeWeight) {
         result.cssStyles!.borderWidth = strokes.strokeWeight;
       }
-      result.cssStyles!.borderStyle = 'solid';
-    }
-    else if (stroke.type === 'GRADIENT_LINEAR') {
+      result.cssStyles!.borderStyle = "solid";
+    } else if (stroke.type === "GRADIENT_LINEAR") {
       // For gradient strokes, we need to build gradient from original data
       // SimplifiedGradientFill doesn't have the raw color data anymore
       // So we use border-image with a simple fallback
-      if ('gradientStops' in stroke && stroke.gradientStops && stroke.gradientStops.length > 0) {
-        const stops = stroke.gradientStops.map(s => `${s.color} ${Math.round(s.position * 100)}%`).join(', ');
+      if ("gradientStops" in stroke && stroke.gradientStops && stroke.gradientStops.length > 0) {
+        const stops = stroke.gradientStops
+          .map((s) => `${s.color} ${Math.round(s.position * 100)}%`)
+          .join(", ");
         result.cssStyles!.borderImage = `linear-gradient(90deg, ${stops})`;
-        result.cssStyles!.borderImageSlice = '1';
+        result.cssStyles!.borderImageSlice = "1";
       }
       if (strokes.strokeWeight) {
         result.cssStyles!.borderWidth = strokes.strokeWeight;
@@ -611,19 +617,23 @@ function processEffects(node: FigmaDocumentNode, result: SimplifiedNode): void {
  * Process node's corner radius properties
  */
 function processCornerRadius(node: FigmaDocumentNode, result: SimplifiedNode): void {
-  if (!hasValue('cornerRadius', node)) return;
+  if (!hasValue("cornerRadius", node)) return;
 
-  if (typeof node.cornerRadius === 'number' && node.cornerRadius > 0) {
+  if (typeof node.cornerRadius === "number" && node.cornerRadius > 0) {
     // Process uniform corner radius (rounded)
     result.cssStyles!.borderRadius = formatPxValue(node.cornerRadius);
-  } else if (node.cornerRadius === 'mixed' && hasValue('rectangleCornerRadii', node, isRectangleCornerRadii)) {
+  } else if (
+    node.cornerRadius === "mixed" &&
+    hasValue("rectangleCornerRadii", node, isRectangleCornerRadii)
+  ) {
     // Process non-uniform corner radius (top-left, top-right, bottom-right, bottom-left) - rounded
-    result.cssStyles!.borderRadius = generateCSSShorthand({
-      top: Math.round(node.rectangleCornerRadii[0]),
-      right: Math.round(node.rectangleCornerRadii[1]),
-      bottom: Math.round(node.rectangleCornerRadii[2]),
-      left: Math.round(node.rectangleCornerRadii[3])
-    }) || '0';
+    result.cssStyles!.borderRadius =
+      generateCSSShorthand({
+        top: Math.round(node.rectangleCornerRadii[0]),
+        right: Math.round(node.rectangleCornerRadii[1]),
+        bottom: Math.round(node.rectangleCornerRadii[2]),
+        left: Math.round(node.rectangleCornerRadii[3]),
+      }) || "0";
   }
 }
 
@@ -645,33 +655,33 @@ function textStyleToCss(textStyle: TextStyle): CSSStyle {
 
   // Process text alignment (omit default value 'left')
   if (textStyle.textAlignHorizontal) {
-    switch(textStyle.textAlignHorizontal) {
-      case 'LEFT':
+    switch (textStyle.textAlignHorizontal) {
+      case "LEFT":
         // Omit default value
         break;
-      case 'CENTER':
-        cssStyle.textAlign = 'center';
+      case "CENTER":
+        cssStyle.textAlign = "center";
         break;
-      case 'RIGHT':
-        cssStyle.textAlign = 'right';
+      case "RIGHT":
+        cssStyle.textAlign = "right";
         break;
-      case 'JUSTIFIED':
-        cssStyle.textAlign = 'justify';
+      case "JUSTIFIED":
+        cssStyle.textAlign = "justify";
         break;
     }
   }
 
   // Process vertical alignment (omit default value 'top')
   if (textStyle.textAlignVertical) {
-    switch(textStyle.textAlignVertical) {
-      case 'TOP':
+    switch (textStyle.textAlignVertical) {
+      case "TOP":
         // Omit default value
         break;
-      case 'CENTER':
-        cssStyle.verticalAlign = 'middle';
+      case "CENTER":
+        cssStyle.verticalAlign = "middle";
         break;
-      case 'BOTTOM':
-        cssStyle.verticalAlign = 'bottom';
+      case "BOTTOM":
+        cssStyle.verticalAlign = "bottom";
         break;
     }
   }

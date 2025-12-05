@@ -86,7 +86,11 @@ function validateLocalPath(localPath: string, fileName: string): string {
 /**
  * Create Figma error
  */
-function createFigmaError(status: number, message: string, rateLimitInfo?: RateLimitInfo): FigmaError {
+function createFigmaError(
+  status: number,
+  message: string,
+  rateLimitInfo?: RateLimitInfo,
+): FigmaError {
   return {
     status,
     err: message,
@@ -276,11 +280,9 @@ export class FigmaService {
       if (status === 429) {
         errorMessage = formatRateLimitError(rateLimitInfo);
       } else if (status === 403) {
-        errorMessage =
-          "Access denied. Please check your Figma API key and file permissions.";
+        errorMessage = "Access denied. Please check your Figma API key and file permissions.";
       } else if (status === 404) {
-        errorMessage =
-          "File or node not found. Please verify the fileKey and nodeId are correct.";
+        errorMessage = "File or node not found. Please verify the fileKey and nodeId are correct.";
       }
 
       throw createFigmaError(status, errorMessage, rateLimitInfo);

@@ -88,21 +88,21 @@ export function formatNumericValue(value: number): string {
  */
 export const BROWSER_DEFAULTS: Record<string, string | number | undefined> = {
   // Text defaults
-  textAlign: 'left',
-  verticalAlign: 'top',
+  textAlign: "left",
+  verticalAlign: "top",
   fontWeight: 400,
 
   // Flex defaults
-  flexDirection: 'row',
-  justifyContent: 'flex-start',
-  alignItems: 'stretch',
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  alignItems: "stretch",
 
   // Position defaults (if all elements are absolute, can be omitted)
   // position: 'static',  // Not omitting for now, as we explicitly use absolute
 
   // Other
-  opacity: '1',
-  borderStyle: 'none',
+  opacity: "1",
+  borderStyle: "none",
 };
 
 /**
@@ -115,7 +115,7 @@ export function isDefaultValue(key: string, value: string | number | undefined):
   if (defaultValue === undefined) return false;
 
   // Handle number and string comparison
-  if (typeof defaultValue === 'number' && typeof value === 'number') {
+  if (typeof defaultValue === "number" && typeof value === "number") {
     return defaultValue === value;
   }
 
@@ -151,7 +151,10 @@ export function omitDefaultStyles<T extends Record<string, unknown>>(styles: T):
  * @param gaps Array of gaps
  * @param tolerancePercent Tolerance percentage, default 20%
  */
-export function analyzeGapConsistency(gaps: number[], tolerancePercent: number = 20): {
+export function analyzeGapConsistency(
+  gaps: number[],
+  tolerancePercent: number = 20,
+): {
   isConsistent: boolean;
   averageGap: number;
   roundedGap: number;
@@ -217,7 +220,7 @@ export function roundToCommonGap(gap: number): number {
  */
 export function optimizeExportInfo(
   nodeId: string,
-  exportInfo: { type: string; format: string; nodeId?: string; fileName?: string }
+  exportInfo: { type: string; format: string; nodeId?: string; fileName?: string },
 ): { type: string; format: string; nodeId?: string; fileName?: string } {
   const result = { ...exportInfo };
 

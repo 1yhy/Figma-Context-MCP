@@ -3,9 +3,9 @@
  * 深入分析真实 Figma 数据的布局结构
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 import {
   toElementRect,
   groupIntoRows,
@@ -18,7 +18,7 @@ import {
   calculateGaps,
   type ElementRect,
   type LayoutNode,
-} from '../src/algorithms/layout/index.js';
+} from "../src/algorithms/layout/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,7 +44,7 @@ function extractChildrenRects(node: FigmaNode): ElementRect[] {
   if (!node.children) return [];
 
   return node.children
-    .filter(child => child.absoluteBoundingBox)
+    .filter((child) => child.absoluteBoundingBox)
     .map((child, index) => {
       const box = child.absoluteBoundingBox!;
       return toElementRect(box, index);
@@ -54,7 +54,7 @@ function extractChildrenRects(node: FigmaNode): ElementRect[] {
 function getNodePath(node: FigmaNode, nodes: Map<string, FigmaNode>, maxDepth = 3): string {
   const parts = [node.name];
   // 简化路径
-  return parts.join(' > ');
+  return parts.join(" > ");
 }
 
 interface LayoutAnalysisEntry {
@@ -75,24 +75,24 @@ interface LayoutAnalysisEntry {
 // ==================== 主测试 ====================
 
 async function main() {
-  console.log('='.repeat(70));
-  console.log('完整布局分析测试 - 使用真实 Figma 数据');
-  console.log('='.repeat(70));
+  console.log("=".repeat(70));
+  console.log("完整布局分析测试 - 使用真实 Figma 数据");
+  console.log("=".repeat(70));
   console.log();
 
   // 读取测试数据
-  const testDataPath = path.join(__dirname, 'test-output', 'real-node-data.json');
+  const testDataPath = path.join(__dirname, "test-output", "real-node-data.json");
 
   if (!fs.existsSync(testDataPath)) {
-    console.error('错误: 找不到测试数据文件:', testDataPath);
+    console.error("错误: 找不到测试数据文件:", testDataPath);
     process.exit(1);
   }
 
-  const rawData = JSON.parse(fs.readFileSync(testDataPath, 'utf-8'));
+  const rawData = JSON.parse(fs.readFileSync(testDataPath, "utf-8"));
   const nodeKeys = Object.keys(rawData.nodes || {});
 
   if (nodeKeys.length === 0) {
-    console.error('错误: 测试数据中没有节点');
+    console.error("错误: 测试数据中没有节点");
     process.exit(1);
   }
 
@@ -119,7 +119,7 @@ async function main() {
 
   const analysisResults: LayoutAnalysisEntry[] = [];
 
-  console.log('--- 容器布局分析 ---');
+  console.log("--- 容器布局分析 ---");
   console.log();
 
   // 统计
@@ -155,23 +155,29 @@ async function main() {
     // 分类统计
     if (analysis.overlappingElements.length === rects.length) {
       absoluteCount++;
-    } else if (analysis.direction === 'row') {
+    } else if (analysis.direction === "row") {
       flexRowCount++;
-    } else if (analysis.direction === 'column') {
+    } else if (analysis.direction === "column") {
       flexColumnCount++;
     } else {
       mixedCount++;
     }
 
     // 打印详情
-    const statusIcon = analysis.direction !== 'none' ? '✓' :
-      analysis.overlappingElements.length === rects.length ? '◎' : '?';
+    const statusIcon =
+      analysis.direction !== "none"
+        ? "✓"
+        : analysis.overlappingElements.length === rects.length
+          ? "◎"
+          : "?";
 
     console.log(`[${statusIcon}] ${container.name}`);
     console.log(`    类型: ${container.type}, 子元素: ${rects.length}`);
 
-    if (analysis.direction !== 'none') {
-      console.log(`    布局: flex-${analysis.direction}, 置信度: ${(analysis.confidence * 100).toFixed(0)}%`);
+    if (analysis.direction !== "none") {
+      console.log(
+        `    布局: flex-${analysis.direction}, 置信度: ${(analysis.confidence * 100).toFixed(0)}%`,
+      );
       if (analysis.gap > 0 && analysis.isGapConsistent) {
         console.log(`    间距: ${analysis.gap}px`);
       }
@@ -188,32 +194,36 @@ async function main() {
 
   // ==================== 统计摘要 ====================
 
-  console.log('='.repeat(70));
-  console.log('统计摘要');
-  console.log('='.repeat(70));
+  console.log("=".repeat(70));
+  console.log("统计摘要");
+  console.log("=".repeat(70));
   console.log();
 
   const total = analysisResults.length;
   console.log(`总容器数: ${total}`);
-  console.log(`  - Flex Row: ${flexRowCount} (${(flexRowCount / total * 100).toFixed(1)}%)`);
-  console.log(`  - Flex Column: ${flexColumnCount} (${(flexColumnCount / total * 100).toFixed(1)}%)`);
-  console.log(`  - Absolute (重叠): ${absoluteCount} (${(absoluteCount / total * 100).toFixed(1)}%)`);
-  console.log(`  - Mixed/Unknown: ${mixedCount} (${(mixedCount / total * 100).toFixed(1)}%)`);
+  console.log(`  - Flex Row: ${flexRowCount} (${((flexRowCount / total) * 100).toFixed(1)}%)`);
+  console.log(
+    `  - Flex Column: ${flexColumnCount} (${((flexColumnCount / total) * 100).toFixed(1)}%)`,
+  );
+  console.log(
+    `  - Absolute (重叠): ${absoluteCount} (${((absoluteCount / total) * 100).toFixed(1)}%)`,
+  );
+  console.log(`  - Mixed/Unknown: ${mixedCount} (${((mixedCount / total) * 100).toFixed(1)}%)`);
   console.log();
 
   // ==================== 布局树示例 ====================
 
-  console.log('='.repeat(70));
-  console.log('布局树示例');
-  console.log('='.repeat(70));
+  console.log("=".repeat(70));
+  console.log("布局树示例");
+  console.log("=".repeat(70));
   console.log();
 
   // 找一个有明确布局的容器
-  const goodExample = allContainers.find(c => {
+  const goodExample = allContainers.find((c) => {
     const rects = extractChildrenRects(c);
     if (rects.length < 3) return false;
     const analysis = analyzeLayout(rects);
-    return analysis.direction !== 'none' && analysis.confidence > 0.4;
+    return analysis.direction !== "none" && analysis.confidence > 0.4;
   });
 
   if (goodExample) {
@@ -224,16 +234,16 @@ async function main() {
     const rects = extractChildrenRects(goodExample);
     const tree = buildLayoutTree(rects);
 
-    console.log('布局树:');
+    console.log("布局树:");
     printLayoutTree(tree, goodExample.children || []);
     console.log();
   }
 
   // ==================== CSS 输出示例 ====================
 
-  console.log('='.repeat(70));
-  console.log('CSS 输出示例');
-  console.log('='.repeat(70));
+  console.log("=".repeat(70));
+  console.log("CSS 输出示例");
+  console.log("=".repeat(70));
   console.log();
 
   for (const container of allContainers.slice(0, 5)) {
@@ -245,25 +255,25 @@ async function main() {
     console.log(`/* ${container.name} */`);
     console.log(`.${sanitizeName(container.name)} {`);
 
-    if (analysis.direction !== 'none') {
-      console.log('  display: flex;');
-      if (analysis.direction === 'column') {
-        console.log('  flex-direction: column;');
+    if (analysis.direction !== "none") {
+      console.log("  display: flex;");
+      if (analysis.direction === "column") {
+        console.log("  flex-direction: column;");
       }
       if (analysis.gap > 0 && analysis.isGapConsistent) {
         console.log(`  gap: ${analysis.gap}px;`);
       }
-      if (analysis.justifyContent !== 'flex-start') {
+      if (analysis.justifyContent !== "flex-start") {
         console.log(`  justify-content: ${analysis.justifyContent};`);
       }
-      if (analysis.alignItems !== 'stretch') {
+      if (analysis.alignItems !== "stretch") {
         console.log(`  align-items: ${analysis.alignItems};`);
       }
     } else {
-      console.log('  position: relative;');
+      console.log("  position: relative;");
     }
 
-    console.log('}');
+    console.log("}");
     console.log();
   }
 
@@ -281,7 +291,7 @@ async function main() {
     containers: analysisResults,
   };
 
-  const reportPath = path.join(__dirname, 'test-output', 'full-layout-analysis.json');
+  const reportPath = path.join(__dirname, "test-output", "full-layout-analysis.json");
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   console.log(`完整报告已保存到: ${reportPath}`);
 }
@@ -289,16 +299,16 @@ async function main() {
 // ==================== 辅助函数 ====================
 
 function printLayoutTree(node: LayoutNode, figmaChildren: FigmaNode[], indent = 0) {
-  const prefix = '  '.repeat(indent);
+  const prefix = "  ".repeat(indent);
 
-  if (node.type === 'element') {
+  if (node.type === "element") {
     const figmaNode = figmaChildren[node.elementIndex || 0];
     const name = figmaNode?.name || `Element ${node.elementIndex}`;
-    const absolute = node.needsAbsolute ? ' [absolute]' : '';
+    const absolute = node.needsAbsolute ? " [absolute]" : "";
     console.log(`${prefix}- ${name}${absolute}`);
   } else {
-    const dir = node.direction || 'none';
-    const gap = node.gap ? ` gap:${node.gap}px` : '';
+    const dir = node.direction || "none";
+    const gap = node.gap ? ` gap:${node.gap}px` : "";
     console.log(`${prefix}+ Container (${dir}${gap})`);
 
     if (node.children) {
@@ -312,8 +322,8 @@ function printLayoutTree(node: LayoutNode, figmaChildren: FigmaNode[], indent = 
 function sanitizeName(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 main().catch(console.error);

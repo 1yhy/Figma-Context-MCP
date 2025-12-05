@@ -181,7 +181,9 @@ export class SpatialProjectionAnalyzer {
    * Convert SimplifiedNode array to Rect array
    */
   static nodesToRects(nodes: SimplifiedNode[]): Rect[] {
-    return nodes.map((node) => RectUtils.fromNode(node)).filter((rect): rect is Rect => rect !== null);
+    return nodes
+      .map((node) => RectUtils.fromNode(node))
+      .filter((rect): rect is Rect => rect !== null);
   }
 
   /**
@@ -327,7 +329,10 @@ export class SpatialProjectionAnalyzer {
    * @param rowNodes - Nodes in a row
    * @param tolerance - Tolerance in pixels
    */
-  static groupRowNodesByColumns(rowNodes: SimplifiedNode[], tolerance: number = 1): SimplifiedNode[][] {
+  static groupRowNodesByColumns(
+    rowNodes: SimplifiedNode[],
+    tolerance: number = 1,
+  ): SimplifiedNode[][] {
     const rects = this.nodesToRects(rowNodes);
     if (rects.length === 0) return [rowNodes];
 

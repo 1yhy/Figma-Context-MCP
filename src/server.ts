@@ -1,17 +1,17 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { FigmaService, FigmaError } from "./services/figma.js";
-import express, { Request, Response } from "express";
+import { FigmaService, type FigmaError } from "./services/figma.js";
+import express, { type Request, type Response } from "express";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { IncomingMessage, ServerResponse } from "http";
-import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
+import { type IncomingMessage, type ServerResponse } from "http";
+import { type Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { SimplifiedDesign } from "./types/index.js";
 
 // ==================== Logging Utilities ====================
 
 export const Logger = {
-  log: (...args: unknown[]) => {},
-  error: (...args: unknown[]) => {},
+  log: (..._args: unknown[]) => {},
+  error: (..._args: unknown[]) => {},
 };
 
 // ==================== Error Formatting ====================
@@ -140,7 +140,10 @@ export class FigmaMcpServer {
           };
         } catch (error) {
           Logger.error(`Error fetching file ${fileKey}:`, error);
-          const errorMessage = formatErrorForAI(error, `Failed to fetch Figma data for file ${fileKey}`);
+          const errorMessage = formatErrorForAI(
+            error,
+            `Failed to fetch Figma data for file ${fileKey}`,
+          );
           return {
             isError: true,
             content: [{ type: "text", text: errorMessage }],
@@ -168,7 +171,9 @@ export class FigmaMcpServer {
               .describe(
                 "Required for image fills (background images). Leave blank for vector/icon SVGs.",
               ),
-            fileName: z.string().describe("The local filename to save as (e.g., 'icon.svg', 'photo.png')"),
+            fileName: z
+              .string()
+              .describe("The local filename to save as (e.g., 'icon.svg', 'photo.png')"),
           })
           .array()
           .describe("Array of image nodes to download"),
@@ -192,12 +197,18 @@ export class FigmaMcpServer {
             .map(({ nodeId, fileName }) => ({
               nodeId,
               fileName,
-              fileType: fileName.toLowerCase().endsWith(".svg") ? ("svg" as const) : ("png" as const),
+              fileType: fileName.toLowerCase().endsWith(".svg")
+                ? ("svg" as const)
+                : ("png" as const),
             }));
 
           // Execute sequentially to reduce rate limit risk
           const fillResults = await this.figmaService.getImageFills(fileKey, imageFills, localPath);
-          const renderResults = await this.figmaService.getImages(fileKey, renderRequests, localPath);
+          const renderResults = await this.figmaService.getImages(
+            fileKey,
+            renderRequests,
+            localPath,
+          );
 
           const allDownloads = [...fillResults, ...renderResults];
           const successfulDownloads = allDownloads.filter((path) => path && path.length > 0);
@@ -217,7 +228,10 @@ export class FigmaMcpServer {
           };
         } catch (error) {
           Logger.error(`Error downloading images from file ${fileKey}:`, error);
-          const errorMessage = formatErrorForAI(error, `Failed to download images from file ${fileKey}`);
+          const errorMessage = formatErrorForAI(
+            error,
+            `Failed to download images from file ${fileKey}`,
+          );
           return {
             isError: true,
             content: [{ type: "text", text: errorMessage }],

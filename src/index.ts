@@ -5,7 +5,6 @@ import { FigmaMcpServer } from "./server.js";
 import { getServerConfig } from "./config.js";
 import { resolve } from "path";
 import { config } from "dotenv";
-import { fileURLToPath } from "url";
 
 // Load .env from the current working directory
 config({ path: resolve(process.cwd(), ".env") });

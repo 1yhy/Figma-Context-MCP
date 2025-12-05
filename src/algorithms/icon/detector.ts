@@ -11,10 +11,7 @@
  * @module algorithms/icon/detector
  */
 
-import type {
-  IconDetectionResult,
-  IconDetectionConfig,
-} from "~/types/index.js";
+import type { IconDetectionResult, IconDetectionConfig } from "~/types/index.js";
 
 // Re-export types for module consumers
 export type { IconDetectionResult };
@@ -140,7 +137,7 @@ function getNodeSize(node: FigmaNode): { width: number; height: number } | null 
 function hasImageFill(node: FigmaNode): boolean {
   if (!node.fills) return false;
   return node.fills.some(
-    (fill) => fill.type === "IMAGE" && fill.visible !== false && fill.imageRef
+    (fill) => fill.type === "IMAGE" && fill.visible !== false && fill.imageRef,
   );
 }
 
@@ -152,7 +149,7 @@ function hasComplexEffects(node: FigmaNode): boolean {
   return node.effects.some(
     (effect) =>
       effect.visible !== false &&
-      PNG_REQUIRED_EFFECTS.includes(effect.type as (typeof PNG_REQUIRED_EFFECTS)[number])
+      PNG_REQUIRED_EFFECTS.includes(effect.type as (typeof PNG_REQUIRED_EFFECTS)[number]),
   );
 }
 
@@ -225,7 +222,7 @@ function calculateMergeableRatio(node: FigmaNode): number {
 
   const total = node.children.length;
   const mergeable = node.children.filter(
-    (child) => isMergeableType(child.type) || isContainerType(child.type)
+    (child) => isMergeableType(child.type) || isContainerType(child.type),
   ).length;
 
   return mergeable / total;
@@ -260,7 +257,7 @@ function areAllLeavesMergeable(node: FigmaNode): boolean {
  */
 export function detectIcon(
   node: FigmaNode,
-  config: DetectionConfig = DEFAULT_CONFIG
+  config: DetectionConfig = DEFAULT_CONFIG,
 ): IconDetectionResult {
   const result: IconDetectionResult = {
     nodeId: node.id,
@@ -299,7 +296,7 @@ export function detectIcon(
       // Single RECTANGLE is typically a background, not exported
       if (
         SINGLE_ELEMENT_EXCLUDE_TYPES.includes(
-          node.type as (typeof SINGLE_ELEMENT_EXCLUDE_TYPES)[number]
+          node.type as (typeof SINGLE_ELEMENT_EXCLUDE_TYPES)[number],
         )
       ) {
         result.reason = `Single ${node.type} is typically a background, not exported`;
@@ -401,7 +398,7 @@ export function detectIcon(
  */
 export function processNodeTree(
   node: FigmaNode,
-  config: DetectionConfig = DEFAULT_CONFIG
+  config: DetectionConfig = DEFAULT_CONFIG,
 ): FigmaNode & { _iconDetection?: IconDetectionResult } {
   const processedNode = { ...node } as FigmaNode & { _iconDetection?: IconDetectionResult };
 
@@ -445,7 +442,7 @@ export function processNodeTree(
  * @returns Array of icon detection results
  */
 export function collectExportableIcons(
-  node: FigmaNode & { _iconDetection?: IconDetectionResult }
+  node: FigmaNode & { _iconDetection?: IconDetectionResult },
 ): IconDetectionResult[] {
   const results: IconDetectionResult[] = [];
 
@@ -460,7 +457,7 @@ export function collectExportableIcons(
   if (node.children) {
     for (const child of node.children) {
       results.push(
-        ...collectExportableIcons(child as FigmaNode & { _iconDetection?: IconDetectionResult })
+        ...collectExportableIcons(child as FigmaNode & { _iconDetection?: IconDetectionResult }),
       );
     }
   }
@@ -477,7 +474,7 @@ export function collectExportableIcons(
  */
 export function analyzeNodeTree(
   node: FigmaNode,
-  config: DetectionConfig = DEFAULT_CONFIG
+  config: DetectionConfig = DEFAULT_CONFIG,
 ): {
   processedTree: FigmaNode & { _iconDetection?: IconDetectionResult };
   exportableIcons: IconDetectionResult[];
