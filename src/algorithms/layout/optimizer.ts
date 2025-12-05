@@ -1,10 +1,11 @@
-import type { SimplifiedNode, SimplifiedDesign } from "~/types/index.js";
+import type { SimplifiedNode, SimplifiedDesign, CSSStyle } from "~/types/index.js";
 import { sanitizeNameForId } from "~/utils/file.js";
 import { analyzeGapConsistency, roundToCommonGap } from "~/utils/css.js";
 import {
   detectGridLayout,
   toElementRect,
   filterHomogeneousForGrid,
+  detectOverlappingElements,
   type ElementRect,
   type GridAnalysisResult,
 } from "./detector.js";
@@ -75,6 +76,12 @@ export class LayoutOptimizer {
   /**
    * Optimize container layout
    *
+   * Enhanced algorithm flow:
+   * 1. Detect overlapping elements (IoU > 0.1 → keep absolute positioning)
+   * 2. Run Grid detection on flow elements
+   * 3. Run Flex detection on flow elements
+   * 4. Clean child styles (remove position:absolute, left/top from flow children)
+   *
    * @param node Container node
    * @returns Optimized container node
    */
@@ -87,7 +94,20 @@ export class LayoutOptimizer {
     // Check whether this is a FRAME or GROUP container
     const isContainer = node.type === "FRAME" || node.type === "GROUP";
 
-    // ===== GRID DETECTION (check first before Flex) =====
+    // ===== STEP 1: OVERLAP DETECTION =====
+    // Detect overlapping elements that need absolute positioning
+    const elementRects = this.nodesToElementRects(node.children);
+    const overlapResult = detectOverlappingElements(elementRects, 0.1);
+
+    // Track which children need to keep absolute positioning
+    const stackedIndices = overlapResult.stackedIndices;
+
+    // If all elements overlap, skip layout optimization
+    if (overlapResult.flowElements.length < 2) {
+      return node;
+    }
+
+    // ===== STEP 2: GRID DETECTION (check first before Flex) =====
     // Grid is only applicable for container nodes with enough children
     if (isContainer) {
       const gridResult = this.detectGridIfApplicable(node.children);
@@ -95,18 +115,21 @@ export class LayoutOptimizer {
         // Grid layout detected! Apply CSS Grid styles
         const gridStyles = this.generateGridCSS(gridResult);
 
+        // Clean child styles - remove absolute positioning from flow children
+        const cleanedChildren = this.cleanChildrenStyles(node.children, "grid", stackedIndices);
+
         return {
           ...node,
           cssStyles: {
             ...node.cssStyles,
             ...gridStyles,
           },
-          children: node.children,
+          children: cleanedChildren,
         };
       }
     }
 
-    // ===== FLEX DETECTION (fallback) =====
+    // ===== STEP 3: FLEX DETECTION (fallback) =====
     // Analyze child spatial relationships to determine row or column layout
     const { isRow, isColumn, rowGap, columnGap, isGapConsistent, justifyContent, alignItems } =
       this.analyzeLayoutDirection(node.children);
@@ -133,13 +156,16 @@ export class LayoutOptimizer {
         if (justifyContent) flexStyles.justifyContent = justifyContent;
         if (alignItems) flexStyles.alignItems = alignItems;
 
+        // Clean child styles - remove absolute positioning from flow children
+        const cleanedChildren = this.cleanChildrenStyles(node.children, "flex", stackedIndices);
+
         return {
           ...node,
           cssStyles: {
             ...node.cssStyles,
             ...flexStyles,
           },
-          children: node.children,
+          children: cleanedChildren,
         };
       }
       // If not a container but children share a clear layout, create a new layout container
@@ -164,13 +190,16 @@ export class LayoutOptimizer {
           if (justifyContent) flexStyles.justifyContent = justifyContent;
           if (alignItems) flexStyles.alignItems = alignItems;
 
+          // Clean child styles
+          const cleanedChildren = this.cleanChildrenStyles(node.children, "flex", stackedIndices);
+
           return {
             ...node,
             cssStyles: {
               ...node.cssStyles,
               ...flexStyles,
             },
-            children: node.children,
+            children: cleanedChildren,
           };
         }
 
@@ -1005,8 +1034,8 @@ export class LayoutOptimizer {
     crossAxisInfo:
       | ReturnType<typeof LayoutOptimizer.analyzeHorizontalLayout>
       | ReturnType<typeof LayoutOptimizer.analyzeVerticalLayout>,
-  ): Record<string, any> {
-    const properties: Record<string, any> = {
+  ): Record<string, string> {
+    const properties: Record<string, string> = {
       flexDirection: isRow ? "row" : "column",
     };
 
@@ -1072,5 +1101,135 @@ export class LayoutOptimizer {
     properties.alignItems = alignItems;
 
     return properties;
+  }
+
+  // ==================== Child Style Cleanup ====================
+
+  /**
+   * CSS properties that are default values and can be removed
+   */
+  private static CSS_DEFAULT_VALUES: Record<string, string[]> = {
+    fontWeight: ["400", "normal"],
+    textAlign: ["left", "start"],
+    flexDirection: ["row"],
+    position: ["static"],
+    opacity: ["1"],
+    backgroundColor: ["transparent", "rgba(0, 0, 0, 0)", "rgba(0,0,0,0)"],
+    borderWidth: ["0", "0px"],
+    borderStyle: ["none"],
+    overflow: ["visible"],
+    visibility: ["visible"],
+    zIndex: ["auto"],
+  };
+
+  /**
+   * CSS properties that should be removed from children when parent becomes flex/grid
+   */
+  private static ABSOLUTE_POSITION_PROPERTIES = ["position", "left", "top", "right", "bottom"];
+
+  /**
+   * Clean child element styles when parent becomes a flex/grid container
+   *
+   * When a parent container is converted to flex or grid layout:
+   * 1. Remove position: absolute from children (they now flow naturally)
+   * 2. Remove left/top positioning (handled by flex/grid)
+   * 3. Keep width/height (used for flex-basis or explicit sizing)
+   *
+   * @param child Child node to clean
+   * @param layoutType The layout type of the parent ('flex' | 'grid')
+   * @returns Cleaned child node
+   */
+  static cleanChildStylesForLayout(
+    child: SimplifiedNode,
+    layoutType: "flex" | "grid",
+  ): SimplifiedNode {
+    if (!child.cssStyles) return child;
+
+    const cleanedStyles: CSSStyle = { ...child.cssStyles };
+
+    // Remove absolute positioning properties when parent is flex/grid
+    // These are no longer needed as the child now flows in the layout
+    if (cleanedStyles.position === "absolute") {
+      delete cleanedStyles.position;
+    }
+
+    // Remove left/top positioning (now handled by flex/grid)
+    delete cleanedStyles.left;
+    delete cleanedStyles.top;
+
+    // For grid layout, also remove right/bottom as grid handles placement
+    if (layoutType === "grid") {
+      delete cleanedStyles.right;
+      delete cleanedStyles.bottom;
+    }
+
+    return {
+      ...child,
+      cssStyles: cleanedStyles,
+    };
+  }
+
+  /**
+   * Remove CSS default values from styles to reduce output size
+   *
+   * @param styles CSS styles object
+   * @returns Cleaned styles with defaults removed
+   */
+  static removeDefaultValues(styles: CSSStyle): CSSStyle {
+    const cleaned: CSSStyle = {};
+
+    for (const [key, value] of Object.entries(styles)) {
+      if (value === undefined || value === null || value === "") {
+        continue; // Skip empty values
+      }
+
+      const defaults = this.CSS_DEFAULT_VALUES[key];
+      if (defaults && defaults.includes(String(value))) {
+        continue; // Skip default value
+      }
+
+      // Skip "0px" values for positioning properties (common default)
+      if (
+        (key === "left" || key === "top" || key === "right" || key === "bottom") &&
+        (value === "0px" || value === "0")
+      ) {
+        continue;
+      }
+
+      cleaned[key] = value;
+    }
+
+    return cleaned;
+  }
+
+  /**
+   * Clean all children styles when parent becomes flex/grid
+   *
+   * @param children Child nodes
+   * @param layoutType Parent layout type
+   * @param stackedIndices Indices of children that should remain absolute (overlapping)
+   * @returns Cleaned children
+   */
+  static cleanChildrenStyles(
+    children: SimplifiedNode[],
+    layoutType: "flex" | "grid",
+    stackedIndices?: Set<number>,
+  ): SimplifiedNode[] {
+    return children.map((child, index) => {
+      // Skip cleaning for stacked (overlapping) elements - they keep absolute positioning
+      if (stackedIndices && stackedIndices.has(index)) {
+        return child;
+      }
+
+      // Clean styles for flow elements
+      const cleaned = this.cleanChildStylesForLayout(child, layoutType);
+
+      // Also remove default values
+      if (cleaned.cssStyles) {
+        cleaned.cssStyles = this.removeDefaultValues(cleaned.cssStyles);
+      }
+
+      return cleaned;
+    });
   }
 }

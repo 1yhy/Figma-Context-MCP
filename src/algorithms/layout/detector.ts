@@ -145,6 +145,141 @@ export function isFullyOverlapping(
   return minArea > 0 && overlapArea / minArea > threshold;
 }
 
+/**
+ * Calculate IoU (Intersection over Union) between two elements
+ *
+ * IoU is a standard metric for measuring overlap:
+ * - IoU = 0: No overlap
+ * - IoU = 1: Perfect overlap (same box)
+ *
+ * Industry standard thresholds:
+ * - IoU > 0.1: Partial overlap (consider absolute positioning)
+ * - IoU > 0.5: Significant overlap (definitely needs absolute)
+ */
+export function calculateIoU(a: ElementRect, b: ElementRect): number {
+  // Calculate intersection
+  const xOverlap = Math.max(0, Math.min(a.right, b.right) - Math.max(a.x, b.x));
+  const yOverlap = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y));
+  const intersection = xOverlap * yOverlap;
+
+  if (intersection === 0) return 0;
+
+  // Calculate union
+  const areaA = a.width * a.height;
+  const areaB = b.width * b.height;
+  const union = areaA + areaB - intersection;
+
+  return union > 0 ? intersection / union : 0;
+}
+
+/**
+ * Overlap type classification based on IoU
+ */
+export type OverlapType = "none" | "adjacent" | "partial" | "significant" | "contained";
+
+/**
+ * Classify overlap type between two elements
+ *
+ * @param a First element
+ * @param b Second element
+ * @returns Overlap classification
+ */
+export function classifyOverlap(a: ElementRect, b: ElementRect): OverlapType {
+  const iou = calculateIoU(a, b);
+
+  if (iou === 0) {
+    // Check if adjacent (touching but not overlapping)
+    // Calculate gap on each axis
+    const gapX = Math.max(a.x, b.x) - Math.min(a.right, b.right);
+    const gapY = Math.max(a.y, b.y) - Math.min(a.bottom, b.bottom);
+
+    // Elements are adjacent only if gap on the separating axis is small
+    // If they overlap on one axis (gap < 0), check gap on the other axis
+    let effectiveGap: number;
+    if (gapX > 0 && gapY > 0) {
+      // Don't overlap on either axis - use the maximum gap (corner distance)
+      effectiveGap = Math.max(gapX, gapY);
+    } else if (gapX > 0) {
+      // Don't overlap on X, but overlap on Y
+      effectiveGap = gapX;
+    } else if (gapY > 0) {
+      // Don't overlap on Y, but overlap on X
+      effectiveGap = gapY;
+    } else {
+      // This shouldn't happen if IoU is 0, but handle it
+      effectiveGap = 0;
+    }
+
+    return effectiveGap <= 2 ? "adjacent" : "none";
+  }
+
+  if (iou < 0.1) return "partial";
+  if (iou < 0.5) return "significant";
+  return "contained";
+}
+
+/**
+ * Overlap detection result
+ */
+export interface OverlapDetectionResult {
+  /** Elements that can participate in flow layout (flex/grid) */
+  flowElements: ElementRect[];
+  /** Elements that need absolute positioning due to overlap */
+  stackedElements: ElementRect[];
+  /** Indices of stacked elements */
+  stackedIndices: Set<number>;
+}
+
+/**
+ * Detect overlapping elements and separate them from flow elements
+ *
+ * Uses IoU (Intersection over Union) to detect overlaps:
+ * - IoU > 0.1: Element is considered overlapping and needs absolute positioning
+ *
+ * This follows the imgcook algorithm approach where overlapping elements
+ * are marked for absolute positioning while the rest participate in flex/grid layout.
+ *
+ * @param rects Element rectangles to analyze
+ * @param iouThreshold IoU threshold for overlap detection (default: 0.1)
+ * @returns Separated flow and stacked elements
+ */
+export function detectOverlappingElements(
+  rects: ElementRect[],
+  iouThreshold: number = 0.1,
+): OverlapDetectionResult {
+  const stackedIndices = new Set<number>();
+
+  // Check each pair of elements for overlap
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i + 1; j < rects.length; j++) {
+      const iou = calculateIoU(rects[i], rects[j]);
+      if (iou > iouThreshold) {
+        // Both overlapping elements need absolute positioning
+        stackedIndices.add(rects[i].index);
+        stackedIndices.add(rects[j].index);
+      }
+    }
+  }
+
+  // Separate elements into flow and stacked groups
+  const flowElements: ElementRect[] = [];
+  const stackedElements: ElementRect[] = [];
+
+  for (const rect of rects) {
+    if (stackedIndices.has(rect.index)) {
+      stackedElements.push(rect);
+    } else {
+      flowElements.push(rect);
+    }
+  }
+
+  return {
+    flowElements,
+    stackedElements,
+    stackedIndices,
+  };
+}
+
 // ==================== Row/Column Grouping Algorithm ====================
 
 /**

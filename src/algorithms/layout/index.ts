@@ -28,6 +28,8 @@ export {
   type LayoutAnalysisResult,
   type LayoutNode,
   type GridAnalysisResult,
+  type OverlapType,
+  type OverlapDetectionResult,
   // Bounding box utilities
   extractBoundingBox,
   toElementRect,
@@ -36,6 +38,9 @@ export {
   isOverlappingY,
   isOverlappingX,
   isFullyOverlapping,
+  calculateIoU,
+  classifyOverlap,
+  detectOverlappingElements,
   // Grouping
   groupIntoRows,
   groupIntoColumns,

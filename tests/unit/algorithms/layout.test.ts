@@ -19,6 +19,9 @@ import {
   calculateBounds,
   clusterValues,
   detectGridLayout,
+  calculateIoU,
+  classifyOverlap,
+  detectOverlappingElements,
   LayoutOptimizer,
   type ElementRect,
   type BoundingBox,
@@ -545,6 +548,345 @@ describe("Layout Detection Algorithm", () => {
       expect(result.cssStyles?.display).toBe("grid");
       expect(result.cssStyles?.gridTemplateColumns).toContain("96px");
       expect(result.cssStyles?.gridTemplateColumns).toContain("80px");
+    });
+  });
+
+  // ==================== IoU and Overlap Detection Tests ====================
+
+  describe("IoU (Intersection over Union) Calculation", () => {
+    it("should return 0 for non-overlapping elements", () => {
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 200, y: 0, width: 100, height: 100 }, 1);
+
+      const iou = calculateIoU(a, b);
+      expect(iou).toBe(0);
+    });
+
+    it("should return 1 for identical elements", () => {
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 1);
+
+      const iou = calculateIoU(a, b);
+      expect(iou).toBe(1);
+    });
+
+    it("should return correct IoU for partial overlap", () => {
+      // 50% overlap on x-axis
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 50, y: 0, width: 100, height: 100 }, 1);
+
+      const iou = calculateIoU(a, b);
+      // Intersection: 50 * 100 = 5000
+      // Union: 100*100 + 100*100 - 5000 = 15000
+      // IoU = 5000 / 15000 = 0.333...
+      expect(iou).toBeCloseTo(0.333, 2);
+    });
+
+    it("should handle completely contained element", () => {
+      const outer = toElementRect({ x: 0, y: 0, width: 200, height: 200 }, 0);
+      const inner = toElementRect({ x: 50, y: 50, width: 100, height: 100 }, 1);
+
+      const iou = calculateIoU(outer, inner);
+      // Intersection: 100 * 100 = 10000
+      // Union: 200*200 + 100*100 - 10000 = 40000 + 10000 - 10000 = 40000
+      // IoU = 10000 / 40000 = 0.25
+      expect(iou).toBeCloseTo(0.25, 2);
+    });
+  });
+
+  describe("Overlap Classification", () => {
+    it("should classify non-overlapping elements as 'none'", () => {
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 200, y: 0, width: 100, height: 100 }, 1);
+
+      const result = classifyOverlap(a, b);
+      expect(result).toBe("none");
+    });
+
+    it("should classify adjacent elements as 'adjacent'", () => {
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 101, y: 0, width: 100, height: 100 }, 1); // 1px gap
+
+      const result = classifyOverlap(a, b);
+      expect(result).toBe("adjacent");
+    });
+
+    it("should classify small overlap as 'partial'", () => {
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 95, y: 0, width: 100, height: 100 }, 1); // 5% overlap
+
+      const result = classifyOverlap(a, b);
+      expect(result).toBe("partial");
+    });
+
+    it("should classify significant overlap as 'significant'", () => {
+      const a = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const b = toElementRect({ x: 50, y: 0, width: 100, height: 100 }, 1); // ~33% IoU
+
+      const result = classifyOverlap(a, b);
+      expect(result).toBe("significant");
+    });
+
+    it("should classify contained element as 'contained'", () => {
+      const outer = toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0);
+      const inner = toElementRect({ x: 10, y: 10, width: 80, height: 80 }, 1);
+
+      const result = classifyOverlap(outer, inner);
+      expect(result).toBe("contained");
+    });
+  });
+
+  describe("Overlap Detection", () => {
+    it("should separate overlapping elements from flow elements", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0),
+        toElementRect({ x: 50, y: 50, width: 100, height: 100 }, 1), // Overlaps with 0
+        toElementRect({ x: 300, y: 0, width: 100, height: 100 }, 2), // No overlap
+        toElementRect({ x: 450, y: 0, width: 100, height: 100 }, 3), // No overlap
+      ];
+
+      const result = detectOverlappingElements(elements, 0.1);
+
+      expect(result.stackedElements.length).toBe(2); // Elements 0 and 1
+      expect(result.flowElements.length).toBe(2); // Elements 2 and 3
+      expect(result.stackedIndices.has(0)).toBe(true);
+      expect(result.stackedIndices.has(1)).toBe(true);
+    });
+
+    it("should return all elements as flow when no overlap", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0),
+        toElementRect({ x: 150, y: 0, width: 100, height: 100 }, 1),
+        toElementRect({ x: 300, y: 0, width: 100, height: 100 }, 2),
+      ];
+
+      const result = detectOverlappingElements(elements, 0.1);
+
+      expect(result.stackedElements.length).toBe(0);
+      expect(result.flowElements.length).toBe(3);
+    });
+
+    it("should detect multiple overlapping pairs", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0),
+        toElementRect({ x: 50, y: 0, width: 100, height: 100 }, 1), // Overlaps with 0
+        toElementRect({ x: 300, y: 0, width: 100, height: 100 }, 2),
+        toElementRect({ x: 350, y: 0, width: 100, height: 100 }, 3), // Overlaps with 2
+      ];
+
+      const result = detectOverlappingElements(elements, 0.1);
+
+      expect(result.stackedElements.length).toBe(4); // All overlap with at least one
+    });
+
+    it("should use custom IoU threshold", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 100 }, 0),
+        toElementRect({ x: 80, y: 0, width: 100, height: 100 }, 1), // ~11% IoU
+      ];
+
+      // With 0.1 threshold, should detect overlap
+      const result1 = detectOverlappingElements(elements, 0.1);
+      expect(result1.stackedElements.length).toBe(2);
+
+      // With 0.5 threshold, should NOT detect overlap
+      const result2 = detectOverlappingElements(elements, 0.5);
+      expect(result2.stackedElements.length).toBe(0);
+    });
+  });
+
+  describe("Child Style Cleanup", () => {
+    // Helper to create SimplifiedNode with absolute positioning
+    function createAbsoluteNode(
+      id: string,
+      left: number,
+      top: number,
+      width: number,
+      height: number,
+    ): SimplifiedNode {
+      return {
+        id,
+        name: `Node ${id}`,
+        type: "FRAME",
+        cssStyles: {
+          position: "absolute",
+          left: `${left}px`,
+          top: `${top}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+        },
+      };
+    }
+
+    it("should remove position:absolute from children when parent becomes flex", () => {
+      const child = createAbsoluteNode("1", 0, 0, 100, 50);
+      const cleaned = LayoutOptimizer.cleanChildStylesForLayout(child, "flex");
+
+      expect(cleaned.cssStyles?.position).toBeUndefined();
+    });
+
+    it("should remove left/top from children when parent becomes flex", () => {
+      const child = createAbsoluteNode("1", 100, 200, 100, 50);
+      const cleaned = LayoutOptimizer.cleanChildStylesForLayout(child, "flex");
+
+      expect(cleaned.cssStyles?.left).toBeUndefined();
+      expect(cleaned.cssStyles?.top).toBeUndefined();
+    });
+
+    it("should keep width/height for flex children", () => {
+      const child = createAbsoluteNode("1", 0, 0, 100, 50);
+      const cleaned = LayoutOptimizer.cleanChildStylesForLayout(child, "flex");
+
+      expect(cleaned.cssStyles?.width).toBe("100px");
+      expect(cleaned.cssStyles?.height).toBe("50px");
+    });
+
+    it("should remove all position properties for grid children", () => {
+      const child: SimplifiedNode = {
+        id: "1",
+        name: "Node 1",
+        type: "FRAME",
+        cssStyles: {
+          position: "absolute",
+          left: "10px",
+          top: "20px",
+          right: "30px",
+          bottom: "40px",
+          width: "100px",
+          height: "50px",
+        },
+      };
+
+      const cleaned = LayoutOptimizer.cleanChildStylesForLayout(child, "grid");
+
+      expect(cleaned.cssStyles?.position).toBeUndefined();
+      expect(cleaned.cssStyles?.left).toBeUndefined();
+      expect(cleaned.cssStyles?.top).toBeUndefined();
+      expect(cleaned.cssStyles?.right).toBeUndefined();
+      expect(cleaned.cssStyles?.bottom).toBeUndefined();
+    });
+
+    it("should skip cleaning for stacked elements", () => {
+      const children: SimplifiedNode[] = [
+        createAbsoluteNode("1", 0, 0, 100, 50),
+        createAbsoluteNode("2", 50, 0, 100, 50), // Overlapping
+      ];
+
+      // Mark index 0 and 1 as stacked
+      const stackedIndices = new Set([0, 1]);
+      const cleaned = LayoutOptimizer.cleanChildrenStyles(children, "flex", stackedIndices);
+
+      // Stacked elements should keep their absolute positioning
+      expect(cleaned[0].cssStyles?.position).toBe("absolute");
+      expect(cleaned[1].cssStyles?.position).toBe("absolute");
+    });
+
+    it("should remove default CSS values", () => {
+      const styles = {
+        fontWeight: "400",
+        textAlign: "left",
+        opacity: "1",
+        backgroundColor: "transparent",
+        width: "100px",
+        color: "#000",
+      };
+
+      const cleaned = LayoutOptimizer.removeDefaultValues(styles);
+
+      expect(cleaned.fontWeight).toBeUndefined();
+      expect(cleaned.textAlign).toBeUndefined();
+      expect(cleaned.opacity).toBeUndefined();
+      expect(cleaned.backgroundColor).toBeUndefined();
+      expect(cleaned.width).toBe("100px"); // Keep non-default
+      expect(cleaned.color).toBe("#000"); // Keep non-default
+    });
+
+    it("should remove 0px position values", () => {
+      const styles = {
+        left: "0px",
+        top: "0",
+        right: "10px",
+        width: "100px",
+      };
+
+      const cleaned = LayoutOptimizer.removeDefaultValues(styles);
+
+      expect(cleaned.left).toBeUndefined();
+      expect(cleaned.top).toBeUndefined();
+      expect(cleaned.right).toBe("10px"); // Keep non-zero
+      expect(cleaned.width).toBe("100px");
+    });
+  });
+
+  describe("Integrated Overlap and Cleanup in optimizeContainer", () => {
+    function createAbsoluteNode(
+      id: string,
+      left: number,
+      top: number,
+      width: number,
+      height: number,
+    ): SimplifiedNode {
+      return {
+        id,
+        name: `Node ${id}`,
+        type: "FRAME",
+        cssStyles: {
+          position: "absolute",
+          left: `${left}px`,
+          top: `${top}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+        },
+      };
+    }
+
+    it("should clean child styles when parent becomes flex", () => {
+      const container: SimplifiedNode = {
+        id: "container",
+        name: "Flex Container",
+        type: "FRAME",
+        cssStyles: { width: "500px", height: "100px" },
+        children: [
+          createAbsoluteNode("1", 0, 0, 100, 50),
+          createAbsoluteNode("2", 120, 0, 100, 50),
+          createAbsoluteNode("3", 240, 0, 100, 50),
+        ],
+      };
+
+      const result = LayoutOptimizer.optimizeContainer(container);
+
+      expect(result.cssStyles?.display).toBe("flex");
+      // Children should have position:absolute removed
+      result.children?.forEach((child) => {
+        expect(child.cssStyles?.position).toBeUndefined();
+        expect(child.cssStyles?.left).toBeUndefined();
+        expect(child.cssStyles?.top).toBeUndefined();
+      });
+    });
+
+    it("should clean child styles when parent becomes grid", () => {
+      const container: SimplifiedNode = {
+        id: "container",
+        name: "Grid Container",
+        type: "FRAME",
+        cssStyles: { width: "260px", height: "140px" },
+        children: [
+          createAbsoluteNode("1", 0, 0, 100, 50),
+          createAbsoluteNode("2", 120, 0, 100, 50),
+          createAbsoluteNode("3", 0, 70, 100, 50),
+          createAbsoluteNode("4", 120, 70, 100, 50),
+        ],
+      };
+
+      const result = LayoutOptimizer.optimizeContainer(container);
+
+      expect(result.cssStyles?.display).toBe("grid");
+      // Children should have position:absolute removed
+      result.children?.forEach((child) => {
+        expect(child.cssStyles?.position).toBeUndefined();
+        expect(child.cssStyles?.left).toBeUndefined();
+        expect(child.cssStyles?.top).toBeUndefined();
+      });
     });
   });
 });
