@@ -1,0 +1,20 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M43.9978 81.2093C23.2512 81.2093 6.37253 64.4038 6.37253 43.7477C6.37253 23.0918 23.2512 6.28624 43.9978 6.28624C64.7444 6.28624 81.6237 23.0918 81.6237 43.7477C81.6237 64.4037 64.7444 81.2093 43.9978 81.2093ZM43.9978 15.5071C28.3575 15.5071 15.6339 28.1759 15.6339 43.7477C15.6339 59.3196 28.3575 71.9886 43.9978 71.9886C59.638 71.9886 72.3624 59.3196 72.3624 43.7477C72.3624 28.1759 59.638 15.5071 43.9978 15.5071Z" fill="#07955D"/>
+<path d="M87.9431 93.1912C86.4842 93.1912 85.0262 92.637 83.9129 91.5295L64.2557 71.9588C62.0302 69.7429 62.0302 66.15 64.2557 63.9336C66.4821 61.7183 70.0901 61.7183 72.3163 63.9336L91.9733 83.5042C94.199 85.7202 94.199 89.3131 91.9733 91.5294C90.8601 92.637 89.4021 93.1912 87.9431 93.1912Z" fill="#07955D"/>
+<foreignObject x="5.79976" y="5.73321" width="76.3999" height="76.1402"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(2.04px);clip-path:url(#bgblur_0_2_696_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_i_2_696)" data-figma-bg-blur-radius="4.08305">
+<ellipse cx="43.9997" cy="43.8033" rx="30" ry="29.8701" fill="white" fill-opacity="0.29"/>
+</g>
+<defs>
+<filter id="filter0_i_2_696" x="5.79976" y="5.73321" width="76.3999" height="76.1402" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="5.87561"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_2_696"/>
+</filter>
+<clipPath id="bgblur_0_2_696_clip_path" transform="translate(-5.79976 -5.73321)"><ellipse cx="43.9997" cy="43.8033" rx="30" ry="29.8701"/>
+</clipPath></defs>
+</svg>

@@ -1,295 +1,575 @@
 {
-  "name": "test",
-  "lastModified": "2025-03-25T08:22:10Z",
-  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/473a648c-4039-40c2-8046-1e1a2030aa81?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCT3MRUCDU%2F20250323%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250323T120000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=016073092878d75d2d8b7e2fc2425fd97579e7f97d0d33fd89cd770cd30cc65a",
+  "name": "Vigilkids产品站",
+  "lastModified": "2025-12-05T09:47:36Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/4892d075-dceb-4bbf-872f-44aa9652c4e6?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCXJW6HYPC%2F20251204%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251204T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=06110a8ba2400b0816939c3a6db835eecdb607aed6b2f7e667f662f47c53d632",
   "nodes": [
     {
-      "id": "409:3528",
-      "name": "Frame",
-      "type": "FRAME",
+      "id": "2:674",
+      "name": "Group 1410104851",
+      "type": "GROUP",
       "cssStyles": {
-        "width": "322px",
-        "height": "523px",
+        "width": "1580px",
+        "height": "895px",
         "position": "absolute",
-        "left": "13338px",
-        "top": "12889px",
-        "borderColor": "rgba(217, 217, 217, 0.4)",
-        "borderWidth": "1px",
-        "borderStyle": "solid",
-        "borderRadius": "10px"
+        "left": "406px",
+        "top": "422px"
       },
       "children": [
         {
-          "id": "409:3529",
-          "name": "Group",
+          "id": "2:675",
+          "name": "Rectangle 34",
+          "type": "RECTANGLE",
+          "cssStyles": {
+            "width": "1580px",
+            "height": "895px",
+            "position": "absolute",
+            "left": "0px",
+            "top": "0px",
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": "12px"
+          }
+        },
+        {
+          "id": "2:676",
+          "name": "Group 1410104850",
           "type": "GROUP",
           "cssStyles": {
-            "width": "276px",
-            "height": "276px",
+            "width": "350px",
+            "height": "316px",
             "position": "absolute",
-            "left": "27px",
-            "top": "230px"
+            "left": "615px",
+            "top": "232px",
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": "32px",
+            "justifyContent": "space-between",
+            "alignItems": "center"
           },
           "children": [
             {
-              "id": "409:3530",
-              "name": "Group",
+              "id": "2:689",
+              "name": "Group 1410104849",
               "type": "GROUP",
               "cssStyles": {
-                "width": "276px",
-                "height": "276px",
+                "width": "220px",
+                "height": "138px",
                 "position": "absolute",
-                "left": "0px",
-                "top": "0px",
-                "display": "flex",
-                "flexDirection": "column",
-                "justifyContent": "space-between"
+                "left": "65px",
+                "top": "0px"
               },
               "children": [
                 {
-                  "id": "409:3565",
-                  "name": "Group 1410104421",
+                  "id": "2:691",
+                  "name": "Group 1410104848",
                   "type": "GROUP",
                   "cssStyles": {
-                    "width": "47px",
-                    "height": "47px",
+                    "width": "192px",
+                    "height": "124px",
                     "position": "absolute",
-                    "left": "229px",
-                    "top": "0px"
+                    "left": "13px",
+                    "top": "8px"
                   },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG",
-                    "fileName": "group_1410104421.svg"
-                  }
-                },
+                  "children": [
+                    {
+                      "id": "2:693",
+                      "name": "Rectangle 34626109",
+                      "type": "VECTOR",
+                      "cssStyles": {
+                        "width": "114px",
+                        "height": "124px",
+                        "position": "absolute",
+                        "left": "39px",
+                        "top": "0px",
+                        "background": "linear-gradient(144deg, #4AF095 0%, #00D18A 100%)",
+                        "boxShadow": "0px 0px 9.958662033081055px 0px rgba(0, 69, 45, 0.09)",
+                        "borderRadius": "19px"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:709",
+                      "name": "Star 4",
+                      "type": "STAR",
+                      "cssStyles": {
+                        "width": "22px",
+                        "height": "22px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "16px",
+                        "backgroundColor": "rgba(67, 237, 148, 0.45)",
+                        "borderRadius": "1px"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:708",
+                      "name": "Vector 600",
+                      "type": "VECTOR",
+                      "cssStyles": {
+                        "width": "80px",
+                        "height": "11px",
+                        "position": "absolute",
+                        "left": "57px",
+                        "top": "16px",
+                        "borderColor": "#A6F9C2",
+                        "borderWidth": "2.9875986576080322px",
+                        "borderStyle": "solid"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:718",
+                      "name": "Ellipse 2568",
+                      "type": "ELLIPSE",
+                      "cssStyles": {
+                        "width": "11px",
+                        "height": "11px",
+                        "position": "absolute",
+                        "left": "169px",
+                        "top": "16px",
+                        "borderColor": "rgba(36, 199, 144, 0.2)",
+                        "borderWidth": "1.9917323589324951px",
+                        "borderStyle": "solid"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:704",
+                      "name": "Ellipse 2585",
+                      "type": "ELLIPSE",
+                      "cssStyles": {
+                        "width": "8px",
+                        "height": "8px",
+                        "position": "absolute",
+                        "left": "61px",
+                        "top": "39px",
+                        "backgroundColor": "#9AF2BB"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:706",
+                      "name": "Rectangle 34626112",
+                      "type": "RECTANGLE",
+                      "cssStyles": {
+                        "width": "62px",
+                        "height": "8px",
+                        "position": "absolute",
+                        "left": "73px",
+                        "top": "39px",
+                        "backgroundColor": "#9AF2BB",
+                        "borderRadius": "3px"
+                      }
+                    },
+                    {
+                      "id": "2:705",
+                      "name": "Ellipse 2586",
+                      "type": "ELLIPSE",
+                      "cssStyles": {
+                        "width": "8px",
+                        "height": "8px",
+                        "position": "absolute",
+                        "left": "61px",
+                        "top": "51px",
+                        "backgroundColor": "#9AF2BB"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:707",
+                      "name": "Rectangle 34626113",
+                      "type": "RECTANGLE",
+                      "cssStyles": {
+                        "width": "49px",
+                        "height": "8px",
+                        "position": "absolute",
+                        "left": "73px",
+                        "top": "51px",
+                        "backgroundColor": "#9AF2BB",
+                        "borderRadius": "3px"
+                      }
+                    },
+                    {
+                      "id": "2:714",
+                      "name": "Group 1410104847",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "14px",
+                        "height": "14px",
+                        "position": "absolute",
+                        "left": "178px",
+                        "top": "53px"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG",
+                        "fileName": "group_1410104847.svg"
+                      }
+                    },
+                    {
+                      "id": "2:696",
+                      "name": "Frame",
+                      "type": "FRAME",
+                      "cssStyles": {
+                        "width": "50px",
+                        "height": "50px",
+                        "position": "absolute",
+                        "left": "121px",
+                        "top": "63px"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG",
+                        "fileName": "frame.svg"
+                      }
+                    },
+                    {
+                      "id": "2:694",
+                      "name": "Rectangle 34626110",
+                      "type": "RECTANGLE",
+                      "cssStyles": {
+                        "width": "157px",
+                        "height": "37px",
+                        "position": "absolute",
+                        "left": "17px",
+                        "top": "66px",
+                        "background": "linear-gradient(180deg, #03C979 0%, #00BB72 100%)",
+                        "borderRadius": "18px"
+                      }
+                    },
+                    {
+                      "id": "2:700",
+                      "name": "Group 1410104846",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "23px",
+                        "height": "23px",
+                        "position": "absolute",
+                        "left": "25px",
+                        "top": "73px",
+                        "display": "flex",
+                        "flexDirection": "column",
+                        "gap": "2px",
+                        "justifyContent": "space-between",
+                        "alignItems": "center"
+                      },
+                      "children": [
+                        {
+                          "id": "2:701",
+                          "name": "Ellipse 2583",
+                          "type": "ELLIPSE",
+                          "cssStyles": {
+                            "width": "23px",
+                            "height": "23px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "backgroundColor": "#FDBF37"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG"
+                          }
+                        },
+                        {
+                          "id": "2:703",
+                          "name": "Rectangle 34626111",
+                          "type": "RECTANGLE",
+                          "cssStyles": {
+                            "width": "3px",
+                            "height": "10px",
+                            "position": "absolute",
+                            "left": "10px",
+                            "top": "4px",
+                            "backgroundColor": "#FFFFFF",
+                            "borderRadius": "3px"
+                          }
+                        },
+                        {
+                          "id": "2:702",
+                          "name": "Ellipse 2584",
+                          "type": "ELLIPSE",
+                          "cssStyles": {
+                            "width": "3px",
+                            "height": "3px",
+                            "position": "absolute",
+                            "left": "10px",
+                            "top": "16px",
+                            "backgroundColor": "#FFFFFF"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "2:695",
+                      "name": "Vector 601",
+                      "type": "VECTOR",
+                      "cssStyles": {
+                        "width": "80px",
+                        "height": "14px",
+                        "position": "absolute",
+                        "left": "59px",
+                        "top": "76px",
+                        "borderColor": "#A6F9C2",
+                        "borderWidth": "2.9875986576080322px",
+                        "borderStyle": "solid"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:692",
+                      "name": "Ellipse 2571",
+                      "type": "ELLIPSE",
+                      "cssStyles": {
+                        "width": "11px",
+                        "height": "11px",
+                        "position": "absolute",
+                        "left": "14px",
+                        "top": "104px",
+                        "borderColor": "rgba(36, 199, 144, 0.1)",
+                        "borderWidth": "1.9917323589324951px",
+                        "borderStyle": "solid"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG"
+                      }
+                    },
+                    {
+                      "id": "2:710",
+                      "name": "Group 1410104431",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "10px",
+                        "height": "10px",
+                        "position": "absolute",
+                        "left": "153px",
+                        "top": "114px"
+                      },
+                      "exportInfo": {
+                        "type": "IMAGE",
+                        "format": "SVG",
+                        "fileName": "group_1410104431.svg"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "2:677",
+              "name": "Group 1410104480",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "350px",
+                "height": "148px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "168px",
+                "display": "flex",
+                "flexDirection": "column",
+                "gap": "32px",
+                "justifyContent": "space-between",
+                "alignItems": "center"
+              },
+              "children": [
                 {
-                  "id": "409:3555",
-                  "name": "Vector",
-                  "type": "VECTOR",
-                  "cssStyles": {
-                    "width": "29px",
-                    "height": "25px",
-                    "position": "absolute",
-                    "left": "238px",
-                    "top": "66px",
-                    "backgroundColor": "#FFFFFF"
-                  },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG"
-                  }
-                },
-                {
-                  "id": "409:3539",
-                  "name": "500 K",
+                  "id": "2:678",
+                  "name": "添加自定义关键词，当检测到关键词出现时您将接收警报",
                   "type": "TEXT",
                   "cssStyles": {
-                    "width": "27px",
-                    "height": "11px",
-                    "position": "absolute",
-                    "left": "239px",
-                    "top": "98px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "9px",
-                    "fontWeight": 600,
-                    "lineHeight": "11px"
-                  },
-                  "text": "500 K"
-                },
-                {
-                  "id": "409:3550",
-                  "name": "Group",
-                  "type": "GROUP",
-                  "cssStyles": {
-                    "width": "29px",
-                    "height": "29px",
-                    "position": "absolute",
-                    "left": "238px",
-                    "top": "120px"
-                  },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG",
-                    "fileName": "group.svg"
-                  }
-                },
-                {
-                  "id": "409:3537",
-                  "name": "400",
-                  "type": "TEXT",
-                  "cssStyles": {
-                    "width": "19px",
-                    "height": "11px",
-                    "position": "absolute",
-                    "left": "244px",
-                    "top": "155px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "9px",
-                    "fontWeight": 600,
-                    "lineHeight": "11px"
-                  },
-                  "text": "400"
-                },
-                {
-                  "id": "409:3549",
-                  "name": "Vector",
-                  "type": "VECTOR",
-                  "cssStyles": {
-                    "width": "25px",
-                    "height": "25px",
-                    "position": "absolute",
-                    "left": "240px",
-                    "top": "176px",
-                    "backgroundColor": "#FFFFFF"
-                  },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG"
-                  }
-                },
-                {
-                  "id": "409:3562",
-                  "name": "Vector",
-                  "type": "VECTOR",
-                  "cssStyles": {
-                    "width": "33px",
-                    "height": "14px",
-                    "position": "absolute",
-                    "left": "2px",
-                    "top": "205px",
-                    "backgroundColor": "#F7214E"
-                  },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG"
-                  }
-                },
-                {
-                  "id": "409:3563",
-                  "name": "HOT",
-                  "type": "TEXT",
-                  "cssStyles": {
-                    "width": "21px",
-                    "height": "11px",
-                    "position": "absolute",
-                    "left": "8px",
-                    "top": "206px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "9px",
-                    "fontWeight": 800,
-                    "lineHeight": "11px"
-                  },
-                  "text": "HOT"
-                },
-                {
-                  "id": "409:3535",
-                  "name": "Share",
-                  "type": "TEXT",
-                  "cssStyles": {
-                    "width": "27px",
-                    "height": "11px",
-                    "position": "absolute",
-                    "left": "239px",
-                    "top": "207px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "9px",
-                    "fontWeight": 600,
-                    "lineHeight": "11px"
-                  },
-                  "text": "Share"
-                },
-                {
-                  "id": "409:3533",
-                  "name": "@LoremIpsum",
-                  "type": "TEXT",
-                  "cssStyles": {
-                    "width": "86px",
-                    "height": "14px",
+                    "width": "350px",
+                    "height": "20px",
                     "position": "absolute",
                     "left": "0px",
-                    "top": "224px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "11px",
-                    "fontWeight": 600,
-                    "lineHeight": "14px"
+                    "top": "0px",
+                    "color": "#333333",
+                    "fontFamily": "PingFang SC",
+                    "fontSize": "14px",
+                    "fontWeight": 500,
+                    "textAlign": "center",
+                    "verticalAlign": "middle",
+                    "lineHeight": "20px"
                   },
-                  "text": "@LoremIpsum"
+                  "text": "添加自定义关键词，当检测到关键词出现时您将接收警报"
                 },
                 {
-                  "id": "409:3542",
-                  "name": "Group",
+                  "id": "2:679",
+                  "name": "Group 1410104479",
                   "type": "GROUP",
                   "cssStyles": {
-                    "width": "34px",
-                    "height": "34px",
+                    "width": "240px",
+                    "height": "98px",
                     "position": "absolute",
-                    "left": "235px",
-                    "top": "237px"
+                    "left": "55px",
+                    "top": "50px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "10px",
+                    "justifyContent": "space-between",
+                    "alignItems": "flex-start"
                   },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG",
-                    "fileName": "group.svg"
-                  }
-                },
-                {
-                  "id": "409:3541",
-                  "name": "#lorem#Ipsum#loremipsum",
-                  "type": "TEXT",
-                  "cssStyles": {
-                    "width": "165px",
-                    "height": "14px",
-                    "position": "absolute",
-                    "left": "0px",
-                    "top": "238px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "11px",
-                    "fontWeight": 600,
-                    "lineHeight": "14px"
-                  },
-                  "text": "#lorem#Ipsum#loremipsum"
-                },
-                {
-                  "id": "409:3531",
-                  "name": "Song Title - Singer",
-                  "type": "TEXT",
-                  "cssStyles": {
-                    "width": "106px",
-                    "height": "14px",
-                    "position": "absolute",
-                    "left": "28px",
-                    "top": "262px",
-                    "color": "#FFFFFF",
-                    "fontFamily": "Montserrat",
-                    "fontSize": "11px",
-                    "fontWeight": 600,
-                    "lineHeight": "14px"
-                  },
-                  "text": "Song Title - Singer"
-                },
-                {
-                  "id": "409:3558",
-                  "name": "Vector",
-                  "type": "VECTOR",
-                  "cssStyles": {
-                    "width": "12px",
-                    "height": "12px",
-                    "position": "absolute",
-                    "left": "4px",
-                    "top": "263px",
-                    "backgroundColor": "#FFFFFF"
-                  },
-                  "exportInfo": {
-                    "type": "IMAGE",
-                    "format": "SVG"
-                  }
+                  "children": [
+                    {
+                      "id": "2:680",
+                      "name": "Group 1410086131",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "240px",
+                        "height": "44px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "0px"
+                      },
+                      "children": [
+                        {
+                          "id": "2:681",
+                          "name": "Rectangle 34625783",
+                          "type": "RECTANGLE",
+                          "cssStyles": {
+                            "width": "240px",
+                            "height": "44px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "backgroundColor": "#24C790",
+                            "borderRadius": "10px"
+                          }
+                        },
+                        {
+                          "id": "2:682",
+                          "name": "Group 1410104509",
+                          "type": "GROUP",
+                          "cssStyles": {
+                            "width": "115px",
+                            "height": "20px",
+                            "position": "absolute",
+                            "left": "63px",
+                            "top": "12px",
+                            "display": "flex",
+                            "gap": "10px",
+                            "justifyContent": "space-between",
+                            "alignItems": "flex-start"
+                          },
+                          "children": [
+                            {
+                              "id": "2:684",
+                              "name": "Frame",
+                              "type": "FRAME",
+                              "cssStyles": {
+                                "width": "20px",
+                                "height": "20px",
+                                "position": "absolute",
+                                "left": "0px",
+                                "top": "0px"
+                              },
+                              "exportInfo": {
+                                "type": "IMAGE",
+                                "format": "SVG",
+                                "fileName": "frame.svg"
+                              }
+                            },
+                            {
+                              "id": "2:683",
+                              "name": "AI生成关键词",
+                              "type": "TEXT",
+                              "cssStyles": {
+                                "width": "84px",
+                                "height": "16px",
+                                "position": "absolute",
+                                "left": "31px",
+                                "top": "2px",
+                                "color": "#FFFFFF",
+                                "fontFamily": "Roboto",
+                                "fontSize": "14px",
+                                "fontWeight": 700,
+                                "textAlign": "center",
+                                "verticalAlign": "middle",
+                                "lineHeight": "16px"
+                              },
+                              "text": "AI生成关键词"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "2:686",
+                      "name": "Group 1410104451",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "240px",
+                        "height": "44px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "54px",
+                        "borderRadius": "10px"
+                      },
+                      "children": [
+                        {
+                          "id": "2:687",
+                          "name": "Rectangle 34625783",
+                          "type": "RECTANGLE",
+                          "cssStyles": {
+                            "width": "240px",
+                            "height": "44px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "backgroundColor": "#FFFFFF",
+                            "borderColor": "#C4C4C4",
+                            "borderStyle": "solid",
+                            "borderRadius": "10px"
+                          }
+                        },
+                        {
+                          "id": "2:688",
+                          "name": "添加自定义关键词",
+                          "type": "TEXT",
+                          "cssStyles": {
+                            "width": "146px",
+                            "height": "16px",
+                            "position": "absolute",
+                            "left": "48px",
+                            "top": "14px",
+                            "color": "#333333",
+                            "fontFamily": "Roboto",
+                            "fontSize": "14px",
+                            "fontWeight": 700,
+                            "textAlign": "center",
+                            "verticalAlign": "middle",
+                            "lineHeight": "16px"
+                          },
+                          "text": "添加自定义关键词"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
