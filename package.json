@@ -1,7 +1,7 @@
 {
   "name": "@yhy2001/figma-mcp-server",
   "version": "1.0.1",
-  "description": "本地MCP服务器，用于Figma设计与AI编码工具集成",
+  "description": "MCP server for Figma design integration with AI coding tools",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -9,44 +9,59 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "README.zh-CN.md"
   ],
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsup --watch",
     "build": "tsup",
-    "test:figma": "tsx test-figma-data.ts",
-    "prepublishOnly": "npm run build",
     "start": "node dist/index.js",
-    "inspect": "pnpx @modelcontextprotocol/inspector",
-    "mcp-test": "pnpm start -- --stdio",
-    "type-check": "tsc --noEmit",
     "start:cli": "cross-env NODE_ENV=cli node dist/index.js",
     "start:http": "node dist/index.js",
     "dev:cli": "cross-env NODE_ENV=development tsup --watch -- --stdio",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "tsx test/test-layout-detection.ts && tsx test/test-icon-detection.ts",
+    "test:layout": "tsx test/test-layout-detection.ts",
+    "test:icon": "tsx test/test-icon-detection.ts",
+    "test:all": "tsx test/test-layout-detection.ts && tsx test/test-icon-detection.ts && tsx test/test-final-output.ts",
+    "inspect": "pnpx @modelcontextprotocol/inspector",
+    "mcp-test": "pnpm start -- --stdio",
+    "prepublishOnly": "pnpm run build",
     "pub:release": "pnpm build && npm publish --access public",
-    "publish:local": "pnpm build && npm pack"
+    "publish:local": "pnpm build && npm pack",
+    "prepare": "husky || true"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/1yhy/figma-mcp-server.git"
+    "url": "git+https://github.com/1yhy/Figma-Context-MCP.git"
+  },
+  "homepage": "https://github.com/1yhy/Figma-Context-MCP#readme",
+  "bugs": {
+    "url": "https://github.com/1yhy/Figma-Context-MCP/issues"
   },
   "keywords": [
     "figma",
     "mcp",
+    "model-context-protocol",
     "typescript",
     "ai",
-    "design"
+    "design",
+    "cursor",
+    "windsurf",
+    "cline",
+    "design-to-code"
   ],
-  "author": "",
+  "author": "1yhy",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
-    "@types/yargs": "^17.0.33",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -55,19 +70,22 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "@figma/rest-api-spec": "^0.24.0",
     "@types/express": "^5.0.0",
-    "@types/jest": "^29.5.11",
     "@types/node": "^20.17.0",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
-    "jest": "^29.7.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
     "prettier": "^3.5.0",
-    "ts-jest": "^29.2.5",
     "tsup": "^8.4.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0"
   }
 }
