@@ -41,6 +41,9 @@ export {
   calculateIoU,
   classifyOverlap,
   detectOverlappingElements,
+  // Background element detection
+  detectBackgroundElement,
+  type BackgroundDetectionResult,
   // Grouping
   groupIntoRows,
   groupIntoColumns,
@@ -62,4 +65,8 @@ export {
   // Grid detection
   clusterValues,
   detectGridLayout,
+  // Homogeneity analysis
+  analyzeHomogeneity,
+  filterHomogeneousForGrid,
+  type HomogeneityResult,
 } from "./detector.js";

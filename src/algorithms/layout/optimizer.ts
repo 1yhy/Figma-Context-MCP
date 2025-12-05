@@ -6,6 +6,7 @@ import {
   toElementRect,
   filterHomogeneousForGrid,
   detectOverlappingElements,
+  detectBackgroundElement,
   type ElementRect,
   type GridAnalysisResult,
 } from "./detector.js";
@@ -107,24 +108,94 @@ export class LayoutOptimizer {
       return node;
     }
 
+    // ===== STEP 1.5: BACKGROUND ELEMENT DETECTION =====
+    // Detect and merge background elements into parent container
+    const parentWidth = parseFloat(String(node.cssStyles?.width || "0").replace("px", ""));
+    const parentHeight = parseFloat(String(node.cssStyles?.height || "0").replace("px", ""));
+
+    let mergedBackgroundStyles: CSSStyle = {};
+    let filteredChildren = node.children;
+    let backgroundDetected = false;
+
+    if (parentWidth > 0 && parentHeight > 0) {
+      const bgResult = detectBackgroundElement(elementRects, parentWidth, parentHeight);
+
+      if (bgResult.hasBackground && bgResult.backgroundIndex >= 0) {
+        const bgChild = node.children[bgResult.backgroundIndex];
+
+        // Only merge if it's a valid background element with visual styles
+        if (this.isBackgroundElement(bgResult.backgroundIndex, bgResult.backgroundIndex, bgChild)) {
+          // Extract styles from background element
+          mergedBackgroundStyles = this.extractBackgroundStyles(bgChild);
+
+          // Remove background element from children
+          filteredChildren = node.children.filter((_, idx) => idx !== bgResult.backgroundIndex);
+          backgroundDetected = true;
+
+          // Update stackedIndices to account for removed element
+          const newStackedIndices = new Set<number>();
+          for (const idx of stackedIndices) {
+            if (idx < bgResult.backgroundIndex) {
+              newStackedIndices.add(idx);
+            } else if (idx > bgResult.backgroundIndex) {
+              newStackedIndices.add(idx - 1);
+            }
+            // Skip the background index itself
+          }
+          stackedIndices.clear();
+          for (const idx of newStackedIndices) {
+            stackedIndices.add(idx);
+          }
+        }
+      }
+    }
+
+    // If background was removed and only 1 child remains, return with merged styles
+    if (backgroundDetected && filteredChildren.length <= 1) {
+      return {
+        ...node,
+        cssStyles: {
+          ...node.cssStyles,
+          ...mergedBackgroundStyles,
+        },
+        children: filteredChildren,
+      };
+    }
+
     // ===== STEP 2: GRID DETECTION (check first before Flex) =====
     // Grid is only applicable for container nodes with enough children
     if (isContainer) {
-      const gridResult = this.detectGridIfApplicable(node.children);
+      const gridResult = this.detectGridIfApplicable(filteredChildren);
       if (gridResult) {
         // Grid layout detected! Apply CSS Grid styles
         const gridStyles = this.generateGridCSS(gridResult);
 
-        // Clean child styles - remove absolute positioning from flow children
-        const cleanedChildren = this.cleanChildrenStyles(node.children, "grid", stackedIndices);
+        // Convert absolute positioning to padding/margin
+        const { parentPaddingStyle, convertedChildren } = this.convertAbsoluteToRelative(
+          node,
+          filteredChildren,
+          "grid",
+          "row", // Grid doesn't have a primary direction, use row as default
+          stackedIndices,
+          null,
+        );
+
+        // Build final styles with padding and merged background
+        const finalStyles: Record<string, string> = {
+          ...mergedBackgroundStyles,
+          ...gridStyles,
+        };
+        if (parentPaddingStyle) {
+          finalStyles.padding = parentPaddingStyle;
+        }
 
         return {
           ...node,
           cssStyles: {
             ...node.cssStyles,
-            ...gridStyles,
+            ...finalStyles,
           },
-          children: cleanedChildren,
+          children: convertedChildren,
         };
       }
     }
@@ -132,7 +203,7 @@ export class LayoutOptimizer {
     // ===== STEP 3: FLEX DETECTION (fallback) =====
     // Analyze child spatial relationships to determine row or column layout
     const { isRow, isColumn, rowGap, columnGap, isGapConsistent, justifyContent, alignItems } =
-      this.analyzeLayoutDirection(node.children);
+      this.analyzeLayoutDirection(filteredChildren);
 
     // When layout is a valid row or column
     if (isRow || isColumn) {
@@ -141,8 +212,9 @@ export class LayoutOptimizer {
         const direction = isRow ? "row" : "column";
         const gap = isRow ? rowGap : columnGap;
 
-        // Build flex styles (omit defaults)
+        // Build flex styles (omit defaults) with merged background
         const flexStyles: Record<string, string> = {
+          ...mergedBackgroundStyles,
           display: "flex",
         };
         // Only set the direction explicitly for column (row is the default)
@@ -156,8 +228,20 @@ export class LayoutOptimizer {
         if (justifyContent) flexStyles.justifyContent = justifyContent;
         if (alignItems) flexStyles.alignItems = alignItems;
 
-        // Clean child styles - remove absolute positioning from flow children
-        const cleanedChildren = this.cleanChildrenStyles(node.children, "flex", stackedIndices);
+        // Convert absolute positioning to padding/margin
+        const { parentPaddingStyle, convertedChildren } = this.convertAbsoluteToRelative(
+          node,
+          filteredChildren,
+          "flex",
+          direction,
+          stackedIndices,
+          alignItems,
+        );
+
+        // Add padding to flex styles if inferred
+        if (parentPaddingStyle) {
+          flexStyles.padding = parentPaddingStyle;
+        }
 
         return {
           ...node,
@@ -165,20 +249,21 @@ export class LayoutOptimizer {
             ...node.cssStyles,
             ...flexStyles,
           },
-          children: cleanedChildren,
+          children: convertedChildren,
         };
       }
       // If not a container but children share a clear layout, create a new layout container
       else {
         // Determine whether the children should be grouped
-        const groups = this.groupChildrenByLayout(node.children, isRow);
+        const groups = this.groupChildrenByLayout(filteredChildren, isRow);
 
         // If grouping yields one group containing all children, return the original node with flex styles
-        if (groups.length === 1 && groups[0].length === node.children.length) {
+        if (groups.length === 1 && groups[0].length === filteredChildren.length) {
           const direction = isRow ? "row" : "column";
           const gap = isRow ? rowGap : columnGap;
 
           const flexStyles: Record<string, string> = {
+            ...mergedBackgroundStyles,
             display: "flex",
           };
           if (direction === "column") {
@@ -190,8 +275,20 @@ export class LayoutOptimizer {
           if (justifyContent) flexStyles.justifyContent = justifyContent;
           if (alignItems) flexStyles.alignItems = alignItems;
 
-          // Clean child styles
-          const cleanedChildren = this.cleanChildrenStyles(node.children, "flex", stackedIndices);
+          // Convert absolute positioning to padding/margin
+          const { parentPaddingStyle, convertedChildren } = this.convertAbsoluteToRelative(
+            node,
+            filteredChildren,
+            "flex",
+            direction,
+            stackedIndices,
+            alignItems,
+          );
+
+          // Add padding to flex styles if inferred
+          if (parentPaddingStyle) {
+            flexStyles.padding = parentPaddingStyle;
+          }
 
           return {
             ...node,
@@ -199,7 +296,7 @@ export class LayoutOptimizer {
               ...node.cssStyles,
               ...flexStyles,
             },
-            children: cleanedChildren,
+            children: convertedChildren,
           };
         }
 
@@ -218,6 +315,7 @@ export class LayoutOptimizer {
         // Return the parent containing the grouped containers
         const direction = isRow ? "row" : "column";
         const flexStyles: Record<string, string> = {
+          ...mergedBackgroundStyles,
           display: "flex",
         };
         if (direction === "column") {
@@ -237,7 +335,18 @@ export class LayoutOptimizer {
       }
     }
 
-    // If no clear row or column layout is detected, leave it unchanged
+    // If no clear row or column layout is detected, still apply background styles if detected
+    if (backgroundDetected && Object.keys(mergedBackgroundStyles).length > 0) {
+      return {
+        ...node,
+        cssStyles: {
+          ...node.cssStyles,
+          ...mergedBackgroundStyles,
+        },
+        children: filteredChildren,
+      };
+    }
+
     return node;
   }
 
@@ -1231,5 +1340,406 @@ export class LayoutOptimizer {
 
       return cleaned;
     });
+  }
+
+  // ==================== Absolute to Relative Position Conversion ====================
+
+  /**
+   * Collect position offsets from flow children before cleaning
+   *
+   * @param children All child nodes
+   * @param stackedIndices Indices of stacked elements to skip
+   * @returns Array of offset info for flow children only
+   */
+  static collectFlowChildOffsets(
+    children: SimplifiedNode[],
+    stackedIndices: Set<number>,
+  ): Array<{
+    index: number;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    right: number;
+    bottom: number;
+  }> {
+    const offsets: Array<{
+      index: number;
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+      right: number;
+      bottom: number;
+    }> = [];
+
+    children.forEach((child, index) => {
+      // Skip stacked elements
+      if (stackedIndices.has(index)) return;
+
+      if (!child.cssStyles) return;
+
+      const left = parseFloat((child.cssStyles.left as string) || "0");
+      const top = parseFloat((child.cssStyles.top as string) || "0");
+      const width = parseFloat((child.cssStyles.width as string) || "0");
+      const height = parseFloat((child.cssStyles.height as string) || "0");
+
+      offsets.push({
+        index,
+        left,
+        top,
+        width,
+        height,
+        right: left + width,
+        bottom: top + height,
+      });
+    });
+
+    return offsets;
+  }
+
+  /**
+   * Infer container padding from flow children offsets
+   *
+   * Algorithm:
+   * - paddingTop = minimum top offset of all flow children
+   * - paddingLeft = minimum left offset of all flow children
+   * - paddingRight = parentWidth - maximum right edge of children
+   * - paddingBottom = parentHeight - maximum bottom edge of children
+   *
+   * @param offsets Flow children offset information
+   * @param parentWidth Parent container width
+   * @param parentHeight Parent container height
+   * @param layoutDirection 'row' or 'column'
+   * @returns Inferred padding values
+   */
+  static inferContainerPadding(
+    offsets: Array<{
+      index: number;
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+      right: number;
+      bottom: number;
+    }>,
+    parentWidth: number,
+    parentHeight: number,
+    _layoutDirection: "row" | "column", // Reserved for future direction-specific logic
+  ): {
+    paddingTop: number;
+    paddingRight: number;
+    paddingBottom: number;
+    paddingLeft: number;
+  } {
+    if (offsets.length === 0) {
+      return { paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0 };
+    }
+
+    // Calculate min/max bounds from all flow children
+    const minLeft = Math.min(...offsets.map((o) => o.left));
+    const minTop = Math.min(...offsets.map((o) => o.top));
+    const maxRight = Math.max(...offsets.map((o) => o.right));
+    const maxBottom = Math.max(...offsets.map((o) => o.bottom));
+
+    // Calculate padding (with tolerance for small values)
+    const paddingLeft = minLeft > 2 ? Math.round(minLeft) : 0;
+    const paddingTop = minTop > 2 ? Math.round(minTop) : 0;
+    const paddingRight = parentWidth - maxRight > 2 ? Math.round(parentWidth - maxRight) : 0;
+    const paddingBottom = parentHeight - maxBottom > 2 ? Math.round(parentHeight - maxBottom) : 0;
+
+    return { paddingTop, paddingRight, paddingBottom, paddingLeft };
+  }
+
+  /**
+   * Calculate individual margin adjustments for children based on their cross-axis position
+   *
+   * For row layout: calculate marginTop based on vertical offset from baseline
+   * For column layout: calculate marginLeft based on horizontal offset from baseline
+   *
+   * @param offsets Flow children offset information
+   * @param padding Inferred container padding
+   * @param layoutDirection 'row' or 'column'
+   * @param alignItems The alignItems value ('flex-start', 'center', 'flex-end')
+   * @returns Map of child index to margin adjustments
+   */
+  static calculateChildMargins(
+    offsets: Array<{
+      index: number;
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+      right: number;
+      bottom: number;
+    }>,
+    padding: {
+      paddingTop: number;
+      paddingRight: number;
+      paddingBottom: number;
+      paddingLeft: number;
+    },
+    layoutDirection: "row" | "column",
+    alignItems: string | null,
+  ): Map<number, { marginTop?: number; marginLeft?: number }> {
+    const margins = new Map<number, { marginTop?: number; marginLeft?: number }>();
+
+    if (offsets.length === 0) return margins;
+
+    if (layoutDirection === "row") {
+      // For row layout, check vertical (cross-axis) alignment
+      // Baseline is paddingTop for flex-start
+      const baseline = padding.paddingTop;
+
+      for (const offset of offsets) {
+        const verticalOffset = offset.top - baseline;
+
+        // Only add margin if there's a meaningful offset (> 2px tolerance)
+        if (alignItems === "flex-start" && verticalOffset > 2) {
+          margins.set(offset.index, { marginTop: Math.round(verticalOffset) });
+        }
+      }
+    } else {
+      // For column layout, check horizontal (cross-axis) alignment
+      // Baseline is paddingLeft for flex-start
+      const baseline = padding.paddingLeft;
+
+      for (const offset of offsets) {
+        const horizontalOffset = offset.left - baseline;
+
+        // Only add margin if there's a meaningful offset (> 2px tolerance)
+        if (alignItems === "flex-start" && horizontalOffset > 2) {
+          margins.set(offset.index, { marginLeft: Math.round(horizontalOffset) });
+        }
+      }
+    }
+
+    return margins;
+  }
+
+  /**
+   * Generate CSS padding string from padding values
+   *
+   * Uses shorthand when possible:
+   * - All same: "10px"
+   * - Top/bottom same, left/right same: "10px 20px"
+   * - All different: "10px 20px 30px 40px"
+   */
+  static generatePaddingCSS(padding: {
+    paddingTop: number;
+    paddingRight: number;
+    paddingBottom: number;
+    paddingLeft: number;
+  }): string | null {
+    const { paddingTop, paddingRight, paddingBottom, paddingLeft } = padding;
+
+    // If all padding is 0, return null (no padding needed)
+    if (paddingTop === 0 && paddingRight === 0 && paddingBottom === 0 && paddingLeft === 0) {
+      return null;
+    }
+
+    // All same
+    if (
+      paddingTop === paddingRight &&
+      paddingRight === paddingBottom &&
+      paddingBottom === paddingLeft
+    ) {
+      return `${paddingTop}px`;
+    }
+
+    // Top/bottom same, left/right same
+    if (paddingTop === paddingBottom && paddingLeft === paddingRight) {
+      return `${paddingTop}px ${paddingLeft}px`;
+    }
+
+    // Left/right same
+    if (paddingLeft === paddingRight) {
+      return `${paddingTop}px ${paddingLeft}px ${paddingBottom}px`;
+    }
+
+    // All different
+    return `${paddingTop}px ${paddingRight}px ${paddingBottom}px ${paddingLeft}px`;
+  }
+
+  /**
+   * Convert absolute positioning to relative positioning with padding/margin
+   *
+   * This is the main orchestration function that:
+   * 1. Collects flow child offsets before cleaning
+   * 2. Infers container padding from child positions
+   * 3. Calculates individual child margins for cross-axis alignment
+   * 4. Returns updated parent styles and cleaned children with margins
+   *
+   * @param parent Parent node
+   * @param children Child nodes
+   * @param layoutType 'flex' | 'grid'
+   * @param layoutDirection 'row' | 'column'
+   * @param stackedIndices Indices of stacked (overlapping) elements
+   * @param alignItems The alignItems value for cross-axis alignment
+   * @returns Updated parent styles and children with converted positioning
+   */
+  static convertAbsoluteToRelative(
+    parent: SimplifiedNode,
+    children: SimplifiedNode[],
+    layoutType: "flex" | "grid",
+    layoutDirection: "row" | "column",
+    stackedIndices: Set<number>,
+    alignItems: string | null,
+  ): {
+    parentPaddingStyle: string | null;
+    convertedChildren: SimplifiedNode[];
+  } {
+    // Step 1: Collect flow child offsets before cleaning
+    const offsets = this.collectFlowChildOffsets(children, stackedIndices);
+
+    if (offsets.length === 0) {
+      return {
+        parentPaddingStyle: null,
+        convertedChildren: this.cleanChildrenStyles(children, layoutType, stackedIndices),
+      };
+    }
+
+    // Get parent dimensions
+    const parentWidth = parseFloat((parent.cssStyles?.width as string) || "0");
+    const parentHeight = parseFloat((parent.cssStyles?.height as string) || "0");
+
+    // Step 2: Infer container padding
+    const padding = this.inferContainerPadding(offsets, parentWidth, parentHeight, layoutDirection);
+
+    // Step 3: Calculate individual child margins for cross-axis alignment
+    const childMargins = this.calculateChildMargins(offsets, padding, layoutDirection, alignItems);
+
+    // Step 4: Generate padding CSS string
+    const paddingCSS = this.generatePaddingCSS(padding);
+
+    // Step 5: Clean children and apply margins
+    const convertedChildren = children.map((child, index) => {
+      // Skip stacked elements - they keep absolute positioning
+      if (stackedIndices.has(index)) {
+        return child;
+      }
+
+      // Clean absolute positioning styles
+      let cleaned = this.cleanChildStylesForLayout(child, layoutType);
+
+      // Apply calculated margins if any
+      const marginAdjustment = childMargins.get(index);
+      if (marginAdjustment && cleaned.cssStyles) {
+        const updatedStyles: CSSStyle = { ...cleaned.cssStyles };
+
+        if (marginAdjustment.marginTop && marginAdjustment.marginTop > 0) {
+          updatedStyles.marginTop = `${marginAdjustment.marginTop}px`;
+        }
+        if (marginAdjustment.marginLeft && marginAdjustment.marginLeft > 0) {
+          updatedStyles.marginLeft = `${marginAdjustment.marginLeft}px`;
+        }
+
+        cleaned = { ...cleaned, cssStyles: updatedStyles };
+      }
+
+      // Remove default values
+      if (cleaned.cssStyles) {
+        cleaned.cssStyles = this.removeDefaultValues(cleaned.cssStyles);
+      }
+
+      return cleaned;
+    });
+
+    return {
+      parentPaddingStyle: paddingCSS,
+      convertedChildren,
+    };
+  }
+
+  /**
+   * Extract visual styles from a background element that can be merged into parent
+   *
+   * Background-compatible styles: backgroundColor, background, backgroundImage,
+   * borderRadius, border, boxShadow, opacity
+   *
+   * @param bgChild Background element
+   * @returns Styles to merge into parent
+   */
+  static extractBackgroundStyles(bgChild: SimplifiedNode): CSSStyle {
+    const mergedStyles: CSSStyle = {};
+
+    if (!bgChild.cssStyles) return mergedStyles;
+
+    const bgStyles = bgChild.cssStyles;
+
+    // Background colors
+    if (bgStyles.backgroundColor) {
+      mergedStyles.backgroundColor = bgStyles.backgroundColor;
+    }
+    if (bgStyles.background) {
+      mergedStyles.background = bgStyles.background;
+    }
+    if (bgStyles.backgroundImage) {
+      mergedStyles.backgroundImage = bgStyles.backgroundImage;
+    }
+
+    // Border radius
+    if (bgStyles.borderRadius) {
+      mergedStyles.borderRadius = bgStyles.borderRadius;
+    }
+
+    // Border
+    if (bgStyles.border) {
+      mergedStyles.border = bgStyles.border;
+    }
+    if (bgStyles.borderWidth) {
+      mergedStyles.borderWidth = bgStyles.borderWidth;
+    }
+    if (bgStyles.borderStyle) {
+      mergedStyles.borderStyle = bgStyles.borderStyle;
+    }
+    if (bgStyles.borderColor) {
+      mergedStyles.borderColor = bgStyles.borderColor;
+    }
+
+    // Box shadow
+    if (bgStyles.boxShadow) {
+      mergedStyles.boxShadow = bgStyles.boxShadow;
+    }
+
+    // Opacity (only if not 1)
+    if (bgStyles.opacity && bgStyles.opacity !== "1") {
+      mergedStyles.opacity = bgStyles.opacity;
+    }
+
+    return mergedStyles;
+  }
+
+  /**
+   * Check if a child element is a background element based on detection result
+   *
+   * @param childIndex Index of the child
+   * @param backgroundIndex Index of detected background element (-1 if none)
+   * @param child The child node to check
+   * @returns true if this is a background element
+   */
+  static isBackgroundElement(
+    childIndex: number,
+    backgroundIndex: number,
+    child: SimplifiedNode,
+  ): boolean {
+    // Must match the detected background index
+    if (childIndex !== backgroundIndex) return false;
+
+    // Must be a visual element (RECTANGLE, FRAME, or ELLIPSE)
+    const bgTypes = ["RECTANGLE", "FRAME", "ELLIPSE"];
+    if (!bgTypes.includes(child.type)) return false;
+
+    // Must have some visual styles to merge
+    if (!child.cssStyles) return false;
+    const hasVisualStyles =
+      child.cssStyles.backgroundColor ||
+      child.cssStyles.background ||
+      child.cssStyles.backgroundImage ||
+      child.cssStyles.borderRadius ||
+      child.cssStyles.border ||
+      child.cssStyles.boxShadow;
+
+    return Boolean(hasVisualStyles);
   }
 }

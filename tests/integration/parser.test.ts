@@ -21,7 +21,7 @@ function loadRawData(): unknown {
 }
 
 function loadExpectedOutput(): unknown {
-  const dataPath = path.join(fixturesPath, "expected/simplified-node-data.json");
+  const dataPath = path.join(fixturesPath, "expected/real-node-data-optimized.json");
   return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 }
 
