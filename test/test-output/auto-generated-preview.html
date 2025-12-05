@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test - Figma Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    .preview-wrapper {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .canvas {
+      position: relative;
+      background: linear-gradient(180deg, #1e1e3f 0%, #0a0a1a 100%);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .node {
+      position: absolute;
+      overflow: hidden;
+    }
+
+    .node-frame {
+      background: linear-gradient(180deg, rgba(139, 92, 246, 0.15) 0%, rgba(30, 30, 60, 0.9) 100%);
+    }
+
+    .node-text {
+      white-space: nowrap;
+    }
+
+    .node-vector,
+    .node-group {
+      overflow: visible;
+    }
+
+    .vector-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      opacity: 0.9;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .footer p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+    }
+
+    .stat strong {
+      color: #a78bfa;
+    }
+
+    /* 模拟短视频背景 */
+    .node-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 220px;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 播放按钮 */
+    .node-frame::after {
+      content: '▶';
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      color: #fff;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎨 test</h1>
+    <p>从 Figma JSON 自动生成的 HTML 预览</p>
+  </div>
+
+  <div class="preview-wrapper">
+    <div class="canvas" style="width: 322px; height: 523px;">
+      <div class="node node-frame" data-name="Frame" style="width: 322px; height: 523px; position: absolute; left: 0px; top: 0px; border-color: rgba(217, 217, 217, 0.4); border-width: 1px; border-style: solid; border-radius: 10px">
+        <div class="node node-group" data-name="Group" style="width: 276px; height: 276px; position: absolute; left: 27px; top: 230px">
+          <div class="node node-group" data-name="Group" style="width: 276px; height: 276px; position: absolute; left: 0px; top: 0px; display: flex; flex-direction: column; justify-content: space-between">
+            <div class="node node-vector" data-name="Group 1410104421" style="width: 47px; height: 47px; position: absolute; left: 229px; top: 0px">
+              <div class="vector-placeholder" style="background: rgba(139,92,246,0.5);"></div>
+            </div>
+            <div class="node node-vector" data-name="Vector" style="width: 29px; height: 25px; position: absolute; left: 238px; top: 66px; background-color: #FFFFFF">
+              <div class="vector-placeholder" style="background: #FFFFFF;"></div>
+            </div>
+            <div class="node node-text" data-name="500 K" style="width: 27px; height: 11px; position: absolute; left: 239px; top: 98px; color: #FFFFFF; font-family: Montserrat; font-size: 9px; font-weight: 600; line-height: 11px">500 K</div>
+            <div class="node node-vector" data-name="Group" style="width: 29px; height: 29px; position: absolute; left: 238px; top: 120px">
+              <div class="vector-placeholder" style="background: rgba(139,92,246,0.5);"></div>
+            </div>
+            <div class="node node-text" data-name="400" style="width: 19px; height: 11px; position: absolute; left: 244px; top: 155px; color: #FFFFFF; font-family: Montserrat; font-size: 9px; font-weight: 600; line-height: 11px">400</div>
+            <div class="node node-vector" data-name="Vector" style="width: 25px; height: 25px; position: absolute; left: 240px; top: 176px; background-color: #FFFFFF">
+              <div class="vector-placeholder" style="background: #FFFFFF;"></div>
+            </div>
+            <div class="node node-vector" data-name="Vector" style="width: 33px; height: 14px; position: absolute; left: 2px; top: 205px; background-color: #F7214E">
+              <div class="vector-placeholder" style="background: #F7214E;"></div>
+            </div>
+            <div class="node node-text" data-name="HOT" style="width: 21px; height: 11px; position: absolute; left: 8px; top: 206px; color: #FFFFFF; font-family: Montserrat; font-size: 9px; font-weight: 800; line-height: 11px">HOT</div>
+            <div class="node node-text" data-name="Share" style="width: 27px; height: 11px; position: absolute; left: 239px; top: 207px; color: #FFFFFF; font-family: Montserrat; font-size: 9px; font-weight: 600; line-height: 11px">Share</div>
+            <div class="node node-text" data-name="@LoremIpsum" style="width: 86px; height: 14px; position: absolute; left: 0px; top: 224px; color: #FFFFFF; font-family: Montserrat; font-size: 11px; font-weight: 600; line-height: 14px">@LoremIpsum</div>
+            <div class="node node-vector" data-name="Group" style="width: 34px; height: 34px; position: absolute; left: 235px; top: 237px">
+              <div class="vector-placeholder" style="background: rgba(139,92,246,0.5);"></div>
+            </div>
+            <div class="node node-text" data-name="#lorem#Ipsum#loremipsum" style="width: 165px; height: 14px; position: absolute; left: 0px; top: 238px; color: #FFFFFF; font-family: Montserrat; font-size: 11px; font-weight: 600; line-height: 14px">#lorem#Ipsum#loremipsum</div>
+            <div class="node node-text" data-name="Song Title - Singer" style="width: 106px; height: 14px; position: absolute; left: 28px; top: 262px; color: #FFFFFF; font-family: Montserrat; font-size: 11px; font-weight: 600; line-height: 14px">Song Title - Singer</div>
+            <div class="node node-vector" data-name="Vector" style="width: 12px; height: 12px; position: absolute; left: 4px; top: 263px; background-color: #FFFFFF">
+              <div class="vector-placeholder" style="background: #FFFFFF;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Generated from simplified Figma JSON</p>
+    <div class="stats">
+      <div class="stat">尺寸: <strong>322px × 523px</strong></div>
+      <div class="stat">节点数: <strong>17</strong></div>
+      <div class="stat">最后修改: <strong>2025-03-25T08:22:10Z</strong></div>
+    </div>
+  </div>
+</body>
+</html>

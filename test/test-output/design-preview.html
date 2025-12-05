@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figma Design Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .preview-title {
+      color: #fff;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .preview-info {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    /* Frame - 主容器 */
+    .frame {
+      width: 322px;
+      height: 523px;
+      position: relative;
+      border: 1px solid rgba(217, 217, 217, 0.4);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #2d1f4e 0%, #1a1a2e 100%);
+      overflow: hidden;
+    }
+
+    /* 背景图片占位 */
+    .frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 200px;
+      background: linear-gradient(
+        180deg,
+        rgba(139, 92, 246, 0.3) 0%,
+        rgba(59, 130, 246, 0.2) 50%,
+        transparent 100%
+      );
+      z-index: 0;
+    }
+
+    /* Group 容器 */
+    .group {
+      width: 276px;
+      height: 276px;
+      position: absolute;
+      left: 27px;
+      top: 230px;
+    }
+
+    .group-inner {
+      width: 276px;
+      height: 276px;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    /* 右侧图标区域 */
+    .icon-profile {
+      width: 47px;
+      height: 47px;
+      position: absolute;
+      left: 229px;
+      top: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: 2px solid #fff;
+    }
+
+    .icon-heart {
+      width: 29px;
+      height: 25px;
+      position: absolute;
+      left: 238px;
+      top: 66px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 20px;
+    }
+
+    .text-count {
+      position: absolute;
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      line-height: 11px;
+    }
+
+    .count-500k {
+      width: 27px;
+      height: 11px;
+      left: 239px;
+      top: 98px;
+    }
+
+    .icon-comment {
+      width: 29px;
+      height: 29px;
+      position: absolute;
+      left: 238px;
+      top: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .count-400 {
+      width: 19px;
+      height: 11px;
+      left: 244px;
+      top: 155px;
+    }
+
+    .icon-bookmark {
+      width: 25px;
+      height: 25px;
+      position: absolute;
+      left: 240px;
+      top: 176px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    /* HOT 标签 */
+    .hot-badge {
+      position: absolute;
+      left: 2px;
+      top: 205px;
+    }
+
+    .hot-bg {
+      width: 33px;
+      height: 14px;
+      background: #F7214E;
+      border-radius: 2px;
+    }
+
+    .hot-text {
+      width: 21px;
+      height: 11px;
+      position: absolute;
+      left: 8px;
+      top: 206px;
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      line-height: 11px;
+    }
+
+    /* Share */
+    .share-text {
+      width: 27px;
+      height: 11px;
+      position: absolute;
+      left: 239px;
+      top: 207px;
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      line-height: 11px;
+    }
+
+    /* 用户名 */
+    .username {
+      width: 86px;
+      height: 14px;
+      position: absolute;
+      left: 0;
+      top: 224px;
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 14px;
+    }
+
+    /* 分享图标 */
+    .icon-share {
+      width: 34px;
+      height: 34px;
+      position: absolute;
+      left: 235px;
+      top: 237px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 20px;
+    }
+
+    /* 标签 */
+    .hashtags {
+      width: 165px;
+      height: 14px;
+      position: absolute;
+      left: 0;
+      top: 238px;
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 14px;
+    }
+
+    /* 歌曲信息 */
+    .song-info {
+      position: absolute;
+      left: 0;
+      top: 262px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .music-icon {
+      width: 12px;
+      height: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .song-title {
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 14px;
+    }
+
+    /* 底部进度条 */
+    .progress-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+    }
+
+    .progress-fill {
+      width: 60%;
+      height: 100%;
+      background: #fff;
+      border-radius: 2px;
+    }
+
+    /* 顶部视频区域占位 */
+    .video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 220px;
+      background: linear-gradient(
+        180deg,
+        rgba(139, 92, 246, 0.4) 0%,
+        rgba(236, 72, 153, 0.3) 50%,
+        rgba(59, 130, 246, 0.2) 100%
+      );
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .play-button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .play-button:hover {
+      transform: scale(1.1);
+    }
+
+    /* JSON 展示区域 */
+    .json-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      max-height: 400px;
+      overflow: auto;
+    }
+
+    .json-panel pre {
+      color: #a5f3fc;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    <h1 class="preview-title">Figma Design Preview</h1>
+    <p class="preview-info">从 Figma JSON 数据生成的 HTML 预览</p>
+
+    <!-- 主设计框架 -->
+    <div class="frame">
+      <!-- 视频占位区域 -->
+      <div class="video-placeholder">
+        <div class="play-button">▶</div>
+      </div>
+
+      <!-- 内容区域 -->
+      <div class="group">
+        <div class="group-inner">
+          <!-- 右侧头像 -->
+          <div class="icon-profile"></div>
+
+          <!-- 点赞 -->
+          <div class="icon-heart">❤</div>
+          <span class="text-count count-500k">500 K</span>
+
+          <!-- 评论 -->
+          <div class="icon-comment">💬</div>
+          <span class="text-count count-400">400</span>
+
+          <!-- 收藏 -->
+          <div class="icon-bookmark">🔖</div>
+
+          <!-- HOT 标签 -->
+          <div class="hot-badge">
+            <div class="hot-bg"></div>
+          </div>
+          <span class="hot-text">HOT</span>
+
+          <!-- 分享 -->
+          <span class="share-text">Share</span>
+
+          <!-- 用户名 -->
+          <span class="username">@LoremIpsum</span>
+
+          <!-- 分享图标 -->
+          <div class="icon-share">↗</div>
+
+          <!-- 标签 -->
+          <span class="hashtags">#lorem#Ipsum#loremipsum</span>
+
+          <!-- 歌曲信息 -->
+          <div class="song-info">
+            <span class="music-icon">♪</span>
+            <span class="song-title">Song Title - Singer</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 进度条 -->
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- 图例 -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #F7214E;"></div>
+        <span>HOT 标签</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+        <span>用户头像</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: rgba(255,255,255,0.2);"></div>
+        <span>互动图标</span>
+      </div>
+    </div>
+
+    <p class="preview-info" style="margin-top: 30px;">设计尺寸: 322 × 523 px</p>
+  </div>
+</body>
+</html>
