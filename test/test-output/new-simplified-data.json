@@ -25,10 +25,10 @@
           "type": "GROUP",
           "cssStyles": {
             "width": "276px",
-            "height": "275.5px",
+            "height": "276px",
             "position": "absolute",
-            "left": "26.7px",
-            "top": "230.4px"
+            "left": "27px",
+            "top": "230px"
           },
           "children": [
             {
@@ -37,7 +37,7 @@
               "type": "GROUP",
               "cssStyles": {
                 "width": "276px",
-                "height": "275.5px",
+                "height": "276px",
                 "position": "absolute",
                 "left": "0px",
                 "top": "0px",
@@ -54,7 +54,7 @@
                     "width": "47px",
                     "height": "47px",
                     "position": "absolute",
-                    "left": "228.8px",
+                    "left": "229px",
                     "top": "0px"
                   },
                   "exportInfo": {
@@ -68,11 +68,11 @@
                   "name": "Vector",
                   "type": "VECTOR",
                   "cssStyles": {
-                    "width": "28.8px",
+                    "width": "29px",
                     "height": "25px",
                     "position": "absolute",
                     "left": "238px",
-                    "top": "66.4px",
+                    "top": "66px",
                     "backgroundColor": "#FFFFFF"
                   },
                   "exportInfo": {
@@ -88,13 +88,13 @@
                     "width": "27px",
                     "height": "11px",
                     "position": "absolute",
-                    "left": "239.3px",
-                    "top": "97.7px",
+                    "left": "239px",
+                    "top": "98px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "8.9px",
+                    "fontSize": "9px",
                     "fontWeight": 600,
-                    "lineHeight": "10.8px"
+                    "lineHeight": "11px"
                   },
                   "text": "500 K"
                 },
@@ -103,11 +103,11 @@
                   "name": "Group",
                   "type": "GROUP",
                   "cssStyles": {
-                    "width": "28.7px",
-                    "height": "29.1px",
+                    "width": "29px",
+                    "height": "29px",
                     "position": "absolute",
                     "left": "238px",
-                    "top": "120.1px"
+                    "top": "120px"
                   },
                   "exportInfo": {
                     "type": "IMAGE",
@@ -124,12 +124,12 @@
                     "height": "11px",
                     "position": "absolute",
                     "left": "244px",
-                    "top": "155.3px",
+                    "top": "155px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "8.9px",
+                    "fontSize": "9px",
                     "fontWeight": 600,
-                    "lineHeight": "10.8px"
+                    "lineHeight": "11px"
                   },
                   "text": "400"
                 },
@@ -139,9 +139,9 @@
                   "type": "VECTOR",
                   "cssStyles": {
                     "width": "25px",
-                    "height": "25.3px",
+                    "height": "25px",
                     "position": "absolute",
-                    "left": "239.9px",
+                    "left": "240px",
                     "top": "176px",
                     "backgroundColor": "#FFFFFF"
                   },
@@ -155,11 +155,11 @@
                   "name": "Vector",
                   "type": "VECTOR",
                   "cssStyles": {
-                    "width": "32.7px",
-                    "height": "14.2px",
+                    "width": "33px",
+                    "height": "14px",
                     "position": "absolute",
-                    "left": "2.2px",
-                    "top": "204.7px",
+                    "left": "2px",
+                    "top": "205px",
                     "backgroundColor": "#F7214E"
                   },
                   "exportInfo": {
@@ -175,13 +175,13 @@
                     "width": "21px",
                     "height": "11px",
                     "position": "absolute",
-                    "left": "7.6px",
-                    "top": "205.8px",
+                    "left": "8px",
+                    "top": "206px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "8.8px",
+                    "fontSize": "9px",
                     "fontWeight": 800,
-                    "lineHeight": "10.8px"
+                    "lineHeight": "11px"
                   },
                   "text": "HOT"
                 },
@@ -193,13 +193,13 @@
                     "width": "27px",
                     "height": "11px",
                     "position": "absolute",
-                    "left": "239.3px",
+                    "left": "239px",
                     "top": "207px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "8.9px",
+                    "fontSize": "9px",
                     "fontWeight": 600,
-                    "lineHeight": "10.8px"
+                    "lineHeight": "11px"
                   },
                   "text": "Share"
                 },
@@ -212,12 +212,12 @@
                     "height": "14px",
                     "position": "absolute",
                     "left": "0px",
-                    "top": "223.8px",
+                    "top": "224px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "11.2px",
+                    "fontSize": "11px",
                     "fontWeight": 600,
-                    "lineHeight": "13.7px"
+                    "lineHeight": "14px"
                   },
                   "text": "@LoremIpsum"
                 },
@@ -226,11 +226,11 @@
                   "name": "Group",
                   "type": "GROUP",
                   "cssStyles": {
-                    "width": "34.3px",
-                    "height": "34.2px",
+                    "width": "34px",
+                    "height": "34px",
                     "position": "absolute",
-                    "left": "235.3px",
-                    "top": "237.2px"
+                    "left": "235px",
+                    "top": "237px"
                   },
                   "exportInfo": {
                     "type": "IMAGE",
@@ -247,12 +247,12 @@
                     "height": "14px",
                     "position": "absolute",
                     "left": "0px",
-                    "top": "238.5px",
+                    "top": "238px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "11.2px",
+                    "fontSize": "11px",
                     "fontWeight": 600,
-                    "lineHeight": "13.7px"
+                    "lineHeight": "14px"
                   },
                   "text": "#lorem#Ipsum#loremipsum"
                 },
@@ -264,13 +264,13 @@
                     "width": "106px",
                     "height": "14px",
                     "position": "absolute",
-                    "left": "27.7px",
-                    "top": "261.5px",
+                    "left": "28px",
+                    "top": "262px",
                     "color": "#FFFFFF",
                     "fontFamily": "Montserrat",
-                    "fontSize": "11.2px",
+                    "fontSize": "11px",
                     "fontWeight": 600,
-                    "lineHeight": "13.7px"
+                    "lineHeight": "14px"
                   },
                   "text": "Song Title - Singer"
                 },
@@ -279,11 +279,11 @@
                   "name": "Vector",
                   "type": "VECTOR",
                   "cssStyles": {
-                    "width": "12.1px",
+                    "width": "12px",
                     "height": "12px",
                     "position": "absolute",
-                    "left": "4.5px",
-                    "top": "262.6px",
+                    "left": "4px",
+                    "top": "263px",
                     "backgroundColor": "#FFFFFF"
                   },
                   "exportInfo": {

@@ -19,29 +19,19 @@ export function roundValue(value: number, precision: number = 0): number {
 }
 
 /**
- * 格式化 px 值，自动优化精度
- * - 整数直接输出
- * - 小数保留最多 1 位
+ * 格式化 px 值，四舍五入到整数
  * @param value 像素值
  */
 export function formatPxValue(value: number): string {
-  // 如果接近整数（误差小于 0.1），直接取整
-  if (Math.abs(value - Math.round(value)) < 0.1) {
-    return `${Math.round(value)}px`;
-  }
-  // 否则保留 1 位小数
-  return `${roundValue(value, 1)}px`;
+  return `${Math.round(value)}px`;
 }
 
 /**
- * 格式化数值，用于 gap 等属性
+ * 格式化数值，用于 gap 等属性，四舍五入到整数
  * @param value 数值
  */
 export function formatNumericValue(value: number): string {
-  if (Math.abs(value - Math.round(value)) < 0.5) {
-    return `${Math.round(value)}px`;
-  }
-  return `${roundValue(value, 1)}px`;
+  return `${Math.round(value)}px`;
 }
 
 // ==================== 浏览器默认值 ====================
