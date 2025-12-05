@@ -17,6 +17,8 @@ import {
   analyzeGaps,
   analyzeAlignment,
   calculateBounds,
+  clusterValues,
+  detectGridLayout,
   type ElementRect,
   type BoundingBox,
 } from "~/algorithms/layout/index.js";
@@ -232,6 +234,193 @@ describe("Layout Detection Algorithm", () => {
         expect(typeof el.width).toBe("number");
         expect(typeof el.index).toBe("number");
       });
+    });
+  });
+
+  describe("Value Clustering", () => {
+    it("should cluster similar values together", () => {
+      const values = [10, 12, 11, 50, 51, 52, 100, 101];
+      const clusters = clusterValues(values, 3);
+
+      expect(clusters.length).toBe(3);
+      expect(clusters[0].count).toBe(3); // 10, 11, 12
+      expect(clusters[1].count).toBe(3); // 50, 51, 52
+      expect(clusters[2].count).toBe(2); // 100, 101
+    });
+
+    it("should handle empty array", () => {
+      const clusters = clusterValues([]);
+      expect(clusters.length).toBe(0);
+    });
+
+    it("should handle single value", () => {
+      const clusters = clusterValues([42]);
+      expect(clusters.length).toBe(1);
+      expect(clusters[0].center).toBe(42);
+    });
+
+    it("should separate distant values", () => {
+      const values = [0, 100, 200, 300];
+      const clusters = clusterValues(values, 3);
+
+      expect(clusters.length).toBe(4);
+    });
+  });
+
+  describe("Grid Detection", () => {
+    it("should detect a perfect 2x3 grid", () => {
+      // 2 rows, 3 columns
+      const elements: ElementRect[] = [
+        // Row 1
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 240, y: 0, width: 100, height: 50 }, 2),
+        // Row 2
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 3),
+        toElementRect({ x: 120, y: 70, width: 100, height: 50 }, 4),
+        toElementRect({ x: 240, y: 70, width: 100, height: 50 }, 5),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.isGrid).toBe(true);
+      expect(result.rowCount).toBe(2);
+      expect(result.columnCount).toBe(3);
+      expect(result.confidence).toBeGreaterThanOrEqual(0.6);
+    });
+
+    it("should detect a 3x2 grid", () => {
+      // 3 rows, 2 columns
+      const elements: ElementRect[] = [
+        // Row 1
+        toElementRect({ x: 0, y: 0, width: 80, height: 40 }, 0),
+        toElementRect({ x: 100, y: 0, width: 80, height: 40 }, 1),
+        // Row 2
+        toElementRect({ x: 0, y: 60, width: 80, height: 40 }, 2),
+        toElementRect({ x: 100, y: 60, width: 80, height: 40 }, 3),
+        // Row 3
+        toElementRect({ x: 0, y: 120, width: 80, height: 40 }, 4),
+        toElementRect({ x: 100, y: 120, width: 80, height: 40 }, 5),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.isGrid).toBe(true);
+      expect(result.rowCount).toBe(3);
+      expect(result.columnCount).toBe(2);
+    });
+
+    it("should calculate consistent row and column gaps", () => {
+      const elements: ElementRect[] = [
+        // Row 1 (gap = 20)
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        // Row 2 (row gap = 16)
+        toElementRect({ x: 0, y: 66, width: 100, height: 50 }, 2),
+        toElementRect({ x: 120, y: 66, width: 100, height: 50 }, 3),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.isGrid).toBe(true);
+      expect(result.rowGap).toBe(16);
+      expect(result.columnGap).toBe(20);
+    });
+
+    it("should generate track widths and heights", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 96, height: 64 }, 0), // Using common values
+        toElementRect({ x: 120, y: 0, width: 80, height: 64 }, 1),
+        toElementRect({ x: 0, y: 84, width: 96, height: 40 }, 2),
+        toElementRect({ x: 120, y: 84, width: 80, height: 40 }, 3),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.isGrid).toBe(true);
+      expect(result.trackWidths.length).toBe(2);
+      expect(result.trackHeights.length).toBe(2);
+      // Track widths should be max of each column (rounded to common values)
+      expect(result.trackWidths[0]).toBe(96);
+      expect(result.trackWidths[1]).toBe(80);
+      // Track heights should be max of each row
+      expect(result.trackHeights[0]).toBe(64);
+      expect(result.trackHeights[1]).toBe(40);
+    });
+
+    it("should build correct cell map", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 50, height: 50 }, 0),
+        toElementRect({ x: 60, y: 0, width: 50, height: 50 }, 1),
+        toElementRect({ x: 0, y: 60, width: 50, height: 50 }, 2),
+        toElementRect({ x: 60, y: 60, width: 50, height: 50 }, 3),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.cellMap.length).toBe(2); // 2 rows
+      expect(result.cellMap[0].length).toBe(2); // 2 columns
+      expect(result.cellMap[0][0]).toBe(0);
+      expect(result.cellMap[0][1]).toBe(1);
+      expect(result.cellMap[1][0]).toBe(2);
+      expect(result.cellMap[1][1]).toBe(3);
+    });
+
+    it("should NOT detect grid for single row (flex row instead)", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 240, y: 0, width: 100, height: 50 }, 2),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.isGrid).toBe(false);
+    });
+
+    it("should detect lower confidence for misaligned columns", () => {
+      const elements: ElementRect[] = [
+        // Row 1: columns at x=0, x=120
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        // Row 2: columns at x=50, x=200 (misaligned!)
+        toElementRect({ x: 50, y: 70, width: 100, height: 50 }, 2),
+        toElementRect({ x: 200, y: 70, width: 100, height: 50 }, 3),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      // Misaligned columns should result in 4 column positions detected
+      // and lower confidence due to alignment issues
+      expect(result.columnCount).toBeGreaterThan(2);
+    });
+
+    it("should NOT detect grid for too few elements", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 100, height: 50 }, 1),
+        toElementRect({ x: 0, y: 70, width: 100, height: 50 }, 2),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      // 3 elements is not enough for a meaningful grid
+      expect(result.isGrid).toBe(false);
+    });
+
+    it("should handle grid with varying element sizes in same column", () => {
+      const elements: ElementRect[] = [
+        toElementRect({ x: 0, y: 0, width: 100, height: 50 }, 0),
+        toElementRect({ x: 120, y: 0, width: 150, height: 50 }, 1), // wider
+        toElementRect({ x: 0, y: 70, width: 100, height: 80 }, 2), // taller
+        toElementRect({ x: 120, y: 70, width: 150, height: 80 }, 3),
+      ];
+
+      const result = detectGridLayout(elements);
+
+      expect(result.isGrid).toBe(true);
+      // Track widths should use max width in column
+      expect(result.trackWidths[1]).toBe(150);
     });
   });
 });

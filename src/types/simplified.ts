@@ -51,6 +51,23 @@ export type CSSStyle = {
   alignItems?: string;
   gap?: string;
 
+  // Grid layout
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  rowGap?: string;
+  columnGap?: string;
+  justifyItems?: string;
+  gridColumn?: string;
+  gridRow?: string;
+
+  // Flex item
+  flexGrow?: string | number;
+  flexShrink?: string | number;
+  flexBasis?: string;
+  flex?: string;
+  alignSelf?: string;
+  order?: string | number;
+
   // Borders and radius
   border?: string;
   borderRadius?: string;
@@ -209,4 +226,14 @@ export interface LayoutInfo {
   gap?: number;
   justifyContent?: string;
   alignItems?: string;
+  /** Grid-specific: row gap */
+  rowGap?: number;
+  /** Grid-specific: column gap */
+  columnGap?: number;
+  /** Grid-specific: template columns (e.g., "100px 200px 100px") */
+  gridTemplateColumns?: string;
+  /** Grid-specific: template rows (e.g., "auto auto") */
+  gridTemplateRows?: string;
+  /** Grid confidence score (0-1) */
+  confidence?: number;
 }

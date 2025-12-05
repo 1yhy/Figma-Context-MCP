@@ -783,6 +783,378 @@ export function buildLayoutTree(
   };
 }
 
+// ==================== Grid Layout Detection ====================
+
+/**
+ * Result of grid layout analysis
+ */
+export interface GridAnalysisResult {
+  /** Whether elements form a valid grid layout */
+  isGrid: boolean;
+  /** Confidence score (0-1) for grid detection */
+  confidence: number;
+  /** Number of rows in the grid */
+  rowCount: number;
+  /** Number of columns in the grid */
+  columnCount: number;
+  /** Gap between rows in pixels */
+  rowGap: number;
+  /** Gap between columns in pixels */
+  columnGap: number;
+  /** Whether row gap is consistent */
+  isRowGapConsistent: boolean;
+  /** Whether column gap is consistent */
+  isColumnGapConsistent: boolean;
+  /** Width of each column track */
+  trackWidths: number[];
+  /** Height of each row track */
+  trackHeights: number[];
+  /** X positions where columns are aligned */
+  alignedColumnPositions: number[];
+  /** Grouped rows of elements */
+  rows: ElementRect[][];
+  /** Map of element indices to grid cells [row][col] */
+  cellMap: (number | null)[][];
+}
+
+/**
+ * A cluster of similar values
+ */
+interface ValueCluster {
+  center: number;
+  values: number[];
+  count: number;
+}
+
+/**
+ * Column alignment analysis result
+ */
+interface ColumnAlignmentResult {
+  isAligned: boolean;
+  alignedPositions: number[];
+  columnCount: number;
+}
+
+/**
+ * Cluster similar values together
+ * Used to find aligned column positions across rows
+ */
+export function clusterValues(values: number[], tolerance: number = 3): ValueCluster[] {
+  if (values.length === 0) return [];
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const clusters: ValueCluster[] = [];
+  let currentCluster: ValueCluster = {
+    center: sorted[0],
+    values: [sorted[0]],
+    count: 1,
+  };
+
+  for (let i = 1; i < sorted.length; i++) {
+    const value = sorted[i];
+    // Check if value is within tolerance of cluster center
+    if (Math.abs(value - currentCluster.center) <= tolerance) {
+      currentCluster.values.push(value);
+      currentCluster.count++;
+      // Update center to be the average
+      currentCluster.center =
+        currentCluster.values.reduce((a, b) => a + b, 0) / currentCluster.values.length;
+    } else {
+      // Start new cluster
+      clusters.push(currentCluster);
+      currentCluster = {
+        center: value,
+        values: [value],
+        count: 1,
+      };
+    }
+  }
+  clusters.push(currentCluster);
+
+  return clusters;
+}
+
+/**
+ * Extract X positions of elements in each row
+ */
+function extractColumnPositions(rows: ElementRect[][]): number[][] {
+  return rows.map((row) => row.map((el) => el.x).sort((a, b) => a - b));
+}
+
+/**
+ * Check if columns are aligned across rows
+ * Returns aligned column positions if alignment is detected
+ */
+function checkColumnAlignment(rows: ElementRect[][], tolerance: number = 3): ColumnAlignmentResult {
+  if (rows.length < 2) {
+    return { isAligned: false, alignedPositions: [], columnCount: 0 };
+  }
+
+  // Get column positions for each row
+  const columnPositions = extractColumnPositions(rows);
+
+  // Collect all X positions
+  const allPositions = columnPositions.flat();
+
+  // Cluster the positions
+  const clusters = clusterValues(allPositions, tolerance);
+
+  // Get aligned positions (cluster centers)
+  const alignedPositions = clusters.map((c) => Math.round(c.center)).sort((a, b) => a - b);
+
+  // Verify that most rows have elements at the aligned positions
+  let alignedRows = 0;
+  for (const row of rows) {
+    const rowPositions = row.map((el) => el.x);
+    const rowAligned = rowPositions.every((x) =>
+      alignedPositions.some((ap) => Math.abs(x - ap) <= tolerance),
+    );
+    if (rowAligned) alignedRows++;
+  }
+
+  const alignmentRatio = alignedRows / rows.length;
+
+  return {
+    isAligned: alignmentRatio >= 0.8,
+    alignedPositions,
+    columnCount: alignedPositions.length,
+  };
+}
+
+/**
+ * Calculate row gaps (vertical spacing between rows)
+ */
+function calculateRowGaps(rows: ElementRect[][]): number[] {
+  if (rows.length < 2) return [];
+
+  const gaps: number[] = [];
+  for (let i = 0; i < rows.length - 1; i++) {
+    const currentRowBottom = Math.max(...rows[i].map((el) => el.bottom));
+    const nextRowTop = Math.min(...rows[i + 1].map((el) => el.y));
+    const gap = nextRowTop - currentRowBottom;
+    if (gap >= 0) gaps.push(gap);
+  }
+
+  return gaps;
+}
+
+/**
+ * Calculate column gaps (horizontal spacing between columns)
+ */
+function calculateColumnGaps(alignedPositions: number[], rows: ElementRect[][]): number[] {
+  if (alignedPositions.length < 2) return [];
+
+  const gaps: number[] = [];
+
+  // For each row, calculate gaps between adjacent elements
+  for (const row of rows) {
+    const sortedByX = [...row].sort((a, b) => a.x - b.x);
+    for (let i = 0; i < sortedByX.length - 1; i++) {
+      const gap = sortedByX[i + 1].x - sortedByX[i].right;
+      if (gap >= 0) gaps.push(gap);
+    }
+  }
+
+  return gaps;
+}
+
+/**
+ * Calculate track widths (column widths)
+ */
+function calculateTrackWidths(
+  rows: ElementRect[][],
+  alignedPositions: number[],
+  tolerance: number = 3,
+): number[] {
+  // Group elements by column
+  const columns: ElementRect[][] = alignedPositions.map(() => []);
+
+  for (const row of rows) {
+    for (const el of row) {
+      const colIndex = alignedPositions.findIndex((pos) => Math.abs(el.x - pos) <= tolerance);
+      if (colIndex >= 0) {
+        columns[colIndex].push(el);
+      }
+    }
+  }
+
+  // Calculate width for each column (use max width in column)
+  return columns.map((col) => {
+    if (col.length === 0) return 0;
+    const widths = col.map((el) => el.width);
+    return roundToCommonValue(Math.max(...widths));
+  });
+}
+
+/**
+ * Calculate track heights (row heights)
+ */
+function calculateTrackHeights(rows: ElementRect[][]): number[] {
+  return rows.map((row) => {
+    if (row.length === 0) return 0;
+    const heights = row.map((el) => el.height);
+    return roundToCommonValue(Math.max(...heights));
+  });
+}
+
+/**
+ * Build cell map - maps grid positions to element indices
+ */
+function buildCellMap(
+  rows: ElementRect[][],
+  alignedPositions: number[],
+  tolerance: number = 3,
+): (number | null)[][] {
+  const cellMap: (number | null)[][] = [];
+
+  for (const row of rows) {
+    const rowCells: (number | null)[] = new Array(alignedPositions.length).fill(null);
+
+    for (const el of row) {
+      const colIndex = alignedPositions.findIndex((pos) => Math.abs(el.x - pos) <= tolerance);
+      if (colIndex >= 0) {
+        rowCells[colIndex] = el.index;
+      }
+    }
+
+    cellMap.push(rowCells);
+  }
+
+  return cellMap;
+}
+
+/**
+ * Calculate grid confidence score
+ */
+function calculateGridConfidence(
+  rows: ElementRect[][],
+  columnAlignment: ColumnAlignmentResult,
+  rowGapAnalysis: { isConsistent: boolean; rounded: number },
+  columnGapAnalysis: { isConsistent: boolean; rounded: number },
+): number {
+  let score = 0;
+
+  // 1. Multiple rows required for grid (0.3 max)
+  if (rows.length >= 2) score += 0.2;
+  if (rows.length >= 3) score += 0.1;
+
+  // 2. Consistent column count across rows (0.2)
+  const columnCounts = rows.map((r) => r.length);
+  const allSameCount = columnCounts.every((c) => c === columnCounts[0]);
+  if (allSameCount && columnCounts[0] >= 2) score += 0.2;
+
+  // 3. Columns aligned across rows (0.25)
+  if (columnAlignment.isAligned) score += 0.25;
+
+  // 4. Consistent row gap (0.1)
+  if (rowGapAnalysis.isConsistent) score += 0.1;
+
+  // 5. Consistent column gap (0.1)
+  if (columnGapAnalysis.isConsistent) score += 0.1;
+
+  // 6. Grid fill ratio - elements fill most of expected cells (0.05)
+  const expectedCells = rows.length * Math.max(...columnCounts);
+  const actualCells = rows.reduce((sum, r) => sum + r.length, 0);
+  const fillRatio = actualCells / expectedCells;
+  if (fillRatio >= 0.75) score += 0.05;
+
+  return Math.min(1, score);
+}
+
+/**
+ * Detect grid layout from element rectangles
+ *
+ * Grid detection criteria:
+ * - Multiple rows (2+)
+ * - Columns aligned across rows
+ * - Consistent column count per row
+ * - Consistent gaps
+ */
+export function detectGridLayout(rects: ElementRect[]): GridAnalysisResult {
+  const emptyResult: GridAnalysisResult = {
+    isGrid: false,
+    confidence: 0,
+    rowCount: 0,
+    columnCount: 0,
+    rowGap: 0,
+    columnGap: 0,
+    isRowGapConsistent: false,
+    isColumnGapConsistent: false,
+    trackWidths: [],
+    trackHeights: [],
+    alignedColumnPositions: [],
+    rows: [],
+    cellMap: [],
+  };
+
+  // Need at least 4 elements for a meaningful grid (2x2)
+  if (rects.length < 4) {
+    return emptyResult;
+  }
+
+  // Step 1: Group into rows
+  const rows = groupIntoRows(rects, 2);
+
+  // Need at least 2 rows for grid
+  if (rows.length < 2) {
+    return emptyResult;
+  }
+
+  // Step 2: Check column alignment
+  const columnAlignment = checkColumnAlignment(rows, 3);
+
+  // Step 3: Analyze row gaps
+  const rowGaps = calculateRowGaps(rows);
+  const rowGapAnalysis = analyzeGaps(rowGaps);
+
+  // Step 4: Analyze column gaps
+  const columnGaps = calculateColumnGaps(columnAlignment.alignedPositions, rows);
+  const columnGapAnalysis = analyzeGaps(columnGaps);
+
+  // Step 5: Calculate confidence
+  const confidence = calculateGridConfidence(
+    rows,
+    columnAlignment,
+    rowGapAnalysis,
+    columnGapAnalysis,
+  );
+
+  // Grid threshold: confidence >= 0.6
+  const isGrid = confidence >= 0.6;
+
+  if (!isGrid) {
+    return {
+      ...emptyResult,
+      confidence,
+      rows,
+      rowCount: rows.length,
+    };
+  }
+
+  // Step 6: Calculate track sizes
+  const trackWidths = calculateTrackWidths(rows, columnAlignment.alignedPositions);
+  const trackHeights = calculateTrackHeights(rows);
+
+  // Step 7: Build cell map
+  const cellMap = buildCellMap(rows, columnAlignment.alignedPositions);
+
+  return {
+    isGrid: true,
+    confidence,
+    rowCount: rows.length,
+    columnCount: columnAlignment.columnCount,
+    rowGap: rowGapAnalysis.rounded,
+    columnGap: columnGapAnalysis.rounded,
+    isRowGapConsistent: rowGapAnalysis.isConsistent,
+    isColumnGapConsistent: columnGapAnalysis.isConsistent,
+    trackWidths,
+    trackHeights,
+    alignedColumnPositions: columnAlignment.alignedPositions,
+    rows,
+    cellMap,
+  };
+}
+
 // ==================== Debug and Visualization ====================
 
 /**

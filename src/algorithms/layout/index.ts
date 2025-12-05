@@ -27,6 +27,7 @@ export {
   type LayoutGroup,
   type LayoutAnalysisResult,
   type LayoutNode,
+  type GridAnalysisResult,
   // Bounding box utilities
   extractBoundingBox,
   toElementRect,
@@ -53,4 +54,7 @@ export {
   analyzeLayout,
   buildLayoutTree,
   generateLayoutReport,
+  // Grid detection
+  clusterValues,
+  detectGridLayout,
 } from "./detector.js";
