@@ -1,14 +1,14 @@
 /**
  * Cache Manager Unit Tests
  *
- * Tests the file-based caching system for Figma API responses and images.
+ * Tests the multi-layer caching system for Figma API responses and images.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { CacheManager } from "~/services/cache.js";
+import { CacheManager } from "~/services/cache/index.js";
 
 describe("CacheManager", () => {
   let cacheManager: CacheManager;
@@ -18,9 +18,18 @@ describe("CacheManager", () => {
     // Create a unique temporary directory for each test
     testCacheDir = path.join(os.tmpdir(), `figma-cache-test-${Date.now()}`);
     cacheManager = new CacheManager({
-      cacheDir: testCacheDir,
-      ttl: 1000, // 1 second TTL for testing
       enabled: true,
+      memory: {
+        maxNodeItems: 100,
+        maxImageItems: 50,
+        nodeTTL: 1000, // 1 second TTL for testing
+        imageTTL: 1000,
+      },
+      disk: {
+        cacheDir: testCacheDir,
+        maxSize: 100 * 1024 * 1024,
+        ttl: 1000, // 1 second TTL for testing
+      },
     });
   });
 
@@ -42,21 +51,33 @@ describe("CacheManager", () => {
     it("should not create directories when disabled", () => {
       const disabledCacheDir = path.join(os.tmpdir(), `figma-cache-disabled-${Date.now()}`);
       new CacheManager({
-        cacheDir: disabledCacheDir,
         enabled: false,
+        disk: {
+          cacheDir: disabledCacheDir,
+          maxSize: 100 * 1024 * 1024,
+          ttl: 1000,
+        },
       });
 
       expect(fs.existsSync(disabledCacheDir)).toBe(false);
     });
 
-    it("should return correct cache stats", () => {
-      const stats = cacheManager.getCacheStats();
+    it("should return correct cache stats", async () => {
+      const stats = await cacheManager.getStats();
 
       expect(stats.enabled).toBe(true);
-      expect(stats.cacheDir).toBe(testCacheDir);
-      expect(stats.dataCount).toBe(0);
-      expect(stats.imageCount).toBe(0);
-      expect(stats.totalSize).toBe(0);
+      expect(stats.memory.size).toBe(0);
+      expect(stats.disk.nodeFileCount).toBe(0);
+      expect(stats.disk.imageFileCount).toBe(0);
+      expect(stats.disk.totalSize).toBe(0);
+    });
+
+    it("should return cache directory", () => {
+      expect(cacheManager.getCacheDir()).toBe(testCacheDir);
+    });
+
+    it("should report enabled status", () => {
+      expect(cacheManager.isEnabled()).toBe(true);
     });
   });
 
@@ -106,10 +127,17 @@ describe("CacheManager", () => {
 
     it("should update cache stats after caching data", async () => {
       await cacheManager.setNodeData(testData, fileKey);
-      const stats = cacheManager.getCacheStats();
+      const stats = await cacheManager.getStats();
 
-      expect(stats.dataCount).toBe(1);
-      expect(stats.totalSize).toBeGreaterThan(0);
+      expect(stats.memory.size).toBe(1);
+      expect(stats.disk.nodeFileCount).toBe(1);
+      expect(stats.disk.totalSize).toBeGreaterThan(0);
+    });
+
+    it("should check if node data exists", async () => {
+      expect(await cacheManager.hasNodeData(fileKey)).toBe(false);
+      await cacheManager.setNodeData(testData, fileKey);
+      expect(await cacheManager.hasNodeData(fileKey)).toBe(true);
     });
   });
 
@@ -171,9 +199,9 @@ describe("CacheManager", () => {
 
     it("should update cache stats after caching image", async () => {
       await cacheManager.cacheImage(testImagePath, fileKey, nodeId, format);
-      const stats = cacheManager.getCacheStats();
+      const stats = await cacheManager.getStats();
 
-      expect(stats.imageCount).toBe(1);
+      expect(stats.disk.imageFileCount).toBe(1);
     });
   });
 
@@ -185,22 +213,52 @@ describe("CacheManager", () => {
       // Wait for cache to expire
       await new Promise((resolve) => setTimeout(resolve, 1100));
 
-      const result = await cacheManager.cleanExpiredCache();
-      expect(result.deletedCount).toBe(1);
+      const result = await cacheManager.cleanExpired();
+      expect(result.disk).toBeGreaterThanOrEqual(1);
 
-      const stats = cacheManager.getCacheStats();
-      expect(stats.dataCount).toBe(0);
+      const stats = await cacheManager.getStats();
+      expect(stats.disk.nodeFileCount).toBe(0);
     });
 
     it("should clear all cache", async () => {
       await cacheManager.setNodeData({ id: "1" }, "file-1");
       await cacheManager.setNodeData({ id: "2" }, "file-2");
 
-      await cacheManager.clearAllCache();
+      await cacheManager.clearAll();
 
-      const stats = cacheManager.getCacheStats();
-      expect(stats.dataCount).toBe(0);
-      expect(stats.imageCount).toBe(0);
+      const stats = await cacheManager.getStats();
+      expect(stats.memory.size).toBe(0);
+      expect(stats.disk.nodeFileCount).toBe(0);
+      expect(stats.disk.imageFileCount).toBe(0);
+    });
+  });
+
+  describe("Cache Invalidation", () => {
+    it("should invalidate all entries for a file", async () => {
+      const fileKey = "test-file";
+      await cacheManager.setNodeData({ id: "1" }, fileKey, "node-1");
+      await cacheManager.setNodeData({ id: "2" }, fileKey, "node-2");
+      await cacheManager.setNodeData({ id: "3" }, "other-file", "node-3");
+
+      const result = await cacheManager.invalidateFile(fileKey);
+
+      expect(result.memory).toBe(2);
+      expect(await cacheManager.getNodeData(fileKey, "node-1")).toBeNull();
+      expect(await cacheManager.getNodeData(fileKey, "node-2")).toBeNull();
+      // Other file should still be cached
+      expect(await cacheManager.getNodeData("other-file", "node-3")).not.toBeNull();
+    });
+
+    it("should invalidate a specific node", async () => {
+      const fileKey = "test-file";
+      await cacheManager.setNodeData({ id: "1" }, fileKey, "node-1");
+      await cacheManager.setNodeData({ id: "2" }, fileKey, "node-2");
+
+      const result = await cacheManager.invalidateNode(fileKey, "node-1");
+
+      expect(result.memory).toBe(1);
+      expect(await cacheManager.getNodeData(fileKey, "node-1")).toBeNull();
+      expect(await cacheManager.getNodeData(fileKey, "node-2")).not.toBeNull();
     });
   });
 
@@ -233,14 +291,68 @@ describe("CacheManager", () => {
       expect(result).toBe(sourcePath);
     });
 
-    it("should return zero for cleanExpiredCache when disabled", async () => {
-      const result = await disabledCacheManager.cleanExpiredCache();
-      expect(result.deletedCount).toBe(0);
+    it("should return zero for cleanExpired when disabled", async () => {
+      const result = await disabledCacheManager.cleanExpired();
+      expect(result.memory).toBe(0);
+      expect(result.disk).toBe(0);
     });
 
-    it("should report disabled in stats", () => {
-      const stats = disabledCacheManager.getCacheStats();
+    it("should report disabled in stats", async () => {
+      const stats = await disabledCacheManager.getStats();
       expect(stats.enabled).toBe(false);
+    });
+
+    it("should report disabled status", () => {
+      expect(disabledCacheManager.isEnabled()).toBe(false);
+    });
+  });
+
+  describe("Memory Cache (L1)", () => {
+    it("should serve from memory cache on second read", async () => {
+      const testData = { id: "memory-test" };
+      const fileKey = "memory-file";
+
+      await cacheManager.setNodeData(testData, fileKey);
+
+      // First read - populates memory from disk if needed
+      const first = await cacheManager.getNodeData(fileKey);
+      expect(first).toEqual(testData);
+
+      // Second read should hit memory cache
+      const second = await cacheManager.getNodeData(fileKey);
+      expect(second).toEqual(testData);
+
+      const stats = await cacheManager.getStats();
+      expect(stats.memory.hits).toBeGreaterThan(0);
+    });
+
+    it("should track cache statistics", async () => {
+      // Initial stats
+      let stats = await cacheManager.getStats();
+      expect(stats.memory.hits).toBe(0);
+      expect(stats.memory.misses).toBe(0);
+
+      // Miss
+      await cacheManager.getNodeData("non-existent");
+      stats = await cacheManager.getStats();
+      expect(stats.memory.misses).toBe(1);
+
+      // Set and hit
+      await cacheManager.setNodeData({ test: 1 }, "key");
+      await cacheManager.getNodeData("key");
+      stats = await cacheManager.getStats();
+      expect(stats.memory.hits).toBe(1);
+    });
+
+    it("should reset statistics", async () => {
+      await cacheManager.setNodeData({ test: 1 }, "key");
+      await cacheManager.getNodeData("key");
+      await cacheManager.getNodeData("non-existent");
+
+      cacheManager.resetStats();
+      const stats = await cacheManager.getStats();
+      expect(stats.memory.hits).toBe(0);
+      expect(stats.memory.misses).toBe(0);
     });
   });
 });
