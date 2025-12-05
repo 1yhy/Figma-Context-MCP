@@ -42,35 +42,31 @@ export function buildSimplifiedLayout(
   return { ...frameValues, ...layoutValues };
 }
 
-// For flex layouts, process alignment and sizing
-function convertAlign(
-  axisAlign?:
-    | HasFramePropertiesTrait["primaryAxisAlignItems"]
-    | HasFramePropertiesTrait["counterAxisAlignItems"],
+/**
+ * Convert Figma's primaryAxisAlignItems to CSS justifyContent
+ * Primary axis: horizontal for row, vertical for column
+ */
+function convertJustifyContent(
+  axisAlign?: HasFramePropertiesTrait["primaryAxisAlignItems"],
   stretch?: {
     children: FigmaDocumentNode[];
-    axis: "primary" | "counter";
-    mode: "row" | "column" | "none";
+    mode: "row" | "column";
   },
 ) {
-  if (stretch && stretch.mode !== "none") {
-    const { children, mode, axis } = stretch;
-
-    // Compute whether to check horizontally or vertically based on axis and direction
-    const direction = getDirection(axis, mode);
-
+  // Check if all children fill the main axis (stretch behavior)
+  if (stretch) {
+    const { children, mode } = stretch;
     const shouldStretch =
       children.length > 0 &&
-      children.reduce((shouldStretch, c) => {
-        if (!shouldStretch) return false;
+      children.every((c) => {
         if ("layoutPositioning" in c && c.layoutPositioning === "ABSOLUTE") return true;
-        if (direction === "horizontal") {
+        // Primary axis: horizontal for row, vertical for column
+        if (mode === "row") {
           return "layoutSizingHorizontal" in c && c.layoutSizingHorizontal === "FILL";
-        } else if (direction === "vertical") {
+        } else {
           return "layoutSizingVertical" in c && c.layoutSizingVertical === "FILL";
         }
-        return false;
-      }, true);
+      });
 
     if (shouldStretch) return "stretch";
   }
@@ -85,6 +81,51 @@ function convertAlign(
       return "center";
     case "SPACE_BETWEEN":
       return "space-between";
+    case "BASELINE":
+      return "baseline";
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Convert Figma's counterAxisAlignItems to CSS alignItems
+ * Counter axis: vertical for row, horizontal for column
+ * Note: SPACE_BETWEEN is not valid for counter axis in Figma
+ */
+function convertAlignItems(
+  axisAlign?: HasFramePropertiesTrait["counterAxisAlignItems"],
+  stretch?: {
+    children: FigmaDocumentNode[];
+    mode: "row" | "column";
+  },
+) {
+  // Check if all children fill the cross axis (stretch behavior)
+  if (stretch) {
+    const { children, mode } = stretch;
+    const shouldStretch =
+      children.length > 0 &&
+      children.every((c) => {
+        if ("layoutPositioning" in c && c.layoutPositioning === "ABSOLUTE") return true;
+        // Counter axis: vertical for row, horizontal for column
+        if (mode === "row") {
+          return "layoutSizingVertical" in c && c.layoutSizingVertical === "FILL";
+        } else {
+          return "layoutSizingHorizontal" in c && c.layoutSizingHorizontal === "FILL";
+        }
+      });
+
+    if (shouldStretch) return "stretch";
+  }
+
+  switch (axisAlign) {
+    case "MIN":
+      // MIN, AKA flex-start, is the default alignment
+      return undefined;
+    case "MAX":
+      return "flex-end";
+    case "CENTER":
+      return "center";
     case "BASELINE":
       return "baseline";
     default:
@@ -118,29 +159,6 @@ function convertSizing(
   return undefined;
 }
 
-function getDirection(
-  axis: "primary" | "counter",
-  mode: "row" | "column",
-): "horizontal" | "vertical" {
-  switch (axis) {
-    case "primary":
-      switch (mode) {
-        case "row":
-          return "horizontal";
-        case "column":
-          return "vertical";
-      }
-      break;
-    case "counter":
-      switch (mode) {
-        case "row":
-          return "horizontal";
-        case "column":
-          return "vertical";
-      }
-  }
-}
-
 function buildSimplifiedFrameValues(n: FigmaDocumentNode): SimplifiedLayout | { mode: "none" } {
   if (!isFrame(n)) {
     return { mode: "none" };
@@ -164,15 +182,13 @@ function buildSimplifiedFrameValues(n: FigmaDocumentNode): SimplifiedLayout | { 
     return frameValues;
   }
 
-  // TODO: convertAlign should be two functions, one for justifyContent and one for alignItems
-  frameValues.justifyContent = convertAlign(n.primaryAxisAlignItems ?? "MIN", {
+  // Convert Figma alignment to CSS flex properties
+  frameValues.justifyContent = convertJustifyContent(n.primaryAxisAlignItems ?? "MIN", {
     children: n.children,
-    axis: "primary",
     mode: frameValues.mode,
   });
-  frameValues.alignItems = convertAlign(n.counterAxisAlignItems ?? "MIN", {
+  frameValues.alignItems = convertAlignItems(n.counterAxisAlignItems ?? "MIN", {
     children: n.children,
-    axis: "counter",
     mode: frameValues.mode,
   });
   frameValues.alignSelf = convertSelfAlign(n.layoutAlign);
