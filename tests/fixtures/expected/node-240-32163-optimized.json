@@ -1,0 +1,1813 @@
+{
+  "name": "Untitled",
+  "lastModified": "2025-12-05T16:16:42Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/6d4c4440-1098-402c-b983-1bf44c182966?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCXJW6HYPC%2F20251204%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251204T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d3f06b6fe775803929be1e1b720481975e85de86c48cc9eceead613e35ad8501",
+  "nodes": [
+    {
+      "id": "240:32163",
+      "name": "Call Logs 有数据",
+      "type": "FRAME",
+      "cssStyles": {
+        "width": "375px",
+        "height": "827px",
+        "position": "absolute",
+        "left": "33787px",
+        "top": "77291px",
+        "backgroundColor": "#F4F4F4"
+      },
+      "children": [
+        {
+          "id": "240:32164",
+          "name": "Group 125",
+          "type": "INSTANCE",
+          "cssStyles": {
+            "width": "375px",
+            "height": "56px",
+            "position": "absolute",
+            "left": "0px",
+            "top": "0px"
+          },
+          "children": [
+            {
+              "id": "I240:32164;10:397",
+              "name": "Rectangle 9",
+              "type": "RECTANGLE",
+              "cssStyles": {
+                "width": "375px",
+                "height": "56px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "0px",
+                "backgroundColor": "#FFFFFF"
+              }
+            },
+            {
+              "id": "I240:32164;10:407",
+              "name": "Mask group",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "38px",
+                "height": "38px",
+                "position": "absolute",
+                "left": "313px",
+                "top": "9px"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "PNG",
+                "fileName": "mask_group.png"
+              }
+            },
+            {
+              "id": "I240:32164;1473:19604",
+              "name": "Link",
+              "type": "FRAME",
+              "cssStyles": {
+                "width": "130px",
+                "height": "36px",
+                "position": "absolute",
+                "left": "120px",
+                "top": "10px",
+                "backgroundColor": "#2ECC71",
+                "borderRadius": "8px"
+              },
+              "children": [
+                {
+                  "id": "I240:32164;1473:19606",
+                  "name": "Container",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "130px",
+                    "height": "36px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "borderRadius": "8px"
+                  }
+                },
+                {
+                  "id": "I240:32164;1473:19605",
+                  "name": "TRY NOW",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "64px",
+                    "height": "16px",
+                    "position": "absolute",
+                    "left": "33px",
+                    "top": "10px",
+                    "color": "#FFFFFF",
+                    "fontFamily": "Roboto",
+                    "fontSize": "14px",
+                    "fontWeight": 700,
+                    "textAlign": "center",
+                    "verticalAlign": "middle",
+                    "lineHeight": "16px"
+                  },
+                  "text": "TRY NOW"
+                }
+              ]
+            },
+            {
+              "id": "I240:32164;10:403",
+              "name": "Group 9",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "33px",
+                "height": "17px",
+                "position": "absolute",
+                "left": "266px",
+                "top": "18px",
+                "display": "flex",
+                "gap": "4px",
+                "justifyContent": "space-between",
+                "alignItems": "center"
+              },
+              "children": [
+                {
+                  "id": "I240:32164;10:405",
+                  "name": "EN",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "19px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 500,
+                    "textAlign": "center",
+                    "lineHeight": "17px"
+                  },
+                  "text": "EN"
+                },
+                {
+                  "id": "I240:32164;10:404",
+                  "name": "Vector 1",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "9px",
+                    "height": "4px",
+                    "position": "absolute",
+                    "left": "24px",
+                    "top": "7px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_1.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I240:32164;10:399",
+              "name": "Group 1",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "18px",
+                "height": "17px",
+                "position": "absolute",
+                "left": "16px",
+                "top": "19px"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "SVG",
+                "fileName": "group_1.svg"
+              }
+            },
+            {
+              "id": "I240:32164;10:410",
+              "name": "Ellipse 34",
+              "type": "ELLIPSE",
+              "cssStyles": {
+                "width": "8px",
+                "height": "8px",
+                "position": "absolute",
+                "left": "342px",
+                "top": "39px"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "SVG",
+                "fileName": "ellipse_34.svg"
+              }
+            },
+            {
+              "id": "I240:32164;10:398",
+              "name": "Vector 6",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "375px",
+                "height": "0px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "56px",
+                "borderColor": "#E2E2E2",
+                "borderWidth": "1px",
+                "borderStyle": "solid"
+              }
+            }
+          ]
+        },
+        {
+          "id": "240:32272",
+          "name": "Group 1410086516",
+          "type": "GROUP",
+          "cssStyles": {
+            "width": "172px",
+            "height": "34px",
+            "position": "absolute",
+            "left": "187px",
+            "top": "74px",
+            "display": "flex",
+            "gap": "6px",
+            "justifyContent": "space-between",
+            "alignItems": "center"
+          },
+          "children": [
+            {
+              "id": "240:32276",
+              "name": "Frame",
+              "type": "FRAME",
+              "cssStyles": {
+                "width": "34px",
+                "height": "34px",
+                "position": "absolute",
+                "left": "138px",
+                "top": "0px"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "SVG",
+                "fileName": "frame.svg"
+              }
+            },
+            {
+              "id": "240:32273",
+              "name": "Enable call recording",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "112px",
+                "height": "14px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "9px",
+                "color": "#666666",
+                "fontFamily": "Roboto",
+                "fontSize": "12px",
+                "lineHeight": "14px"
+              },
+              "text": "Enable call recording"
+            },
+            {
+              "id": "240:32274",
+              "name": "Frame",
+              "type": "FRAME",
+              "cssStyles": {
+                "width": "14px",
+                "height": "14px",
+                "position": "absolute",
+                "left": "118px",
+                "top": "10px"
+              },
+              "exportInfo": {
+                "type": "IMAGE",
+                "format": "SVG",
+                "fileName": "frame.svg"
+              }
+            }
+          ]
+        },
+        {
+          "id": "240:32165",
+          "name": "Call Logs",
+          "type": "TEXT",
+          "cssStyles": {
+            "width": "100px",
+            "height": "28px",
+            "position": "absolute",
+            "left": "17px",
+            "top": "76px",
+            "color": "#000000",
+            "fontFamily": "Roboto",
+            "fontSize": "24px",
+            "fontWeight": 700,
+            "lineHeight": "28px"
+          },
+          "text": "Call Logs"
+        },
+        {
+          "id": "240:32166",
+          "name": "Rectangle 34625814",
+          "type": "RECTANGLE",
+          "cssStyles": {
+            "width": "343px",
+            "height": "673px",
+            "position": "absolute",
+            "left": "16px",
+            "top": "120px",
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": "12px"
+          }
+        },
+        {
+          "id": "240:32168",
+          "name": "Group 1410086443",
+          "type": "GROUP",
+          "cssStyles": {
+            "width": "317px",
+            "height": "660px",
+            "position": "absolute",
+            "left": "24px",
+            "top": "130px",
+            "display": "flex",
+            "flexDirection": "column",
+            "justifyContent": "space-between"
+          },
+          "children": [
+            {
+              "id": "240:32170",
+              "name": "Group 1410086330",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "0px"
+              },
+              "children": [
+                {
+                  "id": "240:32171",
+                  "name": "Rectangle 24",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32175",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32176",
+                  "name": "Harry",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "38px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Harry"
+                },
+                {
+                  "id": "240:32172",
+                  "name": "Today",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "35px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "270px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Today"
+                },
+                {
+                  "id": "240:32178",
+                  "name": "Group 1410086532",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "18px",
+                    "height": "18px",
+                    "position": "absolute",
+                    "left": "34px",
+                    "top": "34px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410086532.svg"
+                  }
+                },
+                {
+                  "id": "240:32177",
+                  "name": "outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "51px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "outgoing"
+                },
+                {
+                  "id": "240:32173",
+                  "name": "Outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "53px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "235px",
+                    "top": "34px",
+                    "color": "#009663",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Outgoing"
+                },
+                {
+                  "id": "240:32174",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32224",
+              "name": "Group 1410086329",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "68px"
+              },
+              "children": [
+                {
+                  "id": "240:32225",
+                  "name": "Rectangle 25",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32230",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32231",
+                  "name": "Chris Monet",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "83px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Chris Monet"
+                },
+                {
+                  "id": "240:32226",
+                  "name": "Yesterday",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "57px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "248px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Yesterday"
+                },
+                {
+                  "id": "240:32232",
+                  "name": "Group 1410086532",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "18px",
+                    "height": "18px",
+                    "position": "absolute",
+                    "left": "34px",
+                    "top": "34px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410086532.svg"
+                  }
+                },
+                {
+                  "id": "240:32229",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32227",
+                  "name": "Outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "53px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "235px",
+                    "top": "34px",
+                    "color": "#009663",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Outgoing"
+                },
+                {
+                  "id": "240:32228",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32169",
+              "name": "That would be flne. Shall we make lt...",
+              "type": "TEXT",
+              "cssStyles": {
+                "width": "214px",
+                "height": "15px",
+                "position": "absolute",
+                "left": "62px",
+                "top": "92px",
+                "color": "#666666",
+                "fontFamily": "Inter",
+                "fontSize": "12px",
+                "verticalAlign": "middle",
+                "lineHeight": "15px"
+              },
+              "text": "That would be flne. Shall we make lt..."
+            },
+            {
+              "id": "240:32182",
+              "name": "Group 1410086328",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "136px"
+              },
+              "children": [
+                {
+                  "id": "240:32183",
+                  "name": "Rectangle 26",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32188",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32189",
+                  "name": "Teresa school",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "95px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Teresa school"
+                },
+                {
+                  "id": "240:32184",
+                  "name": "Yesterday",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "57px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "248px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Yesterday"
+                },
+                {
+                  "id": "240:32190",
+                  "name": "Group 1410086532",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "18px",
+                    "height": "18px",
+                    "position": "absolute",
+                    "left": "34px",
+                    "top": "34px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410086532.svg"
+                  }
+                },
+                {
+                  "id": "240:32187",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32185",
+                  "name": "Outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "53px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "235px",
+                    "top": "34px",
+                    "color": "#009663",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Outgoing"
+                },
+                {
+                  "id": "240:32186",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32244",
+              "name": "Group 1410086327",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "204px"
+              },
+              "children": [
+                {
+                  "id": "240:32245",
+                  "name": "Rectangle 27",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32250",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32251",
+                  "name": "Jackie",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "44px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Jackie"
+                },
+                {
+                  "id": "240:32246",
+                  "name": "Yesterday",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "57px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "248px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Yesterday"
+                },
+                {
+                  "id": "240:32252",
+                  "name": "Group 1410086532",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "18px",
+                    "height": "18px",
+                    "position": "absolute",
+                    "left": "34px",
+                    "top": "34px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410086532.svg"
+                  }
+                },
+                {
+                  "id": "240:32249",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32247",
+                  "name": "Incoming",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "52px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "236px",
+                    "top": "34px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Incoming"
+                },
+                {
+                  "id": "240:32248",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32204",
+              "name": "Group 1410086326",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "272px"
+              },
+              "children": [
+                {
+                  "id": "240:32205",
+                  "name": "Rectangle 28",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32209",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32210",
+                  "name": "Charlie",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "49px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Charlie"
+                },
+                {
+                  "id": "240:32206",
+                  "name": "Yesterday",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "57px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "248px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Yesterday"
+                },
+                {
+                  "id": "240:32212",
+                  "name": "Group 1410086532",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "18px",
+                    "height": "18px",
+                    "position": "absolute",
+                    "left": "34px",
+                    "top": "34px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410086532.svg"
+                  }
+                },
+                {
+                  "id": "240:32211",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32207",
+                  "name": "Incoming",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "52px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "236px",
+                    "top": "34px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Incoming"
+                },
+                {
+                  "id": "240:32208",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32216",
+              "name": "Group 1410086325",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "340px"
+              },
+              "children": [
+                {
+                  "id": "240:32217",
+                  "name": "Rectangle 61",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32222",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32223",
+                  "name": "Charlie",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "49px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Charlie"
+                },
+                {
+                  "id": "240:32218",
+                  "name": "Friday",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "35px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "270px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Friday"
+                },
+                {
+                  "id": "240:32221",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32219",
+                  "name": "Outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "53px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "235px",
+                    "top": "34px",
+                    "color": "#009663",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Outgoing"
+                },
+                {
+                  "id": "240:32220",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32236",
+              "name": "Group 1410086343",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "408px"
+              },
+              "children": [
+                {
+                  "id": "240:32237",
+                  "name": "Rectangle 25",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32238",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32239",
+                  "name": "Chris Monet",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "83px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Chris Monet"
+                },
+                {
+                  "id": "240:32241",
+                  "name": "Friday",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "35px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "270px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Friday"
+                },
+                {
+                  "id": "240:32240",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32242",
+                  "name": "Incoming",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "52px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "236px",
+                    "top": "34px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Incoming"
+                },
+                {
+                  "id": "240:32243",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32194",
+              "name": "Group 1410086340",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "62px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "476px"
+              },
+              "children": [
+                {
+                  "id": "240:32195",
+                  "name": "Rectangle 26",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "62px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32201",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32202",
+                  "name": "Teresa school",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "95px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Teresa school"
+                },
+                {
+                  "id": "240:32196",
+                  "name": "May 23, 2025",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "78px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "227px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "May 23, 2025"
+                },
+                {
+                  "id": "240:32203",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32197",
+                  "name": "Missed",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "41px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "247px",
+                    "top": "34px",
+                    "color": "#FF2020",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Missed"
+                },
+                {
+                  "id": "240:32198",
+                  "name": "Group 1410086347",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "group_1410086347.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32256",
+              "name": "Group 1410086344",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "55px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "544px"
+              },
+              "children": [
+                {
+                  "id": "240:32257",
+                  "name": "Rectangle 27",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "55px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32261",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32262",
+                  "name": "Jackie",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "44px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Jackie"
+                },
+                {
+                  "id": "240:32258",
+                  "name": "May 23, 2025",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "78px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "227px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "May 23, 2025"
+                },
+                {
+                  "id": "240:32263",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32259",
+                  "name": "Outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "53px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "235px",
+                    "top": "34px",
+                    "color": "#009663",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Outgoing"
+                },
+                {
+                  "id": "240:32260",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "240:32264",
+              "name": "Group 1410086345",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "317px",
+                "height": "55px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "605px"
+              },
+              "children": [
+                {
+                  "id": "240:32265",
+                  "name": "Rectangle 27",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "317px",
+                    "height": "55px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "10px"
+                  }
+                },
+                {
+                  "id": "240:32269",
+                  "name": "image",
+                  "type": "ELLIPSE",
+                  "cssStyles": {
+                    "width": "42px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "10px",
+                    "top": "10px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "image.svg"
+                  }
+                },
+                {
+                  "id": "240:32270",
+                  "name": "Jackie",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "44px",
+                    "height": "17px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "13px",
+                    "color": "#333333",
+                    "fontFamily": "Inter",
+                    "fontSize": "14px",
+                    "fontWeight": 600,
+                    "lineHeight": "17px"
+                  },
+                  "text": "Jackie"
+                },
+                {
+                  "id": "240:32266",
+                  "name": "May 23, 2025",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "78px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "227px",
+                    "top": "13px",
+                    "color": "#999999",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "May 23, 2025"
+                },
+                {
+                  "id": "240:32271",
+                  "name": "677-377-9558",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "84px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "62px",
+                    "top": "34px",
+                    "color": "#666666",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "677-377-9558"
+                },
+                {
+                  "id": "240:32267",
+                  "name": "Outgoing",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "53px",
+                    "height": "15px",
+                    "position": "absolute",
+                    "left": "235px",
+                    "top": "34px",
+                    "color": "#009663",
+                    "fontFamily": "Inter",
+                    "fontSize": "12px",
+                    "textAlign": "right",
+                    "verticalAlign": "middle",
+                    "lineHeight": "15px"
+                  },
+                  "text": "Outgoing"
+                },
+                {
+                  "id": "240:32268",
+                  "name": "Vector 8",
+                  "type": "VECTOR",
+                  "cssStyles": {
+                    "width": "8px",
+                    "height": "8px",
+                    "position": "absolute",
+                    "left": "295px",
+                    "top": "38px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "vector_8.svg"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "240:32167",
+          "name": "Rectangle 34625853",
+          "type": "RECTANGLE",
+          "cssStyles": {
+            "width": "6px",
+            "height": "201px",
+            "position": "absolute",
+            "left": "347px",
+            "top": "130px",
+            "backgroundColor": "#CCCCCC",
+            "borderRadius": "3px"
+          }
+        }
+      ]
+    }
+  ]
+}

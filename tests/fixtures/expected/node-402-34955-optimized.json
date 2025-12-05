@@ -1,0 +1,975 @@
+{
+  "name": "Untitled",
+  "lastModified": "2025-12-05T16:16:42Z",
+  "thumbnailUrl": "https://s3-alpha.figma.com/thumbnails/6d4c4440-1098-402c-b983-1bf44c182966?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQ4GOSFWCXJW6HYPC%2F20251204%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251204T000000Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d3f06b6fe775803929be1e1b720481975e85de86c48cc9eceead613e35ad8501",
+  "nodes": [
+    {
+      "id": "402:34955",
+      "name": "Group 1410104853",
+      "type": "GROUP",
+      "cssStyles": {
+        "width": "1580px",
+        "height": "895px",
+        "position": "absolute",
+        "left": "29147px",
+        "top": "88511px"
+      },
+      "children": [
+        {
+          "id": "398:31938",
+          "name": "Rectangle 34",
+          "type": "RECTANGLE",
+          "cssStyles": {
+            "width": "1580px",
+            "height": "895px",
+            "position": "absolute",
+            "left": "0px",
+            "top": "0px",
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": "12px"
+          }
+        },
+        {
+          "id": "398:34954",
+          "name": "Group 1410104852",
+          "type": "GROUP",
+          "cssStyles": {
+            "width": "1580px",
+            "height": "340px",
+            "position": "absolute",
+            "left": "0px",
+            "top": "19px",
+            "display": "grid",
+            "gridTemplateColumns": "500px 500px 500px",
+            "gap": "12px"
+          },
+          "children": [
+            {
+              "id": "398:31982",
+              "name": "Group 1410104526",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "320px",
+                "height": "41px",
+                "position": "absolute",
+                "left": "630px",
+                "top": "0px",
+                "display": "flex",
+                "justifyContent": "space-between",
+                "alignItems": "flex-start"
+              },
+              "children": [
+                {
+                  "id": "398:31983",
+                  "name": "Group 1410104524",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "160px",
+                    "height": "41px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "16px",
+                    "justifyContent": "space-between",
+                    "alignItems": "center"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31984",
+                      "name": "Add Keywords",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "111px",
+                        "height": "22px",
+                        "position": "absolute",
+                        "left": "25px",
+                        "top": "0px",
+                        "color": "#009663",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "16px",
+                        "fontWeight": 600,
+                        "textAlign": "center",
+                        "verticalAlign": "middle",
+                        "lineHeight": "22px"
+                      },
+                      "text": "Add Keywords"
+                    },
+                    {
+                      "id": "398:31985",
+                      "name": "Rectangle 34626003",
+                      "type": "RECTANGLE",
+                      "cssStyles": {
+                        "width": "160px",
+                        "height": "3px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "38px",
+                        "backgroundColor": "#24C790"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "398:31986",
+                  "name": "Group 1410104525",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "160px",
+                    "height": "41px",
+                    "position": "absolute",
+                    "left": "160px",
+                    "top": "0px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "16px",
+                    "justifyContent": "space-between",
+                    "alignItems": "center"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31987",
+                      "name": "Detected Alerts",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "116px",
+                        "height": "22px",
+                        "position": "absolute",
+                        "left": "22px",
+                        "top": "0px",
+                        "color": "#666666",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "16px",
+                        "textAlign": "center",
+                        "verticalAlign": "middle",
+                        "lineHeight": "22px"
+                      },
+                      "text": "Detected Alerts"
+                    },
+                    {
+                      "id": "398:31988",
+                      "name": "Rectangle 34626001",
+                      "type": "RECTANGLE",
+                      "cssStyles": {
+                        "width": "160px",
+                        "height": "3px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "38px",
+                        "backgroundColor": "#FFFFFF"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "398:31981",
+              "name": "Vector 512 (Stroke)",
+              "type": "VECTOR",
+              "cssStyles": {
+                "width": "1580px",
+                "height": "1px",
+                "position": "absolute",
+                "left": "0px",
+                "top": "41px",
+                "backgroundColor": "rgba(66, 149, 136, 0.2)"
+              }
+            },
+            {
+              "id": "398:31966",
+              "name": "Group 1410104484",
+              "type": "GROUP",
+              "cssStyles": {
+                "width": "1528px",
+                "height": "88px",
+                "position": "absolute",
+                "left": "26px",
+                "top": "62px"
+              },
+              "children": [
+                {
+                  "id": "398:31967",
+                  "name": "Rectangle 34626012",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "1528px",
+                    "height": "88px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#F4F3F6",
+                    "borderRadius": "16px"
+                  }
+                },
+                {
+                  "id": "398:31968",
+                  "name": "Group 1410104477",
+                  "type": "GROUP",
+                  "cssStyles": {
+                    "width": "109px",
+                    "height": "22px",
+                    "position": "absolute",
+                    "left": "24px",
+                    "top": "18px",
+                    "borderRadius": "3px",
+                    "display": "flex",
+                    "gap": "8px",
+                    "justifyContent": "space-between",
+                    "alignItems": "flex-start"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31970",
+                      "name": "已添加关键词",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "96px",
+                        "height": "22px",
+                        "position": "absolute",
+                        "left": "13px",
+                        "top": "0px",
+                        "color": "#000000",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "16px",
+                        "fontWeight": 600,
+                        "verticalAlign": "middle",
+                        "lineHeight": "22px"
+                      },
+                      "text": "已添加关键词"
+                    },
+                    {
+                      "id": "398:31969",
+                      "name": "Rectangle 34626011",
+                      "type": "RECTANGLE",
+                      "cssStyles": {
+                        "width": "5px",
+                        "height": "18px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "2px",
+                        "backgroundColor": "#24C790",
+                        "borderRadius": "3px"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "398:31972",
+                  "name": "4/20",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "33px",
+                    "height": "20px",
+                    "position": "absolute",
+                    "left": "141px",
+                    "top": "19px",
+                    "color": "#999999",
+                    "fontFamily": "PingFang SC",
+                    "fontSize": "14px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "20px"
+                  },
+                  "text": "4/20"
+                },
+                {
+                  "id": "398:31978",
+                  "name": "Link",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "200px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "1108px",
+                    "top": "23px",
+                    "backgroundColor": "#FFFFFF",
+                    "borderRadius": "8px"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31980",
+                      "name": "Container",
+                      "type": "FRAME",
+                      "cssStyles": {
+                        "width": "200px",
+                        "height": "42px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "0px",
+                        "borderRadius": "8px"
+                      }
+                    },
+                    {
+                      "id": "398:31979",
+                      "name": "添加自定义关键词",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "115px",
+                        "height": "16px",
+                        "position": "absolute",
+                        "left": "43px",
+                        "top": "13px",
+                        "color": "#333333",
+                        "fontFamily": "Roboto",
+                        "fontSize": "14px",
+                        "textAlign": "center",
+                        "verticalAlign": "middle",
+                        "lineHeight": "16px"
+                      },
+                      "text": "添加自定义关键词"
+                    }
+                  ]
+                },
+                {
+                  "id": "398:31973",
+                  "name": "Link",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "170px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "1328px",
+                    "top": "23px",
+                    "backgroundColor": "#24C790",
+                    "borderRadius": "8px"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31974",
+                      "name": "Group 1410104508",
+                      "type": "GROUP",
+                      "cssStyles": {
+                        "width": "112px",
+                        "height": "20px",
+                        "position": "absolute",
+                        "left": "29px",
+                        "top": "10px",
+                        "display": "flex",
+                        "gap": "6px",
+                        "justifyContent": "space-between",
+                        "alignItems": "flex-start"
+                      },
+                      "children": [
+                        {
+                          "id": "398:31976",
+                          "name": "Frame",
+                          "type": "FRAME",
+                          "cssStyles": {
+                            "width": "20px",
+                            "height": "20px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG",
+                            "fileName": "frame.svg"
+                          }
+                        },
+                        {
+                          "id": "398:31975",
+                          "name": "AI生成关键词",
+                          "type": "TEXT",
+                          "cssStyles": {
+                            "width": "86px",
+                            "height": "16px",
+                            "position": "absolute",
+                            "left": "26px",
+                            "top": "2px",
+                            "color": "#FFFFFF",
+                            "fontFamily": "Roboto",
+                            "fontSize": "14px",
+                            "textAlign": "center",
+                            "verticalAlign": "middle",
+                            "lineHeight": "16px"
+                          },
+                          "text": "AI生成关键词"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "398:31971",
+                  "name": "添加自定义关键词，启动分类即可检测分类下的关键词。",
+                  "type": "TEXT",
+                  "cssStyles": {
+                    "width": "350px",
+                    "height": "20px",
+                    "position": "absolute",
+                    "left": "24px",
+                    "top": "50px",
+                    "color": "#999999",
+                    "fontFamily": "PingFang SC",
+                    "fontSize": "14px",
+                    "verticalAlign": "middle",
+                    "lineHeight": "20px"
+                  },
+                  "text": "添加自定义关键词，启动分类即可检测分类下的关键词。"
+                }
+              ]
+            },
+            {
+              "id": "398:31946",
+              "name": "Group 1410104481",
+              "type": "COMPONENT",
+              "cssStyles": {
+                "width": "500px",
+                "height": "78px",
+                "position": "absolute",
+                "left": "26px",
+                "top": "170px"
+              },
+              "children": [
+                {
+                  "id": "398:31947",
+                  "name": "Rectangle 34626009",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "500px",
+                    "height": "78px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#FFFFFF",
+                    "borderColor": "#C4C4C4",
+                    "borderWidth": "1px",
+                    "borderStyle": "solid",
+                    "borderRadius": "16px"
+                  }
+                },
+                {
+                  "id": "398:31950",
+                  "name": "Frame 1410086320",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "70px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "22px",
+                    "top": "18px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "4px",
+                    "justifyContent": "space-between",
+                    "alignItems": "flex-start"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31951",
+                      "name": "Frame 1410086319",
+                      "type": "FRAME",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "20px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "0px",
+                        "display": "flex",
+                        "gap": "10px",
+                        "justifyContent": "space-between",
+                        "alignItems": "center"
+                      },
+                      "children": [
+                        {
+                          "id": "398:31952",
+                          "name": "早恋",
+                          "type": "TEXT",
+                          "cssStyles": {
+                            "width": "28px",
+                            "height": "20px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "color": "#000000",
+                            "fontFamily": "PingFang SC",
+                            "fontSize": "14px",
+                            "fontWeight": 500,
+                            "verticalAlign": "middle",
+                            "lineHeight": "20px"
+                          },
+                          "text": "早恋"
+                        },
+                        {
+                          "id": "398:31953",
+                          "name": "Vector 585",
+                          "type": "VECTOR",
+                          "cssStyles": {
+                            "width": "4px",
+                            "height": "8px",
+                            "position": "absolute",
+                            "left": "38px",
+                            "top": "6px"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG",
+                            "fileName": "vector_585.svg"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "398:31954",
+                      "name": "8 个关键词",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "17px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "25px",
+                        "color": "#999999",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "12px",
+                        "verticalAlign": "middle",
+                        "lineHeight": "17px"
+                      },
+                      "text": "8 个关键词"
+                    }
+                  ]
+                },
+                {
+                  "id": "398:31948",
+                  "name": "Frame",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "34px",
+                    "height": "34px",
+                    "position": "absolute",
+                    "left": "442px",
+                    "top": "22px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "frame.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "398:31956",
+              "name": "Group 1410104482",
+              "type": "FRAME",
+              "cssStyles": {
+                "width": "500px",
+                "height": "78px",
+                "position": "absolute",
+                "left": "540px",
+                "top": "170px"
+              },
+              "children": [
+                {
+                  "id": "398:31957",
+                  "name": "Rectangle 34626009",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "500px",
+                    "height": "78px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#FFFFFF",
+                    "borderColor": "#C4C4C4",
+                    "borderWidth": "1px",
+                    "borderStyle": "solid",
+                    "borderRadius": "16px"
+                  }
+                },
+                {
+                  "id": "398:31960",
+                  "name": "Frame 1410086320",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "70px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "22px",
+                    "top": "18px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "4px",
+                    "justifyContent": "space-between",
+                    "alignItems": "flex-start"
+                  },
+                  "children": [
+                    {
+                      "id": "398:31961",
+                      "name": "Frame 1410086319",
+                      "type": "FRAME",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "20px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "0px",
+                        "display": "flex",
+                        "gap": "10px",
+                        "justifyContent": "space-between",
+                        "alignItems": "center"
+                      },
+                      "children": [
+                        {
+                          "id": "398:31962",
+                          "name": "早恋",
+                          "type": "TEXT",
+                          "cssStyles": {
+                            "width": "56px",
+                            "height": "20px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "color": "#000000",
+                            "fontFamily": "PingFang SC",
+                            "fontSize": "14px",
+                            "fontWeight": 500,
+                            "verticalAlign": "middle",
+                            "lineHeight": "20px"
+                          },
+                          "text": "校园暴力"
+                        },
+                        {
+                          "id": "398:31963",
+                          "name": "Vector 585",
+                          "type": "VECTOR",
+                          "cssStyles": {
+                            "width": "4px",
+                            "height": "8px",
+                            "position": "absolute",
+                            "left": "66px",
+                            "top": "6px"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG",
+                            "fileName": "vector_585.svg"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "398:31964",
+                      "name": "8 个关键词",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "17px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "25px",
+                        "color": "#999999",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "12px",
+                        "verticalAlign": "middle",
+                        "lineHeight": "17px"
+                      },
+                      "text": "67 个关键词"
+                    }
+                  ]
+                },
+                {
+                  "id": "398:31958",
+                  "name": "Frame",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "34px",
+                    "height": "34px",
+                    "position": "absolute",
+                    "left": "442px",
+                    "top": "22px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "frame.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "398:31965",
+              "name": "Group 1410104483",
+              "type": "INSTANCE",
+              "cssStyles": {
+                "width": "500px",
+                "height": "78px",
+                "position": "absolute",
+                "left": "1054px",
+                "top": "170px"
+              },
+              "children": [
+                {
+                  "id": "I398:31965;398:31947",
+                  "name": "Rectangle 34626009",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "500px",
+                    "height": "78px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#FFFFFF",
+                    "borderColor": "#C4C4C4",
+                    "borderWidth": "1px",
+                    "borderStyle": "solid",
+                    "borderRadius": "16px"
+                  }
+                },
+                {
+                  "id": "I398:31965;398:31950",
+                  "name": "Frame 1410086320",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "70px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "22px",
+                    "top": "18px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "4px",
+                    "justifyContent": "space-between",
+                    "alignItems": "flex-start"
+                  },
+                  "children": [
+                    {
+                      "id": "I398:31965;398:31951",
+                      "name": "Frame 1410086319",
+                      "type": "FRAME",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "20px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "0px",
+                        "display": "flex",
+                        "gap": "10px",
+                        "justifyContent": "space-between",
+                        "alignItems": "center"
+                      },
+                      "children": [
+                        {
+                          "id": "I398:31965;398:31952",
+                          "name": "早恋",
+                          "type": "TEXT",
+                          "cssStyles": {
+                            "width": "56px",
+                            "height": "20px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "color": "#000000",
+                            "fontFamily": "PingFang SC",
+                            "fontSize": "14px",
+                            "fontWeight": 500,
+                            "verticalAlign": "middle",
+                            "lineHeight": "20px"
+                          },
+                          "text": "露骨低俗"
+                        },
+                        {
+                          "id": "I398:31965;398:31953",
+                          "name": "Vector 585",
+                          "type": "VECTOR",
+                          "cssStyles": {
+                            "width": "4px",
+                            "height": "8px",
+                            "position": "absolute",
+                            "left": "66px",
+                            "top": "6px"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG",
+                            "fileName": "vector_585.svg"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I398:31965;398:31954",
+                      "name": "8 个关键词",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "17px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "25px",
+                        "color": "#999999",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "12px",
+                        "verticalAlign": "middle",
+                        "lineHeight": "17px"
+                      },
+                      "text": "13 个关键词"
+                    }
+                  ]
+                },
+                {
+                  "id": "I398:31965;398:31948",
+                  "name": "Frame",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "34px",
+                    "height": "34px",
+                    "position": "absolute",
+                    "left": "442px",
+                    "top": "22px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "frame.svg"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "398:31955",
+              "name": "Group 1410104485",
+              "type": "INSTANCE",
+              "cssStyles": {
+                "width": "500px",
+                "height": "78px",
+                "position": "absolute",
+                "left": "26px",
+                "top": "262px"
+              },
+              "children": [
+                {
+                  "id": "I398:31955;398:31947",
+                  "name": "Rectangle 34626009",
+                  "type": "RECTANGLE",
+                  "cssStyles": {
+                    "width": "500px",
+                    "height": "78px",
+                    "position": "absolute",
+                    "left": "0px",
+                    "top": "0px",
+                    "backgroundColor": "#FFFFFF",
+                    "borderColor": "#C4C4C4",
+                    "borderWidth": "1px",
+                    "borderStyle": "solid",
+                    "borderRadius": "16px"
+                  }
+                },
+                {
+                  "id": "I398:31955;398:31950",
+                  "name": "Frame 1410086320",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "70px",
+                    "height": "42px",
+                    "position": "absolute",
+                    "left": "22px",
+                    "top": "18px",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "gap": "4px",
+                    "justifyContent": "space-between",
+                    "alignItems": "flex-start"
+                  },
+                  "children": [
+                    {
+                      "id": "I398:31955;398:31951",
+                      "name": "Frame 1410086319",
+                      "type": "FRAME",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "20px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "0px",
+                        "display": "flex",
+                        "gap": "10px",
+                        "justifyContent": "space-between",
+                        "alignItems": "center"
+                      },
+                      "children": [
+                        {
+                          "id": "I398:31955;398:31952",
+                          "name": "早恋",
+                          "type": "TEXT",
+                          "cssStyles": {
+                            "width": "56px",
+                            "height": "20px",
+                            "position": "absolute",
+                            "left": "0px",
+                            "top": "0px",
+                            "color": "#000000",
+                            "fontFamily": "PingFang SC",
+                            "fontSize": "14px",
+                            "fontWeight": 500,
+                            "verticalAlign": "middle",
+                            "lineHeight": "20px"
+                          },
+                          "text": "色情违法"
+                        },
+                        {
+                          "id": "I398:31955;398:31953",
+                          "name": "Vector 585",
+                          "type": "VECTOR",
+                          "cssStyles": {
+                            "width": "4px",
+                            "height": "8px",
+                            "position": "absolute",
+                            "left": "66px",
+                            "top": "6px"
+                          },
+                          "exportInfo": {
+                            "type": "IMAGE",
+                            "format": "SVG",
+                            "fileName": "vector_585.svg"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "I398:31955;398:31954",
+                      "name": "8 个关键词",
+                      "type": "TEXT",
+                      "cssStyles": {
+                        "width": "70px",
+                        "height": "17px",
+                        "position": "absolute",
+                        "left": "0px",
+                        "top": "25px",
+                        "color": "#999999",
+                        "fontFamily": "PingFang SC",
+                        "fontSize": "12px",
+                        "verticalAlign": "middle",
+                        "lineHeight": "17px"
+                      },
+                      "text": "32 个关键词"
+                    }
+                  ]
+                },
+                {
+                  "id": "I398:31955;398:31948",
+                  "name": "Frame",
+                  "type": "FRAME",
+                  "cssStyles": {
+                    "width": "34px",
+                    "height": "34px",
+                    "position": "absolute",
+                    "left": "442px",
+                    "top": "22px"
+                  },
+                  "exportInfo": {
+                    "type": "IMAGE",
+                    "format": "SVG",
+                    "fileName": "frame.svg"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
