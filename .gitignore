@@ -31,6 +31,7 @@ pnpm-debug.log*
 
 # Testing
 coverage
+test/test-output
 
 # OS
 .DS_Store

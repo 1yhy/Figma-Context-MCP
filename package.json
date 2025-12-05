@@ -22,12 +22,15 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
-    "test": "tsx test/test-layout-detection.ts && tsx test/test-icon-detection.ts",
-    "test:layout": "tsx test/test-layout-detection.ts",
-    "test:icon": "tsx test/test-icon-detection.ts",
-    "test:all": "tsx test/test-layout-detection.ts && tsx test/test-icon-detection.ts && tsx test/test-final-output.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:legacy": "tsx test/test-layout-detection.ts && tsx test/test-icon-detection.ts",
     "inspect": "pnpx @modelcontextprotocol/inspector",
     "mcp-test": "pnpm start -- --stdio",
     "prepublishOnly": "pnpm run build",
@@ -78,6 +81,7 @@
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
+    "@vitest/coverage-v8": "^4.0.15",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^10.0.1",
     "husky": "^9.0.0",
@@ -86,6 +90,7 @@
     "tsup": "^8.4.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.24.0"
+    "typescript-eslint": "^8.24.0",
+    "vitest": "^4.0.15"
   }
 }
