@@ -382,7 +382,7 @@ pnpm install
 
 # 开发
 pnpm dev          # 监听模式
-pnpm test         # 运行测试（250 个测试用例）
+pnpm test         # 运行测试（272 个测试用例）
 pnpm lint         # 代码检查
 pnpm build        # 构建
 

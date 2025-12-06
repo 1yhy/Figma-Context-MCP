@@ -382,7 +382,7 @@ pnpm install
 
 # Development
 pnpm dev          # Watch mode
-pnpm test         # Run tests (250 test cases)
+pnpm test         # Run tests (272 test cases)
 pnpm lint         # Lint code
 pnpm build        # Build
 
