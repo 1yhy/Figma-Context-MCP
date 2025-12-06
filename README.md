@@ -135,7 +135,15 @@ Add to your MCP configuration file:
 <summary><strong>HTTP/SSE Mode (Local Development)</strong></summary>
 
 ```bash
-# Start the server
+# From source (development)
+cp .env.example .env  # Add FIGMA_API_KEY to .env
+pnpm install && pnpm build
+pnpm start            # Starts on port 3333
+
+# Or with environment variable
+FIGMA_API_KEY=<your-key> pnpm start
+
+# Or via global install
 figma-mcp --figma-api-key=<your-key> --port=3333
 
 # Connect via SSE
@@ -160,7 +168,7 @@ This server provides full MCP capabilities support:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  Figma MCP Server v1.0.2                    │
+│                  Figma MCP Server v1.1.0                    │
 ├─────────────────────────────────────────────────────────────┤
 │  Tools (2)                        AI-invoked operations     │
 │  ├── get_figma_data              Fetch design data          │
