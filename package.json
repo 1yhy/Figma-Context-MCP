@@ -33,7 +33,7 @@
     "preview": "tsx tests/utils/preview.ts",
     "inspect": "pnpx @modelcontextprotocol/inspector",
     "mcp-test": "pnpm start -- --stdio",
-    "prepublishOnly": "pnpm run build",
+    "prepublishOnly": "pnpm type-check && pnpm lint && pnpm test && pnpm build",
     "pub:release": "pnpm build && npm publish --access public",
     "publish:local": "pnpm build && npm pack",
     "prepare": "husky || true"
