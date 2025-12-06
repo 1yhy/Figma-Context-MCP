@@ -416,6 +416,27 @@ git commit -m "feat: add new feature"
 | `test`     | Tests         |
 | `chore`    | Maintenance   |
 
+### Release Process (Maintainers)
+
+```bash
+# 1. Update version in package.json and CHANGELOG.md
+
+# 2. Commit version bump
+git add -A
+git commit -m "chore: bump version to x.x.x"
+
+# 3. Publish to npm (auto runs: type-check → lint → test → build)
+npm login --scope=@yhy2001  # if not logged in
+pnpm run pub:release
+
+# 4. Create git tag and push
+git tag vx.x.x
+git push origin main --tags
+
+# 5. Create GitHub Release (optional)
+# Go to https://github.com/1yhy/Figma-Context-MCP/releases/new
+```
+
 ### Testing with Your Own Figma Data
 
 You can test the layout detection and optimization with your own Figma designs:
