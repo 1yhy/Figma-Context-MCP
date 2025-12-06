@@ -5,26 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2025-01-06
 
 ### Added
 
-- Comprehensive project configuration (ESLint, Prettier, Husky, Commitlint)
-- GitHub Actions CI/CD workflow
-- Issue and PR templates
-- Contributing guidelines
-- Bilingual documentation (English/Chinese)
+- **Grid Layout Detection** - Automatically detect and convert grid-like arrangements to CSS Grid
+- **Background Element Merging** - Smart merge of background layers with padding inference
+- **Multi-layer Cache System** - LRU memory cache (L1) + disk cache (L2) for 24h data persistence
+- **MCP Resources** - Lightweight resource endpoints (`figma://file`, `/styles`, `/components`, `/assets`) for token-efficient metadata browsing
+- **MCP Prompts** - Professional `design_to_code` prompt for guided AI code generation workflow
+- **Comprehensive Test Suite** - 272 tests covering layout optimization, icon detection, parser, and resources (Vitest)
 
 ### Changed
 
-- Refactored codebase structure with modular architecture
-- Updated ESLint to flat config format
-- Improved TypeScript type safety
+- **Improved Flexbox Detection** - Enhanced stack detection with better gap/padding inference
+- **Icon Detection Optimization** - Single-pass tree traversal for better performance
+- **Modular Architecture** - Reorganized codebase (`transformers` → `core/algorithms`) for better maintainability
+- **Bilingual Documentation** - Complete English and Chinese docs for all algorithms and architecture
 
 ### Fixed
 
-- All ESLint errors resolved
-- Type narrowing issues in parser module
+- **Gradient Alpha Channel** - Preserve alpha values in gradient color stops
+- **Non-grid Element Positioning** - Correct position handling for elements outside grid containers
+- **Security Dependencies** - Updated dependencies to resolve vulnerabilities
 
 ## [1.0.1] - 2024-12-05
 
@@ -60,6 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic CSS style generation
 - Figma API integration with caching
 
-[Unreleased]: https://github.com/1yhy/Figma-Context-MCP/compare/v1.0.1...HEAD
+[1.1.0]: https://github.com/1yhy/Figma-Context-MCP/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/1yhy/Figma-Context-MCP/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/1yhy/Figma-Context-MCP/releases/tag/v1.0.0
