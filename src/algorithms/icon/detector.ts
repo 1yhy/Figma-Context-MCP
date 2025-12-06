@@ -153,103 +153,102 @@ function hasComplexEffects(node: FigmaNode): boolean {
   );
 }
 
+// ==================== Optimized Single-Pass Stats Collection ====================
+
 /**
- * Calculate maximum depth of node tree
+ * Statistics collected from a node tree in a single traversal
+ * This replaces multiple recursive functions with one unified pass
  */
-function calculateDepth(node: FigmaNode, currentDepth: number = 0): number {
+interface NodeTreeStats {
+  /** Maximum depth of the tree */
+  depth: number;
+  /** Total number of descendants (not including root) */
+  totalChildren: number;
+  /** Whether tree contains excluded types (TEXT, COMPONENT, INSTANCE) */
+  hasExcludeType: boolean;
+  /** Whether tree contains image fills */
+  hasImageFill: boolean;
+  /** Whether tree contains complex effects requiring PNG */
+  hasComplexEffects: boolean;
+  /** Whether all leaf nodes are mergeable types */
+  allLeavesMergeable: boolean;
+  /** Ratio of mergeable types in direct children */
+  mergeableRatio: number;
+}
+
+/**
+ * Collect all tree statistics in a single traversal
+ *
+ * OPTIMIZATION: This replaces 6 separate recursive functions:
+ * - calculateDepth()
+ * - countTotalChildren()
+ * - hasExcludeTypeInTree()
+ * - hasImageFillInTree()
+ * - hasComplexEffectsInTree()
+ * - areAllLeavesMergeable()
+ *
+ * Before: O(6n) - each function traverses entire tree
+ * After: O(n) - single traversal collects all data
+ *
+ * @param node - Node to analyze
+ * @returns Collected statistics
+ */
+function collectNodeStats(node: FigmaNode): NodeTreeStats {
+  // Base case: leaf node (no children)
   if (!node.children || node.children.length === 0) {
-    return currentDepth;
-  }
-  return Math.max(...node.children.map((child) => calculateDepth(child, currentDepth + 1)));
-}
-
-/**
- * Count total number of descendants
- */
-function countTotalChildren(node: FigmaNode): number {
-  if (!node.children || node.children.length === 0) {
-    return 0;
-  }
-  return node.children.reduce((sum, child) => sum + 1 + countTotalChildren(child), 0);
-}
-
-/**
- * Check if tree contains excluded types
- */
-function hasExcludeTypeInTree(node: FigmaNode): boolean {
-  if (isExcludeType(node.type)) {
-    return true;
-  }
-  if (node.children) {
-    return node.children.some((child) => hasExcludeTypeInTree(child));
-  }
-  return false;
-}
-
-/**
- * Check if tree contains image fills
- */
-function hasImageFillInTree(node: FigmaNode): boolean {
-  if (hasImageFill(node)) {
-    return true;
-  }
-  if (node.children) {
-    return node.children.some((child) => hasImageFillInTree(child));
-  }
-  return false;
-}
-
-/**
- * Check if tree contains complex effects
- */
-function hasComplexEffectsInTree(node: FigmaNode): boolean {
-  if (hasComplexEffects(node)) {
-    return true;
-  }
-  if (node.children) {
-    return node.children.some((child) => hasComplexEffectsInTree(child));
-  }
-  return false;
-}
-
-/**
- * Calculate ratio of mergeable types in direct children
- */
-function calculateMergeableRatio(node: FigmaNode): number {
-  if (!node.children || node.children.length === 0) {
-    return isMergeableType(node.type) ? 1 : 0;
+    const isMergeable = isMergeableType(node.type);
+    return {
+      depth: 0,
+      totalChildren: 0,
+      hasExcludeType: isExcludeType(node.type),
+      hasImageFill: hasImageFill(node),
+      hasComplexEffects: hasComplexEffects(node),
+      allLeavesMergeable: isMergeable,
+      mergeableRatio: isMergeable ? 1 : 0,
+    };
   }
 
-  const total = node.children.length;
-  const mergeable = node.children.filter(
+  // Recursive case: collect stats from all children
+  const childStats = node.children.map(collectNodeStats);
+
+  // Aggregate child statistics
+  const maxChildDepth = Math.max(...childStats.map((s) => s.depth));
+  const totalDescendants = childStats.reduce((sum, s) => sum + 1 + s.totalChildren, 0);
+  const hasExcludeInChildren = childStats.some((s) => s.hasExcludeType);
+  const hasImageInChildren = childStats.some((s) => s.hasImageFill);
+  const hasEffectsInChildren = childStats.some((s) => s.hasComplexEffects);
+  const allChildrenMergeable = childStats.every((s) => s.allLeavesMergeable);
+
+  // Calculate mergeable ratio for direct children
+  const mergeableCount = node.children.filter(
     (child) => isMergeableType(child.type) || isContainerType(child.type),
   ).length;
+  const mergeableRatio = mergeableCount / node.children.length;
 
-  return mergeable / total;
-}
+  // Determine if all leaves are mergeable
+  // For containers: all children must have all leaves mergeable
+  // For other types: check if this type itself is mergeable
+  const allLeavesMergeable = isContainerType(node.type)
+    ? allChildrenMergeable
+    : isMergeableType(node.type);
 
-/**
- * Check if all leaf nodes are mergeable types
- */
-function areAllLeavesMergeable(node: FigmaNode): boolean {
-  // Leaf node
-  if (!node.children || node.children.length === 0) {
-    return isMergeableType(node.type);
-  }
-
-  // Container: recursively check all children
-  if (isContainerType(node.type)) {
-    return node.children.every((child) => areAllLeavesMergeable(child));
-  }
-
-  // Other types
-  return isMergeableType(node.type);
+  return {
+    depth: maxChildDepth + 1,
+    totalChildren: totalDescendants,
+    hasExcludeType: isExcludeType(node.type) || hasExcludeInChildren,
+    hasImageFill: hasImageFill(node) || hasImageInChildren,
+    hasComplexEffects: hasComplexEffects(node) || hasEffectsInChildren,
+    allLeavesMergeable,
+    mergeableRatio,
+  };
 }
 
 // ==================== Main Detection Functions ====================
 
 /**
  * Detect if a single node should be exported as an icon
+ *
+ * OPTIMIZED: Uses single-pass collectNodeStats() instead of multiple recursive functions
  *
  * @param node - Figma node to analyze
  * @param config - Detection configuration
@@ -267,23 +266,29 @@ export function detectIcon(
     reason: "",
   };
 
+  // Get node size once
+  const size = getNodeSize(node);
+  if (size) {
+    result.size = size;
+  }
+
   // 1. Check Figma exportSettings (with size restrictions)
   if (node.exportSettings && node.exportSettings.length > 0) {
-    const size = getNodeSize(node);
     const isSmallEnough =
       !size ||
       (size.width <= config.respectExportSettingsMaxSize &&
         size.height <= config.respectExportSettingsMaxSize);
 
-    // Containers with TEXT should not be exported as images
-    const containsText = hasExcludeTypeInTree(node);
+    // For exportSettings, we need to check for excluded types
+    // Use optimized single-pass collection
+    const stats = collectNodeStats(node);
+    const containsText = stats.hasExcludeType;
 
     if (isSmallEnough && !containsText) {
       const exportSetting = node.exportSettings[0];
       result.shouldMerge = true;
       result.exportFormat = exportSetting.format === "SVG" ? "SVG" : "PNG";
       result.reason = `Designer marked export as ${exportSetting.format}`;
-      result.size = size || undefined;
       return result;
     }
     // Large nodes or nodes with TEXT: ignore exportSettings, continue detection
@@ -304,9 +309,7 @@ export function detectIcon(
       }
 
       // Check size for single elements
-      const size = getNodeSize(node);
       if (size) {
-        result.size = size;
         if (size.width > config.maxIconSize || size.height > config.maxIconSize) {
           result.reason = `Single element too large (${Math.round(size.width)}x${Math.round(size.height)} > ${config.maxIconSize})`;
           return result;
@@ -322,10 +325,7 @@ export function detectIcon(
   }
 
   // 3. Check size
-  const size = getNodeSize(node);
   if (size) {
-    result.size = size;
-
     // Too large: likely a layout container
     if (size.width > config.maxIconSize || size.height > config.maxIconSize) {
       result.reason = `Size too large (${size.width}x${size.height} > ${config.maxIconSize})`;
@@ -339,45 +339,46 @@ export function detectIcon(
     }
   }
 
+  // OPTIMIZATION: Collect all tree statistics in a single pass
+  // This replaces 6 separate recursive traversals with 1
+  const stats = collectNodeStats(node);
+
   // 4. Check for excluded types (TEXT, etc.)
-  if (hasExcludeTypeInTree(node)) {
+  if (stats.hasExcludeType) {
     result.reason = "Contains TEXT or other exclude types";
     return result;
   }
 
   // 5. Check structure depth
-  const depth = calculateDepth(node);
-  if (depth > config.maxDepth) {
-    result.reason = `Depth too deep (${depth} > ${config.maxDepth})`;
+  if (stats.depth > config.maxDepth) {
+    result.reason = `Depth too deep (${stats.depth} > ${config.maxDepth})`;
     return result;
   }
 
   // 6. Check child count
-  const childCount = countTotalChildren(node);
-  result.childCount = childCount;
-  if (childCount > config.maxChildren) {
-    result.reason = `Too many children (${childCount} > ${config.maxChildren})`;
+  result.childCount = stats.totalChildren;
+  if (stats.totalChildren > config.maxChildren) {
+    result.reason = `Too many children (${stats.totalChildren} > ${config.maxChildren})`;
     return result;
   }
 
   // 7. Check mergeable type ratio
-  const mergeableRatio = calculateMergeableRatio(node);
-  if (mergeableRatio < config.mergeableRatio) {
-    result.reason = `Mergeable ratio too low (${(mergeableRatio * 100).toFixed(1)}% < ${config.mergeableRatio * 100}%)`;
+  if (stats.mergeableRatio < config.mergeableRatio) {
+    result.reason = `Mergeable ratio too low (${(stats.mergeableRatio * 100).toFixed(1)}% < ${config.mergeableRatio * 100}%)`;
     return result;
   }
 
   // 8. Check if all leaf nodes are mergeable
-  if (!areAllLeavesMergeable(node)) {
+  if (!stats.allLeavesMergeable) {
     result.reason = "Not all leaf nodes are mergeable types";
     return result;
   }
 
-  // 9. Determine export format
-  if (hasImageFillInTree(node)) {
+  // 9. Determine export format (using stats collected in single pass)
+  if (stats.hasImageFill) {
     result.exportFormat = "PNG";
     result.reason = "Contains image fills, export as PNG";
-  } else if (hasComplexEffectsInTree(node)) {
+  } else if (stats.hasComplexEffects) {
     result.exportFormat = "PNG";
     result.reason = "Contains complex effects, export as PNG";
   } else {

@@ -35,6 +35,9 @@ importers:
       "@commitlint/config-conventional":
         specifier: ^19.0.0
         version: 19.8.1
+      "@eslint/js":
+        specifier: ^9.39.1
+        version: 9.39.1
       "@figma/rest-api-spec":
         specifier: ^0.24.0
         version: 0.24.0

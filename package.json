@@ -75,6 +75,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^19.0.0",
+    "@eslint/js": "^9.39.1",
     "@figma/rest-api-spec": "^0.24.0",
     "@types/express": "^5.0.0",
     "@types/node": "^24.10.1",
