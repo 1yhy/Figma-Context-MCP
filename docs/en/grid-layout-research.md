@@ -563,3 +563,468 @@ After:
 - [CSS Grid Layout Module Level 1 - W3C](https://www.w3.org/TR/css-grid-1/)
 - [Figma Grid Auto-Layout Help](https://help.figma.com/hc/en-us/articles/31289469907863-Use-the-grid-auto-layout-flow)
 - [Screen Parsing - CMU ML Blog](https://blog.ml.cmu.edu/2021/12/10/understanding-user-interfaces-with-screen-parsing/)
+
+---
+
+## Complete Implementation Analysis
+
+This section provides an in-depth analysis of the Grid layout detection algorithm implementation, including the complete call chain and core functions.
+
+### System Architecture: Grid vs Flex Decision
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    Layout Detection Decision Tree                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│                    ┌─────────────────────────┐                          │
+│                    │  optimizeContainer()    │                          │
+│                    │  [optimizer.ts:89]      │                          │
+│                    └───────────┬─────────────┘                          │
+│                                │                                         │
+│            ┌───────────────────┼───────────────────┐                    │
+│            ▼                   ▼                   ▼                    │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
+│  │ STEP 1: Overlap │  │ STEP 1.5:      │  │ STEP 2: Grid   │         │
+│  │ Detection       │  │ Background     │  │ Detection      │         │
+│  │ IoU > 0.1 ?     │  │ Detection      │  │ (Priority)     │         │
+│  └────────┬────────┘  └────────────────┘  └────────┬────────┘         │
+│           │                                         │                   │
+│           │                    ┌────────────────────┤                   │
+│           │                    │                    │                   │
+│           │            Grid detection OK?       Grid detection failed   │
+│           │            confidence >= 0.6            │                   │
+│           │                    │                    │                   │
+│           │                    ▼                    ▼                   │
+│           │           ┌─────────────────┐  ┌─────────────────┐         │
+│           │           │  display: grid  │  │ STEP 3: Flex   │         │
+│           │           │  grid-template- │  │ Detection      │         │
+│           │           │  columns/rows   │  │ (Fallback)     │         │
+│           │           └─────────────────┘  └────────┬────────┘         │
+│           │                    │                    │                   │
+│           │                    │            Flex detection OK?          │
+│           │                    │            score > 0.4                 │
+│           │                    │                    │                   │
+│           │                    ▼                    ▼                   │
+│           │           ┌─────────────────┐  ┌─────────────────┐         │
+│  Overlapping keeps    │  Generate Grid  │  │  display: flex  │         │
+│  position: absolute   │  CSS + padding  │  │  + gap + align  │         │
+│           │           └─────────────────┘  └─────────────────┘         │
+│           │                                                             │
+└───────────┴─────────────────────────────────────────────────────────────┘
+```
+
+### Grid Detection Entry: detectGridIfApplicable
+
+```
+detectGridIfApplicable(nodes) - [optimizer.ts:918-961]
+═══════════════════════════════════════════════════════════════════════════
+
+                    ┌─────────────────────────────────┐
+                    │  detectGridIfApplicable(nodes)  │
+                    │  [optimizer.ts:918]             │
+                    └───────────────┬─────────────────┘
+                                    │
+                                    ▼
+                    ┌─────────────────────────────────┐
+                    │  Pre-checks                      │
+                    │  • nodes.length < 4 → return null│
+                    │  • Need at least 2×2 grid        │
+                    └───────────────┬─────────────────┘
+                                    │
+                                    ▼
+                    ┌─────────────────────────────────┐
+                    │  nodesToElementRects(nodes)     │
+                    │  Convert to ElementRect[]       │
+                    │  [optimizer.ts:856-870]         │
+                    └───────────────┬─────────────────┘
+                                    │
+                                    ▼
+                    ┌─────────────────────────────────────────────────────┐
+                    │  filterHomogeneousForGrid(elementRects, nodeTypes)  │
+                    │  [detector.ts:1216-1235]                            │
+                    │                                                      │
+                    │  ★ Key step: Homogeneity filtering                  │
+                    │  • Filter elements with similar sizes                │
+                    │  • Prevent mixed layouts from being detected as Grid │
+                    └───────────────────────────┬─────────────────────────┘
+                                                │
+                              ┌─────────────────┴─────────────────┐
+                              │                                   │
+                    homogeneousElements.length < 4        homogeneousElements >= 4
+                              │                                   │
+                              ▼                                   ▼
+                        return null                  ┌─────────────────────────┐
+                                                     │  detectGridLayout()     │
+                                                     │  [detector.ts:1490]     │
+                                                     │  Run Grid detection on  │
+                                                     │  homogeneous elements   │
+                                                     └───────────────┬─────────┘
+                                                                     │
+                              ┌───────────────────────────────────────┤
+                              │                                       │
+                    isGrid && confidence >= 0.6 ?              confidence < 0.6
+                    rowCount >= 2 && columnCount >= 2                 │
+                              │                                       │
+                              ▼                                       ▼
+                    ┌─────────────────────────┐              return null
+                    │  return {               │
+                    │    gridResult,          │
+                    │    gridIndices          │
+                    │  }                      │
+                    └─────────────────────────┘
+```
+
+### Homogeneity Analysis: analyzeHomogeneity
+
+```
+analyzeHomogeneity(rects, nodeTypes) - [detector.ts:1127-1196]
+═══════════════════════════════════════════════════════════════════════════
+
+Purpose: Ensure only "similar" elements participate in Grid detection,
+         avoiding misdetection of mixed layouts
+
+Mixed Layout Example (should be filtered):
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Container 1580px × 340px                                                 │
+│                                                                          │
+│        ┌─────────────────────┐   ← Tabs 320×41 (heterogeneous)          │
+│        │      Tabs           │                                           │
+│        └─────────────────────┘                                           │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   ← Divider 1580×1 (heterogeneous)      │
+│ ┌──────────────────────────────────────────────────────────────────────┐│
+│ │                    Info Bar 1528×88                                  ││
+│ └──────────────────────────────────────────────────────────────────────┘│
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   ← Homogeneous (Grid)│
+│  │  Card 500×78│  │  Card 500×78│  │  Card 500×78│                      │
+│  └─────────────┘  └─────────────┘  └─────────────┘                      │
+│  ┌─────────────┐                                                         │
+│  │  Card 500×78│                                                         │
+│  └─────────────┘                                                         │
+└──────────────────────────────────────────────────────────────────────────┘
+
+Algorithm Flow:
+┌────────────────────────────────────────────────────────────────┐
+│  1. Size Clustering (clusterBySimilarSize)                     │
+│                                                                 │
+│     Input: All child ElementRect[]                             │
+│     Tolerance: 20% (widthDiff <= 0.2 && heightDiff <= 0.2)     │
+│                                                                 │
+│     Process:                                                    │
+│     for each rect:                                              │
+│       Find existing cluster with similar size                   │
+│       If found → add to that cluster                            │
+│       If not found → create new cluster                         │
+│                                                                 │
+│     Output: SizeCluster[] (sorted by element count descending)  │
+│                                                                 │
+│  Example:                                                       │
+│     Cluster 1: [Card1, Card2, Card3, Card4] ← 500×78           │
+│     Cluster 2: [InfoBar]                    ← 1528×88          │
+│     Cluster 3: [Tabs]                       ← 320×41           │
+│     Cluster 4: [Divider]                    ← 1580×1           │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  2. Get Largest Cluster (largestCluster)                       │
+│                                                                 │
+│     If largestCluster.length < 4 → not homogeneous              │
+│                                                                 │
+│  Example: [Card1, Card2, Card3, Card4] = 4 elements ✓          │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  3. Calculate Coefficient of Variation                         │
+│                                                                 │
+│     widthCV  = stddev(widths) / mean(widths)                   │
+│     heightCV = stddev(heights) / mean(heights)                 │
+│                                                                 │
+│     If widthCV > 0.2 || heightCV > 0.2 → not homogeneous       │
+│                                                                 │
+│  Example:                                                       │
+│     widths = [500, 500, 500, 500] → CV = 0 ✓                   │
+│     heights = [78, 78, 78, 78]   → CV = 0 ✓                    │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  4. Type Consistency Check (optional)                          │
+│                                                                 │
+│     Allowed types: FRAME, INSTANCE, COMPONENT, GROUP, RECTANGLE│
+│     If other types exist → not homogeneous                      │
+│                                                                 │
+│  Example: All Cards are FRAME → pass ✓                         │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Output: HomogeneityResult                                      │
+│  {                                                              │
+│    isHomogeneous: true,                                         │
+│    widthCV: 0,                                                  │
+│    heightCV: 0,                                                 │
+│    types: ['FRAME'],                                            │
+│    homogeneousElements: [Card1, Card2, Card3, Card4],          │
+│    outlierElements: [Tabs, Divider, InfoBar]                   │
+│  }                                                              │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Grid Detection Core: detectGridLayout
+
+```
+detectGridLayout(rects) - [detector.ts:1490-1573]
+═══════════════════════════════════════════════════════════════════════════
+
+                    ┌─────────────────────────────────┐
+                    │  detectGridLayout(rects)        │
+                    │  Input: Filtered homogeneous    │
+                    │         elements                │
+                    └───────────────┬─────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  STEP 1: Row Grouping (groupIntoRows)                          │
+│  [detector.ts:1513]                                             │
+│                                                                 │
+│  Use Y-axis overlap detection to group elements into "rows"    │
+│                                                                 │
+│  Input (4 cards):                                               │
+│      ┌────┐   ┌────┐   ┌────┐                                  │
+│      │ 1  │   │ 2  │   │ 3  │   y: 170, height: 78             │
+│      └────┘   └────┘   └────┘                                  │
+│      ┌────┐                                                     │
+│      │ 4  │                     y: 262, height: 78             │
+│      └────┘                                                     │
+│                                                                 │
+│  Output: rows = [[1, 2, 3], [4]]                                │
+│          rowCount = 2                                           │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  STEP 2: Column Alignment Detection (checkColumnAlignment)     │
+│  [detector.ts:1305-1339]                                        │
+│                                                                 │
+│  Check if X positions across rows are aligned                  │
+│                                                                 │
+│  1. Extract all X positions:                                    │
+│     Row 1: [26, 540, 1054]                                      │
+│     Row 2: [26]                                                 │
+│                                                                 │
+│  2. Cluster all X positions (tolerance=3px):                    │
+│     Cluster 1: center=26                                        │
+│     Cluster 2: center=540                                       │
+│     Cluster 3: center=1054                                      │
+│                                                                 │
+│  3. Verify row elements are at cluster positions:               │
+│     Row 1: [26 ≈ 26 ✓, 540 ≈ 540 ✓, 1054 ≈ 1054 ✓]             │
+│     Row 2: [26 ≈ 26 ✓]                                          │
+│                                                                 │
+│  Output: { isAligned: true, alignedPositions: [26, 540, 1054] } │
+│          columnCount = 3                                        │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  STEP 3: Gap Analysis                                           │
+│  [detector.ts:1524-1529]                                        │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Row Gap:                                                │    │
+│  │                                                          │    │
+│  │  Row 1 bottom = max(170+78) = 248                       │    │
+│  │  Row 2 top    = min(262) = 262                          │    │
+│  │  rowGap = 262 - 248 = 14px                              │    │
+│  │                                                          │    │
+│  │  analyzeGaps([14]) → { isConsistent: true, rounded: 16 }│    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Column Gap:                                             │    │
+│  │                                                          │    │
+│  │  Row 1: gap1 = 540 - (26+500) = 14px                    │    │
+│  │         gap2 = 1054 - (540+500) = 14px                  │    │
+│  │                                                          │    │
+│  │  analyzeGaps([14,14]) → { isConsistent: true, rounded: 16 }│ │
+│  └─────────────────────────────────────────────────────────┘    │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  STEP 4: Grid Confidence Calculation (calculateGridConfidence) │
+│  [detector.ts:1446-1479]                                        │
+│                                                                 │
+│  6 Scoring Factors:                                             │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────────┐│
+│  │ Factor                       │ Condition          │ Score  ││
+│  ├────────────────────────────────────────────────────────────┤│
+│  │ 1. Multiple rows (>= 2)      │ 2 rows            │ +0.2   ││
+│  │ 2. Multiple rows (>= 3)      │ 2 rows < 3        │ +0.0   ││
+│  │ 3. Consistent column count   │ [3, 1] inconsistent│ +0.0   ││
+│  │ 4. Column alignment          │ isAligned = true  │ +0.25  ││
+│  │ 5. Row gap consistency       │ isConsistent = true│ +0.1  ││
+│  │ 6. Column gap consistency    │ isConsistent = true│ +0.1  ││
+│  │ 7. Fill rate >= 75%          │ 4/6 = 67% < 75%   │ +0.0   ││
+│  └────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  Total: 0.2 + 0.25 + 0.1 + 0.1 = 0.65                          │
+│  Threshold: 0.6                                                 │
+│  Result: 0.65 >= 0.6 → isGrid = true ✓                         │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  STEP 5-6: Track Size Calculation                              │
+│  [detector.ts:1552-1557]                                        │
+│                                                                 │
+│  trackWidths  = calculateTrackWidths(rows, alignedPositions)   │
+│              = [500, 500, 500]                                 │
+│                                                                 │
+│  trackHeights = calculateTrackHeights(rows)                    │
+│              = [78, 78]                                        │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  STEP 7: Cell Map Building (buildCellMap)                      │
+│  [detector.ts:1556]                                             │
+│                                                                 │
+│  cellMap:                                                       │
+│  ┌─────────────────────────────────────┐                       │
+│  │ Col 0     │ Col 1     │ Col 2       │                       │
+│  ├───────────┼───────────┼─────────────┤                       │
+│  │ Card 0    │ Card 1    │ Card 2      │  Row 0               │
+│  │ Card 3    │ null      │ null        │  Row 1               │
+│  └───────────┴───────────┴─────────────┘                       │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### CSS Grid Generation
+
+```
+generateGridCSS(gridResult) - [optimizer.ts:875-913]
+═══════════════════════════════════════════════════════════════════════════
+
+Input: GridAnalysisResult
+Output: CSS Grid style object
+
+                    ┌─────────────────────────────────┐
+                    │  GridAnalysisResult             │
+                    │  {                              │
+                    │    isGrid: true,                │
+                    │    rowCount: 2,                 │
+                    │    columnCount: 3,              │
+                    │    rowGap: 16,                  │
+                    │    columnGap: 16,               │
+                    │    trackWidths: [500, 500, 500],│
+                    │    trackHeights: [78, 78]       │
+                    │  }                              │
+                    └───────────────┬─────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Generate grid-template-columns                                │
+│                                                                 │
+│  trackWidths = [500, 500, 500]                                 │
+│  → "500px 500px 500px"                                         │
+│                                                                 │
+│  (Can be optimized to repeat(3, 500px) if all same width)      │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Generate grid-template-rows (only if heights differ)          │
+│                                                                 │
+│  trackHeights = [78, 78]                                       │
+│  All row heights same → don't set (use auto)                   │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Generate gap                                                   │
+│                                                                 │
+│  rowGap = 16, columnGap = 16                                   │
+│  rowGap === columnGap → gap: "16px"                            │
+│                                                                 │
+│  If different → gap: "${rowGap}px ${columnGap}px"              │
+└────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Output CSS:                                                    │
+│  {                                                              │
+│    display: "grid",                                             │
+│    gridTemplateColumns: "500px 500px 500px",                   │
+│    gap: "16px"                                                  │
+│  }                                                              │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Core Data Structures
+
+```typescript
+// Grid-related data structures in detector.ts
+═══════════════════════════════════════════════════════════════════════════
+
+// Grid analysis result
+interface GridAnalysisResult {
+  isGrid: boolean;              // whether valid Grid detected
+  confidence: number;           // confidence (0-1)
+  rowCount: number;             // row count
+  columnCount: number;          // column count
+  rowGap: number;               // row gap (px)
+  columnGap: number;            // column gap (px)
+  isRowGapConsistent: boolean;  // is row gap consistent
+  isColumnGapConsistent: boolean; // is column gap consistent
+  trackWidths: number[];        // column widths [col0Width, col1Width, ...]
+  trackHeights: number[];       // row heights [row0Height, row1Height, ...]
+  alignedColumnPositions: number[]; // aligned column X coordinates
+  rows: ElementRect[][];        // grouped row data
+  cellMap: (number | null)[][]; // cell to element index mapping
+}
+
+// Homogeneity analysis result
+interface HomogeneityResult {
+  isHomogeneous: boolean;       // is homogeneous
+  widthCV: number;              // width coefficient of variation
+  heightCV: number;             // height coefficient of variation
+  types: string[];              // element type list
+  homogeneousElements: ElementRect[]; // homogeneous elements
+  outlierElements: ElementRect[];     // outlier elements (not in Grid)
+}
+
+// Size cluster
+interface SizeCluster {
+  width: number;                // cluster representative width
+  height: number;               // cluster representative height
+  elements: ElementRect[];      // elements in this cluster
+  types?: string[];             // element types
+}
+```
+
+### File Path Mapping
+
+| Module                     | File Path                            | Line Range |
+| -------------------------- | ------------------------------------ | ---------- |
+| Grid entry                 | `src/algorithms/layout/optimizer.ts` | 918-961    |
+| Grid CSS generation        | `src/algorithms/layout/optimizer.ts` | 875-913    |
+| Homogeneity filtering      | `src/algorithms/layout/detector.ts`  | 1216-1235  |
+| Homogeneity analysis       | `src/algorithms/layout/detector.ts`  | 1127-1196  |
+| Size clustering            | `src/algorithms/layout/detector.ts`  | 1077-1116  |
+| CV calculation             | `src/algorithms/layout/detector.ts`  | 1057-1067  |
+| Grid detection core        | `src/algorithms/layout/detector.ts`  | 1490-1573  |
+| Column alignment detection | `src/algorithms/layout/detector.ts`  | 1305-1339  |
+| Row gap calculation        | `src/algorithms/layout/detector.ts`  | 1344-1356  |
+| Column gap calculation     | `src/algorithms/layout/detector.ts`  | 1361-1376  |
+| Confidence calculation     | `src/algorithms/layout/detector.ts`  | 1446-1479  |
+| Track width calculation    | `src/algorithms/layout/detector.ts`  | 1381-1404  |
+| Track height calculation   | `src/algorithms/layout/detector.ts`  | 1409-1415  |
+| Cell map building          | `src/algorithms/layout/detector.ts`  | 1420-1441  |
+
+---
+
+_Last updated: 2025-12-06_
