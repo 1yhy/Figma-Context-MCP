@@ -135,7 +135,7 @@ describe("Figma Resources", () => {
         nodes: [
           createMockNode({
             name: "Primary Button",
-            css: {
+            cssStyles: {
               backgroundColor: "#24C790",
               color: "#FFFFFF",
             },
@@ -155,7 +155,7 @@ describe("Figma Resources", () => {
         nodes: [
           createMockNode({
             name: "Heading",
-            css: {
+            cssStyles: {
               fontFamily: "Inter",
               fontSize: "24px",
               fontWeight: "700",
@@ -181,7 +181,7 @@ describe("Figma Resources", () => {
         nodes: [
           createMockNode({
             name: "Card",
-            css: {
+            cssStyles: {
               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
             },
           }),
@@ -198,9 +198,9 @@ describe("Figma Resources", () => {
     it("should deduplicate colors", async () => {
       const mockDesign = createMockDesign({
         nodes: [
-          createMockNode({ css: { backgroundColor: "#FF0000" } }),
-          createMockNode({ css: { backgroundColor: "#FF0000" } }),
-          createMockNode({ css: { backgroundColor: "#00FF00" } }),
+          createMockNode({ cssStyles: { backgroundColor: "#FF0000" } }),
+          createMockNode({ cssStyles: { backgroundColor: "#FF0000" } }),
+          createMockNode({ cssStyles: { backgroundColor: "#00FF00" } }),
         ],
       });
       const mockService = createMockFigmaService(mockDesign);
@@ -216,7 +216,7 @@ describe("Figma Resources", () => {
       const nodes = Array.from({ length: 50 }, (_, i) =>
         createMockNode({
           name: `Node ${i}`,
-          css: { backgroundColor: `#${i.toString(16).padStart(6, "0")}` },
+          cssStyles: { backgroundColor: `#${i.toString(16).padStart(6, "0")}` },
         }),
       );
       const mockDesign = createMockDesign({ nodes });
@@ -235,7 +235,7 @@ describe("Figma Resources", () => {
             children: [
               createMockNode({
                 name: "Child",
-                css: { backgroundColor: "#AABBCC" },
+                cssStyles: { backgroundColor: "#AABBCC" },
               }),
             ],
           }),
@@ -368,8 +368,7 @@ describe("Figma Resources", () => {
             id: "icon-1",
             name: "arrow-right",
             type: "VECTOR",
-            exportInfo: [{ format: "SVG", suffix: "" }],
-            bounds: { width: 24, height: 24 },
+            exportInfo: { type: "IMAGE", format: "SVG" },
           }),
         ],
       });
@@ -386,15 +385,14 @@ describe("Figma Resources", () => {
       });
     });
 
-    it("should identify icons by small size", async () => {
+    it("should identify icons by type VECTOR", async () => {
       const mockDesign = createMockDesign({
         nodes: [
           createMockNode({
             id: "icon-1",
             name: "small-icon",
-            type: "FRAME",
-            exportInfo: [{ format: "SVG", suffix: "" }],
-            bounds: { width: 32, height: 32 },
+            type: "VECTOR",
+            exportInfo: { type: "IMAGE", format: "SVG" },
           }),
         ],
       });
@@ -412,8 +410,7 @@ describe("Figma Resources", () => {
             id: "illustration-1",
             name: "hero-image",
             type: "FRAME",
-            exportInfo: [{ format: "SVG", suffix: "" }],
-            bounds: { width: 400, height: 300 },
+            exportInfo: { type: "IMAGE_GROUP", format: "SVG" },
           }),
         ],
       });
@@ -424,14 +421,14 @@ describe("Figma Resources", () => {
       expect(assets[0].type).toBe("vector");
     });
 
-    it("should find nodes with imageRef", async () => {
+    it("should find nodes with image fills", async () => {
       const mockDesign = createMockDesign({
         nodes: [
           createMockNode({
             id: "img-1",
             name: "photo",
             type: "RECTANGLE",
-            imageRef: "img:abc123",
+            fills: [{ type: "IMAGE", imageRef: "img:abc123" }],
           }),
         ],
       });
@@ -458,12 +455,12 @@ describe("Figma Resources", () => {
                 id: "icon",
                 name: "icon",
                 type: "VECTOR",
-                exportInfo: [{ format: "SVG", suffix: "" }],
+                exportInfo: { type: "IMAGE", format: "SVG" },
               }),
               createMockNode({
                 id: "image",
                 name: "thumbnail",
-                imageRef: "img:xyz",
+                fills: [{ type: "IMAGE", imageRef: "img:xyz" }],
               }),
             ],
           }),
@@ -482,7 +479,7 @@ describe("Figma Resources", () => {
           id: `asset-${i}`,
           name: `Asset ${i}`,
           type: "VECTOR",
-          exportInfo: [{ format: "SVG", suffix: "" }],
+          exportInfo: { type: "IMAGE", format: "SVG" },
         }),
       );
       const mockDesign = createMockDesign({ nodes });

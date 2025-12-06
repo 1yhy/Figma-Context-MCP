@@ -178,6 +178,8 @@ export interface SimplifiedDesign {
   name: string;
   /** Last modified timestamp */
   lastModified: string;
+  /** File version */
+  version?: string;
   /** Thumbnail URL */
   thumbnailUrl: string;
   /** Root nodes */

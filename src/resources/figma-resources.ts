@@ -59,7 +59,7 @@ export async function getFileMetadata(
   return {
     name: file.name,
     lastModified: file.lastModified,
-    version: file.version,
+    version: file.version ?? "",
     pages,
   };
 }
@@ -81,8 +81,8 @@ export async function getStyleTokens(
 
   function extractFromNode(node: SimplifiedNode) {
     // Extract colors from fills
-    if (node.css) {
-      const bgColor = node.css.background || node.css.backgroundColor;
+    if (node.cssStyles) {
+      const bgColor = node.cssStyles.background || node.cssStyles.backgroundColor;
       if (bgColor && !seenColors.has(bgColor)) {
         seenColors.add(bgColor);
         colors.push({
@@ -92,7 +92,7 @@ export async function getStyleTokens(
         });
       }
 
-      const textColor = node.css.color;
+      const textColor = node.cssStyles.color;
       if (textColor && !seenColors.has(textColor)) {
         seenColors.add(textColor);
         colors.push({
@@ -103,26 +103,28 @@ export async function getStyleTokens(
       }
 
       // Extract typography
-      if (node.css.fontFamily && node.css.fontSize) {
-        const fontKey = `${node.css.fontFamily}-${node.css.fontSize}-${node.css.fontWeight || 400}`;
+      if (node.cssStyles.fontFamily && node.cssStyles.fontSize) {
+        const fontKey = `${node.cssStyles.fontFamily}-${node.cssStyles.fontSize}-${node.cssStyles.fontWeight || 400}`;
         if (!seenFonts.has(fontKey)) {
           seenFonts.add(fontKey);
           typography.push({
             name: node.name || "text",
-            fontFamily: node.css.fontFamily,
-            fontSize: parseFloat(String(node.css.fontSize)) || 14,
-            fontWeight: parseFloat(String(node.css.fontWeight)) || 400,
-            lineHeight: node.css.lineHeight ? parseFloat(String(node.css.lineHeight)) : undefined,
+            fontFamily: node.cssStyles.fontFamily,
+            fontSize: parseFloat(String(node.cssStyles.fontSize)) || 14,
+            fontWeight: parseFloat(String(node.cssStyles.fontWeight)) || 400,
+            lineHeight: node.cssStyles.lineHeight
+              ? parseFloat(String(node.cssStyles.lineHeight))
+              : undefined,
           });
         }
       }
 
       // Extract effects (shadows, blur)
-      if (node.css.boxShadow) {
+      if (node.cssStyles.boxShadow) {
         effects.push({
           name: `${node.name || "element"}-shadow`,
           type: "shadow",
-          value: String(node.css.boxShadow),
+          value: String(node.cssStyles.boxShadow),
         });
       }
     }
@@ -207,29 +209,33 @@ export async function getAssetList(
   }> = [];
 
   function findAssets(node: SimplifiedNode) {
-    // Check for exportable assets
-    if (node.exportInfo && node.exportInfo.length > 0) {
+    // Check for exportable assets (exportInfo is a single object, not array)
+    if (node.exportInfo) {
       const isIcon =
         node.type === "VECTOR" ||
         node.type === "BOOLEAN_OPERATION" ||
-        (node.bounds && node.bounds.width <= 64 && node.bounds.height <= 64);
+        node.exportInfo.type === "IMAGE";
 
       assets.push({
         nodeId: node.id,
         name: node.name,
         type: isIcon ? "icon" : "vector",
-        exportFormats: node.exportInfo.map((e) => e.format),
+        exportFormats: [node.exportInfo.format],
       });
     }
 
-    // Check for image fills
-    if (node.imageRef) {
+    // Check for image fills in fills array
+    const imageFill = node.fills?.find(
+      (fill): fill is { type: "IMAGE"; imageRef?: string } =>
+        typeof fill === "object" && "type" in fill && fill.type === "IMAGE",
+    );
+    if (imageFill?.imageRef) {
       assets.push({
         nodeId: node.id,
         name: node.name,
         type: "image",
         exportFormats: ["png", "jpg"],
-        imageRef: node.imageRef,
+        imageRef: imageFill.imageRef,
       });
     }
 

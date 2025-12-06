@@ -81,8 +81,6 @@ function convertJustifyContent(
       return "center";
     case "SPACE_BETWEEN":
       return "space-between";
-    case "BASELINE":
-      return "baseline";
     default:
       return undefined;
   }
